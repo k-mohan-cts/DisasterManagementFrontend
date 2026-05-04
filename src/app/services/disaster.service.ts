@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 })
 export class DisasterService {
   private gatewayUrl = 'http://localhost:8082/api';
+  private reliefUrl = 'http://localhost:8082'; // For ReliefItems and Distributions which don't start with /api in Gateway
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -18,7 +19,7 @@ export class DisasterService {
 
   // Emergencies/Reports
   getEmergencies(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/reports/getAllReports`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.gatewayUrl}/reports/getallreports`, { headers: this.getHeaders() });
   }
 
   createEmergency(report: any): Observable<any> {
@@ -31,32 +32,32 @@ export class DisasterService {
 
   // Incidents
   getIncidents(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/incidents/getAllIncidents`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.gatewayUrl}/incidents/getallincident`, { headers: this.getHeaders() });
   }
 
   // Recovery Programs
   getRecoveryPrograms(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/programs/getAllPrograms`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.gatewayUrl}/programs/viewAll`, { headers: this.getHeaders() });
   }
 
   // Resources
   getResources(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/resources/getAllResources`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.gatewayUrl}/resources/viewAll`, { headers: this.getHeaders() });
   }
 
   // Shelters
   getShelters(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/shelters/getAllShelters`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.gatewayUrl}/shelters/getShelters`, { headers: this.getHeaders() });
   }
 
   // Relief Items
   getReliefItems(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/ReliefItems/getAllReliefItems`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.reliefUrl}/ReliefItems/getReliefItem`, { headers: this.getHeaders() });
   }
 
   // Distributions
   getDistributions(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/Distributions/getAllDistributions`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.reliefUrl}/Distributions/getDistribution`, { headers: this.getHeaders() });
   }
 
   // Audits
@@ -66,12 +67,20 @@ export class DisasterService {
 
   // Compliance Records
   getComplianceRecords(): Observable<any[]> {
-    // Assuming this endpoint exists based on the controller names
-    return this.http.get<any[]>(`${this.gatewayUrl}/compliance-records/all`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.gatewayUrl}/compliance-records/getAllComplianceRecord`, { headers: this.getHeaders() });
   }
 
   // Audit Logs
-  getAuditLogs(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/logs/all`, { headers: this.getHeaders() });
+  getAuditLogs(): Observable<any> {
+    return this.http.get<any>(`${this.gatewayUrl}/logs/GetAllLogs`, { headers: this.getHeaders() });
+  }
+
+  // Documents
+  uploadDocument(doc: any): Observable<any> {
+    return this.http.post(`${this.gatewayUrl}/documents/upload`, doc, { headers: this.getHeaders() });
+  }
+
+  getDocumentById(id: number): Observable<any> {
+    return this.http.get(`${this.gatewayUrl}/documents/getDocById/${id}`, { headers: this.getHeaders() });
   }
 }
