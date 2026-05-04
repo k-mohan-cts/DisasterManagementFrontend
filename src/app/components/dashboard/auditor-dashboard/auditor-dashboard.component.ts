@@ -51,7 +51,7 @@ export class AuditorDashboardComponent implements OnInit {
 
     this.disasterService.getComplianceRecords().subscribe({
       next: (data) => {
-        if (data.length > 0) {
+        if (data && data.length > 0) {
           const compliantCount = data.filter(r => r.result === 'COMPLIANT').length;
           this.complianceRate = Math.round((compliantCount / data.length) * 100);
           this.pendingReviews = data.filter(r => r.result === 'PENDING_REVIEW').length;
@@ -67,7 +67,7 @@ export class AuditorDashboardComponent implements OnInit {
         alert('Audit initiated successfully!');
         this.showAuditModal = false;
         this.loadStats();
-        this.resetAuditForm();
+        this.newAudit = { officerId: null, scope: '', findings: '', status: 'SCHEDULED' };
       },
       error: (err) => {
         console.error('Failed to create audit', err);
@@ -82,31 +82,12 @@ export class AuditorDashboardComponent implements OnInit {
         alert('Compliance record added successfully!');
         this.showComplianceModal = false;
         this.loadStats();
-        this.resetComplianceForm();
+        this.newCompliance = { entityId: null, type: 'SAFETY', officerId: null, result: 'COMPLIANT', notes: '' };
       },
       error: (err) => {
         console.error('Failed to create compliance record', err);
         alert('Failed to add compliance record. Please check your inputs.');
       }
     });
-  }
-
-  private resetAuditForm() {
-    this.newAudit = {
-      officerId: null,
-      scope: '',
-      findings: '',
-      status: 'SCHEDULED'
-    };
-  }
-
-  private resetComplianceForm() {
-    this.newCompliance = {
-      entityId: null,
-      type: 'SAFETY',
-      officerId: null,
-      result: 'COMPLIANT',
-      notes: ''
-    };
   }
 }

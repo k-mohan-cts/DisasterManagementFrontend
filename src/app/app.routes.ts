@@ -94,17 +94,17 @@ export const routes: Routes = [
   },
   { 
     path: 'compliance-records', 
-    loadComponent: () => import('./components/dashboard/auditor-dashboard/auditor-dashboard.component').then(m => m.AuditorDashboardComponent),
+    loadComponent: () => import('./components/dashboard/auditor-dashboard/compliance-records/compliance-records.component').then(m => m.ComplianceRecordsComponent),
     canActivate: [authGuard]
   },
   { 
     path: 'audit-management', 
-    loadComponent: () => import('./components/dashboard/auditor-dashboard/auditor-dashboard.component').then(m => m.AuditorDashboardComponent),
+    loadComponent: () => import('./components/dashboard/auditor-dashboard/audit-management/audit-management.component').then(m => m.AuditManagementComponent),
     canActivate: [authGuard]
   },
   { 
     path: 'system-logs', 
-    loadComponent: () => import('./components/dashboard/auditor-dashboard/auditor-dashboard.component').then(m => m.AuditorDashboardComponent),
+    loadComponent: () => import('./components/dashboard/auditor-dashboard/system-logs/system-logs.component').then(m => m.SystemLogsComponent),
     canActivate: [authGuard]
   },
 

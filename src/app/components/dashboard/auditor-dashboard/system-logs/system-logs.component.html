@@ -1,0 +1,71 @@
+<div class="dashboard-container">
+    <app-sidebar role="AUDITOR"></app-sidebar>
+
+    <main class="main-content">
+        <header class="topbar">
+            <h1>Compliance & Audits</h1>
+            <div class="topbar-right">
+                <span class="bell"></span>
+                <span class="role-chip">Compliance</span>
+                <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sign out</button>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 mb-1">System Audit Logs</h2>
+                <p class="text-gray-500 text-sm">High-performance viewer for system-wide activities and security events.</p>
+            </div>
+
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" [(ngModel)]="searchTerm" placeholder="Search logs by user, action, or resource...">
+                </div>
+                <div class="filter-tags">
+                    <button class="tag active">All</button>
+                    <button class="tag">UNAUTHORIZED_ACCESS</button>
+                    <button class="tag">BUDGET_OVERRIDE</button>
+                    <button class="tag">DATA_DELETION</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Log ID</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Resource</th>
+                            <th>Timestamp</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let log of getFilteredLogs()">
+                            <td><a href="#" class="id-link">{{log.id}}</a></td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="avatar">{{log.user.charAt(0)}}</div>
+                                    <div>
+                                        <div class="user-name">{{log.user}}</div>
+                                        <div class="user-role">{{log.role}}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="action-badge" [ngClass]="log.action.toLowerCase()">
+                                    {{log.action}}
+                                </span>
+                            </td>
+                            <td class="resource-cell">{{log.resource}}</td>
+                            <td class="text-gray">{{log.timestamp}}</td>
+                            <td class="ip-cell">{{log.ip}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
