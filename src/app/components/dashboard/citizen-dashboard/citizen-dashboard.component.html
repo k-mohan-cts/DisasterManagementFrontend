@@ -31,7 +31,7 @@
                         <h3><i class="fas fa- megaphone"></i> Quick Report</h3>
                     </div>
                     <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Report an emergency or request immediate assistance.</p>
-                    <button class="emergency-btn">Report Emergency</button>
+                    <button class="emergency-btn" (click)="showReportModal = true">Report Emergency</button>
                     <button class="request-btn">Request Relief</button>
                 </div>
 
@@ -78,6 +78,36 @@
                     <div id="map"></div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Emergency Report Modal -->
+    <div class="modal-overlay" *ngIf="showReportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Report Emergency</h2>
+                <button class="close-modal" (click)="showReportModal = false">&times;</button>
+            </div>
+            <form (ngSubmit)="submitReport()">
+                <div class="input-group">
+                    <label>Type of Emergency</label>
+                    <select name="type" [(ngModel)]="newReport.type">
+                        <option *ngFor="let t of emergencyTypes" [value]="t">{{t}}</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Location Name</label>
+                    <input type="text" name="location" [(ngModel)]="newReport.location" placeholder="e.g. Riverside District">
+                </div>
+                <div class="input-group">
+                    <label>Description</label>
+                    <textarea name="description" [(ngModel)]="newReport.description" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="showReportModal = false">Cancel</button>
+                    <button type="submit" class="btn-emergency-submit">Submit Report</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -1,19 +1,27 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
+import { DisasterService } from '../../../services/disaster.service';
 
 @Component({
   selector: 'app-auditor-dashboard',
   standalone: true,
   imports: [CommonModule, SidebarComponent],
-  template: `
-    <div style="display: flex;">
-      <app-sidebar role="AUDITOR"></app-sidebar>
-      <div style="flex: 1; padding: 20px;">
-        <h1>Auditor Dashboard</h1>
-        <p>Welcome, Auditor. Here you can monitor compliance records and audit logs.</p>
-      </div>
-    </div>
-  `
+  templateUrl: './auditor-dashboard.component.html',
+  styleUrl: './auditor-dashboard.component.css'
 })
-export class AuditorDashboardComponent {}
+export class AuditorDashboardComponent implements OnInit {
+  complianceRate = 50;
+  pendingReviews = 1;
+  activeAudits = 0;
+  highRiskEntities = 0;
+
+  constructor(private disasterService: DisasterService) {}
+
+  ngOnInit() {
+    this.disasterService.getAudits().subscribe(data => {
+      this.activeAudits = data.length;
+    });
+    // Add more logic to fetch real stats
+  }
+}

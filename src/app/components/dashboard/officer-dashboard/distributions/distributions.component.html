@@ -1,0 +1,39 @@
+<div class="app-shell">
+    <app-sidebar role="OFFICER"></app-sidebar>
+    <div class="content">
+        <header class="topbar">
+            <h1>Distributions</h1>
+            <div class="topbar-right">
+                <button class="role-chip">Officer</button>
+            </div>
+        </header>
+        <main class="main">
+            <div class="page">
+                <div class="page-head">
+                    <h2>Relief Distributions</h2>
+                    <button class="btn btn-operations">+ New Distribution</button>
+                </div>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Recipient</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let d of distributions">
+                                <td><strong>{{d.itemName}}</strong></td>
+                                <td>{{d.recipientName}}</td>
+                                <td>{{d.location}}</td>
+                                <td><span class="pill" [ngClass]="'pill-' + d.status.toLowerCase()">{{d.status}}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>

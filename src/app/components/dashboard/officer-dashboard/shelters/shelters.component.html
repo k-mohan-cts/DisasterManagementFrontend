@@ -1,0 +1,39 @@
+<div class="app-shell">
+    <app-sidebar role="OFFICER"></app-sidebar>
+    <div class="content">
+        <header class="topbar">
+            <h1>Shelters</h1>
+            <div class="topbar-right">
+                <button class="role-chip">Officer</button>
+            </div>
+        </header>
+        <main class="main">
+            <div class="page">
+                <div class="page-head">
+                    <h2>Shelter Management</h2>
+                    <button class="btn btn-operations">+ Add Shelter</button>
+                </div>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shelter Name</th>
+                                <th>Location</th>
+                                <th>Capacity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let s of shelters">
+                                <td><strong>{{s.name}}</strong></td>
+                                <td>{{s.location}}</td>
+                                <td>{{s.capacity}}% full</td>
+                                <td><span class="pill" [ngClass]="'pill-' + s.status.toLowerCase()">{{s.status}}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
