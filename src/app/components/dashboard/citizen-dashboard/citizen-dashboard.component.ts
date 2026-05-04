@@ -53,8 +53,8 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
 
   loadData() {
     this.disasterService.getEmergencies().subscribe({
-      next: (data) => {
-        this.reports = data.map(r => ({
+      next: (data: any[]) => {
+        this.reports = data.map((r: any) => ({
           type: r.type,
           date: new Date(r.reportDate).toLocaleDateString(),
           status: r.status
@@ -63,8 +63,8 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
     });
 
     this.disasterService.getShelters().subscribe({
-      next: (data) => {
-        this.shelters = data.map(s => ({
+      next: (data: any[]) => {
+        this.shelters = data.map((s: any) => ({
           name: s.name,
           capacity: Math.floor(Math.random() * 100),
           color: '#14b8a6'
@@ -90,12 +90,12 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
 
   submitReport() {
     this.disasterService.createEmergency(this.newReport).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         alert('Report submitted successfully!');
         this.showReportModal = false;
         this.loadData();
       },
-      error: (err) => alert('Failed to submit report')
+      error: (err: any) => alert('Failed to submit report')
     });
   }
 }

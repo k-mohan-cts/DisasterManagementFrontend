@@ -21,7 +21,7 @@ export class EmergenciesComponent implements OnInit {
 
   loadEmergencies() {
     this.disasterService.getEmergencies().subscribe({
-      next: (data) => {
+      next: (data: any[]) => {
         this.emergencies = data;
       }
     });
@@ -33,7 +33,8 @@ export class EmergenciesComponent implements OnInit {
       next: () => {
         alert('Status updated to ' + status);
         this.loadEmergencies();
-      }
+      },
+      error: (err: any) => console.error('Error updating status', err)
     });
   }
 }
