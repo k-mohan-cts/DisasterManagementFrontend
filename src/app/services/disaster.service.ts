@@ -65,9 +65,17 @@ export class DisasterService {
     return this.http.get<any[]>(`${this.gatewayUrl}/audits/all`, { headers: this.getHeaders() });
   }
 
+  createAudit(audit: any): Observable<any> {
+    return this.http.post(`${this.gatewayUrl}/audits/create`, audit, { headers: this.getHeaders() });
+  }
+
   // Compliance Records
   getComplianceRecords(): Observable<any[]> {
     return this.http.get<any[]>(`${this.gatewayUrl}/compliance-records/getAllComplianceRecord`, { headers: this.getHeaders() });
+  }
+
+  createComplianceRecord(record: any): Observable<any> {
+    return this.http.post(`${this.gatewayUrl}/compliance-records/createComplianceRecord`, record, { headers: this.getHeaders() });
   }
 
   // Audit Logs

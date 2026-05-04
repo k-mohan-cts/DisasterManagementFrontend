@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DisasterService } from '../../../services/disaster.service';
+import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 declare let L: any;
@@ -19,7 +20,7 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
   map: any;
   
   newReport = {
-    citizenId: 1, // This should come from auth
+    citizenId: 0,
     location: '',
     type: 'FIRE',
     latitude: 0,
@@ -29,9 +30,13 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
 
   emergencyTypes = ['FIRE', 'FLOOD', 'EARTHQUAKE', 'MEDICAL', 'OTHER'];
 
-  constructor(private disasterService: DisasterService) {}
+  constructor(
+    private disasterService: DisasterService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
+    this.newReport.citizenId = this.authService.getUserId() || 0;
     this.loadData();
     // Get current location
     if (navigator.geolocation) {

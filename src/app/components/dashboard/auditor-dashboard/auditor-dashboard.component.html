@@ -17,8 +17,8 @@
                     <p>Monitor compliance health and audit activities across all relief operations</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn-primary">+ Add Record</button>
-                    <button class="btn-secondary">Initiate Audit</button>
+                    <button class="btn-primary" (click)="showComplianceModal = true">+ Add Record</button>
+                    <button class="btn-secondary" (click)="showAuditModal = true">Initiate Audit</button>
                 </div>
             </div>
 
@@ -81,5 +81,85 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Audit Modal -->
+    <div class="modal-overlay" *ngIf="showAuditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Initiate New Audit</h2>
+                <button class="close-modal" (click)="showAuditModal = false">&times;</button>
+            </div>
+            <form (ngSubmit)="submitAudit()">
+                <div class="input-group">
+                    <label>Officer ID</label>
+                    <input type="number" name="officerId" [(ngModel)]="newAudit.officerId" required>
+                </div>
+                <div class="input-group">
+                    <label>Scope</label>
+                    <input type="text" name="scope" [(ngModel)]="newAudit.scope" placeholder="e.g. Food Distribution Q1" required>
+                </div>
+                <div class="input-group">
+                    <label>Audit Type</label>
+                    <select name="status" [(ngModel)]="newAudit.status">
+                        <option value="SCHEDULED">Scheduled</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Findings</label>
+                    <textarea name="findings" [(ngModel)]="newAudit.findings"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="showAuditModal = false">Cancel</button>
+                    <button type="submit" class="btn-submit">Create Audit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Compliance Modal -->
+    <div class="modal-overlay" *ngIf="showComplianceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Compliance Record</h2>
+                <button class="close-modal" (click)="showComplianceModal = false">&times;</button>
+            </div>
+            <form (ngSubmit)="submitCompliance()">
+                <div class="input-group">
+                    <label>Entity ID</label>
+                    <input type="number" name="entityId" [(ngModel)]="newCompliance.entityId" required>
+                </div>
+                <div class="input-group">
+                    <label>Officer ID</label>
+                    <input type="number" name="officerId" [(ngModel)]="newCompliance.officerId" required>
+                </div>
+                <div class="input-group">
+                    <label>Compliance Type</label>
+                    <select name="type" [(ngModel)]="newCompliance.type">
+                        <option value="ENVIRONMENTAL">Environmental</option>
+                        <option value="SAFETY">Safety</option>
+                        <option value="FINANCIAL">Financial</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Result</label>
+                    <select name="result" [(ngModel)]="newCompliance.result">
+                        <option value="COMPLIANT">Compliant</option>
+                        <option value="NON_COMPLIANT">Non Compliant</option>
+                        <option value="PENDING_REVIEW">Pending Review</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Notes</label>
+                    <textarea name="notes" [(ngModel)]="newCompliance.notes"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="showComplianceModal = false">Cancel</button>
+                    <button type="submit" class="btn-submit">Add Record</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>

@@ -3,9 +3,6 @@ import { LanderComponent } from './components/auth/lander/lander.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { SignupComponent } from './components/auth/signup/signup.component';
 import { authGuard } from './guards/auth.guard';
-import { CitizenDashboardComponent } from './components/dashboard/citizen-dashboard/citizen-dashboard.component';
-import { ManagerDashboardComponent } from './components/dashboard/manager-dashboard/manager-dashboard.component';
-import { OfficerDashboardComponent } from './components/dashboard/officer-dashboard/officer-dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'lander', pathMatch: 'full' },
@@ -92,6 +89,21 @@ export const routes: Routes = [
   // Auditor Dashboards
   { 
     path: 'auditor-dashboard', 
+    loadComponent: () => import('./components/dashboard/auditor-dashboard/auditor-dashboard.component').then(m => m.AuditorDashboardComponent),
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'compliance-records', 
+    loadComponent: () => import('./components/dashboard/auditor-dashboard/auditor-dashboard.component').then(m => m.AuditorDashboardComponent),
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'audit-management', 
+    loadComponent: () => import('./components/dashboard/auditor-dashboard/auditor-dashboard.component').then(m => m.AuditorDashboardComponent),
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'system-logs', 
     loadComponent: () => import('./components/dashboard/auditor-dashboard/auditor-dashboard.component').then(m => m.AuditorDashboardComponent),
     canActivate: [authGuard]
   },
