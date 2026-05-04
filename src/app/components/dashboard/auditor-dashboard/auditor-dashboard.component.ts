@@ -43,21 +43,21 @@ export class AuditorDashboardComponent implements OnInit {
 
   loadStats() {
     this.disasterService.getAudits().subscribe({
-      next: (data) => {
+      next: (data: any[]) => {
         this.activeAudits = data.length;
       },
-      error: (err) => console.error('Error fetching audits', err)
+      error: (err: any) => console.error('Error fetching audits', err)
     });
 
     this.disasterService.getComplianceRecords().subscribe({
-      next: (data) => {
+      next: (data: any[]) => {
         if (data && data.length > 0) {
-          const compliantCount = data.filter(r => r.result === 'COMPLIANT').length;
+          const compliantCount = data.filter((r: any) => r.result === 'COMPLIANT').length;
           this.complianceRate = Math.round((compliantCount / data.length) * 100);
-          this.pendingReviews = data.filter(r => r.result === 'PENDING_REVIEW').length;
+          this.pendingReviews = data.filter((r: any) => r.result === 'PENDING_REVIEW').length;
         }
       },
-      error: (err) => console.error('Error fetching compliance records', err)
+      error: (err: any) => console.error('Error fetching compliance records', err)
     });
   }
 
@@ -69,7 +69,7 @@ export class AuditorDashboardComponent implements OnInit {
         this.loadStats();
         this.newAudit = { officerId: null, scope: '', findings: '', status: 'SCHEDULED' };
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Failed to create audit', err);
         alert('Failed to initiate audit. Please check your inputs.');
       }
@@ -84,7 +84,7 @@ export class AuditorDashboardComponent implements OnInit {
         this.loadStats();
         this.newCompliance = { entityId: null, type: 'SAFETY', officerId: null, result: 'COMPLIANT', notes: '' };
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Failed to create compliance record', err);
         alert('Failed to add compliance record. Please check your inputs.');
       }

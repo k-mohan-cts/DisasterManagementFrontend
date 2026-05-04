@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
-import { DisasterService } from '../../../../../services/disaster.service';
+import { DisasterService } from '../../../../services/disaster.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -36,13 +36,13 @@ export class SystemLogsComponent implements OnInit {
           ip: l.ipAddress || '0.0.0.0'
         }));
       },
-      error: (err) => console.error('Error fetching logs', err)
+      error: (err: any) => console.error('Error fetching logs', err)
     });
   }
 
   getFilteredLogs() {
     if (!this.searchTerm) return this.logs;
-    return this.logs.filter(l => 
+    return this.logs.filter((l: any) => 
       l.user.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       l.action.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       l.resource.toLowerCase().includes(this.searchTerm.toLowerCase())

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
-import { DisasterService } from '../../../../../services/disaster.service';
+import { DisasterService } from '../../../../services/disaster.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -15,7 +15,7 @@ export class AuditManagementComponent implements OnInit {
   audits: any[] = [];
   showModal = false;
   
-  newAudit = {
+  newAudit: any = {
     officerId: null,
     scope: '',
     findings: '',
@@ -30,8 +30,8 @@ export class AuditManagementComponent implements OnInit {
 
   loadAudits() {
     this.disasterService.getAudits().subscribe({
-      next: (data) => {
-        this.audits = data.map(a => ({
+      next: (data: any[]) => {
+        this.audits = data.map((a: any) => ({
           id: 'AUD-' + a.auditId.toString().padStart(4, '0'),
           officerId: 'USR-' + a.officerId,
           scope: a.scope,
@@ -40,7 +40,7 @@ export class AuditManagementComponent implements OnInit {
           status: a.status
         }));
       },
-      error: (err) => console.error('Error fetching audits', err)
+      error: (err: any) => console.error('Error fetching audits', err)
     });
   }
 
@@ -52,7 +52,7 @@ export class AuditManagementComponent implements OnInit {
         this.loadAudits();
         this.newAudit = { officerId: null, scope: '', findings: '', status: 'SCHEDULED' };
       },
-      error: (err) => alert('Failed to initiate audit')
+      error: (err: any) => alert('Failed to initiate audit')
     });
   }
 }

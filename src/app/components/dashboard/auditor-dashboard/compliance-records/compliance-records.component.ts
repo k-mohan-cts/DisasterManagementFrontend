@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
-import { DisasterService } from '../../../../../services/disaster.service';
+import { DisasterService } from '../../../../services/disaster.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -15,7 +15,7 @@ export class ComplianceRecordsComponent implements OnInit {
   records: any[] = [];
   showModal = false;
   
-  newRecord = {
+  newRecord: any = {
     entityId: null,
     type: 'SAFETY',
     officerId: null,
@@ -31,8 +31,8 @@ export class ComplianceRecordsComponent implements OnInit {
 
   loadRecords() {
     this.disasterService.getComplianceRecords().subscribe({
-      next: (data) => {
-        this.records = data.map(r => ({
+      next: (data: any[]) => {
+        this.records = data.map((r: any) => ({
           id: 'COMP-' + r.recordId.toString().padStart(4, '0'),
           entityId: '#' + r.entityId,
           type: r.type,
@@ -42,7 +42,7 @@ export class ComplianceRecordsComponent implements OnInit {
           notes: r.notes
         }));
       },
-      error: (err) => console.error('Error fetching compliance records', err)
+      error: (err: any) => console.error('Error fetching compliance records', err)
     });
   }
 
@@ -54,7 +54,7 @@ export class ComplianceRecordsComponent implements OnInit {
         this.loadRecords();
         this.newRecord = { entityId: null, type: 'SAFETY', officerId: null, result: 'COMPLIANT', notes: '' };
       },
-      error: (err) => alert('Failed to add record')
+      error: (err: any) => alert('Failed to add record')
     });
   }
 }
