@@ -3,6 +3,9 @@ import { LanderComponent } from './components/auth/lander/lander.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { SignupComponent } from './components/auth/signup/signup.component';
 import { authGuard } from './guards/auth.guard';
+import { CitizenDashboardComponent } from './components/dashboard/citizen-dashboard/citizen-dashboard.component';
+import { ManagerDashboardComponent } from './components/dashboard/manager-dashboard/manager-dashboard.component';
+import { OfficerDashboardComponent } from './components/dashboard/officer-dashboard/officer-dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'lander', pathMatch: 'full' },
