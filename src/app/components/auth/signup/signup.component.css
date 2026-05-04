@@ -1,0 +1,111 @@
+:root {
+    --brand-blue: #1a3c5a; 
+    --accent-teal: #26a69a;
+}
+
+.background-provider {
+    width: 100%;
+    height: 100vh;
+    background-image: url('../../../../assets/images/bgg.png'); 
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.signup-card {
+    width: 450px;
+    max-height: 85vh;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.login-submit-btn {
+    width: 100%;
+    padding: 0.85rem;
+    background-color: #1a3c5a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 1rem;
+}
+
+.scroll-content {
+    padding: 30px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1a3c5a transparent;
+}
+
+.scroll-content::-webkit-scrollbar {
+    width: 6px;
+}
+.scroll-content::-webkit-scrollbar-thumb {
+    background: #1a3c5a;
+    border-radius: 10px;
+}
+
+.signup-title {
+    color: #1a3c5a;
+    font-size: 2rem;
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.input-group {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    color: #1a3c5a;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.field {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.field::placeholder {
+    color: #9ca3af;
+}
+
+.footer-text {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: #1a3c5a;
+}
+
+.footer-text a {
+    color: #1a3c5a;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.footer-text a:hover {
+    text-decoration: underline;
+}

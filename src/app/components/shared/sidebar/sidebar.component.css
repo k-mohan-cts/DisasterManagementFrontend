@@ -1,0 +1,134 @@
+.sidebar {
+    height: 100vh;
+    width: 260px;
+    background-color: #1a3345;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', sans-serif;
+}
+
+.logo-container {
+    padding: 20px 20px 10px 20px;
+    text-align: center;
+}
+
+.logo-box {
+    background: white;
+    color: #1a3345;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 20px;
+}
+
+.nav-section {
+    margin-bottom: 25px;
+}
+
+.nav-title {
+    font-size: 11px;
+    color: #9ab0bf;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 24px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    margin: 0 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.nav-item i {
+    margin-right: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+}
+
+.user-profile-container {
+    padding: 20px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #1a3345;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #2a4c63;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #4ade80;
+}
+
+.user-info h4 {
+    font-size: 14px;
+    margin: 0;
+    font-weight: 600;
+}
+
+.user-info p {
+    font-size: 12px;
+    color: #4ade80;
+    margin: 0;
+}
+
+.logout-container {
+    margin-top: 15px;
+}
+
+.logout-btn {
+    padding: 6px 12px;
+    background: white;
+    color: #1a3345;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
