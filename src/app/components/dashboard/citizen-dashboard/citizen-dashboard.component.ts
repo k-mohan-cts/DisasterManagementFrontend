@@ -1,14 +1,14 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../services/disaster.service';
 import { FormsModule } from '@angular/forms';
+import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 declare let L: any;
 
 @Component({
   selector: 'app-citizen-dashboard',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, FormsModule],
+  imports: [CommonModule, FormsModule, SidebarComponent],
   templateUrl: './citizen-dashboard.component.html',
   styleUrl: './citizen-dashboard.component.css'
 })
