@@ -1,0 +1,39 @@
+<div class="dashboard-container">
+    <app-sidebar role="MANAGER"></app-sidebar>
+    
+    <div class="main-wrapper">
+        <header>
+            <h2>Recovery Programs</h2>
+            <div class="header-actions">
+                <button class="pill-btn">Manager</button>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="card">
+                <div class="table-header">
+                    <h3>Active Programs</h3>
+                    <button class="btn-create">+ New Program</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Program Name</th>
+                            <th>Budget</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let p of programs">
+                            <td><strong>{{p.programName}}</strong></td>
+                            <td>${{p.budget}}</td>
+                            <td><span class="badge" [ngClass]="'badge-' + p.status.toLowerCase()">{{p.status}}</span></td>
+                            <td><button class="btn-view">Details</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

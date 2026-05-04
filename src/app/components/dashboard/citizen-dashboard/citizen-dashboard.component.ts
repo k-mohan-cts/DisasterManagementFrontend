@@ -1,53 +1,96 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../services/disaster.service';
+import { FormsModule } from '@angular/forms';
+declare let L: any;
 
 @Component({
   selector: 'app-citizen-dashboard',
   standalone: true,
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule, SidebarComponent, FormsModule],
   templateUrl: './citizen-dashboard.component.html',
   styleUrl: './citizen-dashboard.component.css'
 })
-export class CitizenDashboardComponent implements OnInit {
-  reports: any[] = [
-    { type: 'Medical Emergency', date: 'Oct 24, 2023', status: 'VALIDATED' },
-    { type: 'Flood Alert', date: 'Oct 15, 2023', status: 'RESOLVED' }
-  ];
+export class CitizenDashboardComponent implements OnInit, AfterViewInit {
+  reports: any[] = [];
+  shelters: any[] = [];
+  showReportModal = false;
+  map: any;
+  
+  newReport = {
+    citizenId: 1, // This should come from auth
+    location: '',
+    type: 'FIRE',
+    latitude: 0,
+    longitude: 0,
+    description: ''
+  };
 
-  shelters: any[] = [
-    { name: 'Central Community Hall', capacity: 85, color: '#14b8a6' },
-    { name: 'North Secondary School', capacity: 42, color: '#3b82f6' }
-  ];
+  emergencyTypes = ['FIRE', 'FLOOD', 'EARTHQUAKE', 'MEDICAL', 'OTHER'];
 
   constructor(private disasterService: DisasterService) {}
 
   ngOnInit() {
+    this.loadData();
+    // Get current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.newReport.latitude = position.coords.latitude;
+        this.newReport.longitude = position.coords.longitude;
+      });
+    }
+  }
+
+  ngAfterViewInit() {
+    this.initMap();
+  }
+
+  loadData() {
     this.disasterService.getEmergencies().subscribe({
       next: (data) => {
-        if (data && data.length > 0) {
-          this.reports = data.map(r => ({
-            type: r.type || 'Emergency',
-            date: new Date(r.reportDate).toLocaleDateString(),
-            status: r.status || 'PENDING'
-          }));
-        }
-      },
-      error: (err) => console.error('Error fetching emergencies', err)
+        this.reports = data.map(r => ({
+          type: r.type,
+          date: new Date(r.reportDate).toLocaleDateString(),
+          status: r.status
+        }));
+      }
     });
 
     this.disasterService.getShelters().subscribe({
       next: (data) => {
-        if (data && data.length > 0) {
-          this.shelters = data.map(s => ({
-            name: s.name,
-            capacity: Math.floor(Math.random() * 100), // Dummy capacity for now
-            color: '#14b8a6'
-          }));
-        }
+        this.shelters = data.map(s => ({
+          name: s.name,
+          capacity: Math.floor(Math.random() * 100),
+          color: '#14b8a6'
+        }));
+      }
+    });
+  }
+
+  initMap() {
+    this.map = L.map('map').setView([this.newReport.latitude || 20.5937, this.newReport.longitude || 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+
+    this.map.on('click', (e: any) => {
+      this.newReport.latitude = e.latlng.lat;
+      this.newReport.longitude = e.latlng.lng;
+      L.marker([e.latlng.lat, e.latlng.lng]).addTo(this.map)
+        .bindPopup('Report Location Selected')
+        .openPopup();
+    });
+  }
+
+  submitReport() {
+    this.disasterService.createEmergency(this.newReport).subscribe({
+      next: (res) => {
+        alert('Report submitted successfully!');
+        this.showReportModal = false;
+        this.loadData();
       },
-      error: (err) => console.error('Error fetching shelters', err)
+      error: (err) => alert('Failed to submit report')
     });
   }
 }

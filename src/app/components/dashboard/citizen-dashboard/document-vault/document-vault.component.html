@@ -1,0 +1,52 @@
+<div class="dashboard-container">
+    <app-sidebar role="CITIZEN"></app-sidebar>
+    
+    <div class="main-wrapper">
+        <nav class="top-navbar">
+            <div class="user-actions">
+                <i class="far fa-bell"></i>
+                <div class="user-circle">J</div>
+            </div>
+        </nav>
+
+        <main class="content-container">
+            <header class="page-header">
+                <h1>Document Vault</h1>
+                <p>Manage and track the verification status of your identity and relief documents.</p>
+            </header>
+
+            <div class="vault-card">
+                <table class="vault-table">
+                    <thead>
+                        <tr>
+                            <th>Document Name</th>
+                            <th>Type</th>
+                            <th>Upload Date</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let doc of documents">
+                            <td>
+                                <div class="doc-info">
+                                    <i class="far" [ngClass]="doc.type === 'PDF' ? 'fa-file-pdf' : (doc.type === 'Image' ? 'fa-file-image' : 'fa-file-word')" class="doc-icon"></i>
+                                    <span class="doc-name">{{doc.name}}</span>
+                                </div>
+                            </td>
+                            <td class="text-light">{{doc.type}}</td>
+                            <td class="text-light">{{doc.date}}</td>
+                            <td>
+                                <span class="status-tag" [ngClass]="getStatusClass(doc.status)">
+                                    <i class="fas" [ngClass]="doc.status === 'VERIFIED' ? 'fa-check-circle' : (doc.status === 'PENDING' ? 'fa-clock' : 'fa-times-circle')"></i> 
+                                    {{doc.status | titlecase}}
+                                </span>
+                            </td>
+                            <td><button class="action-btn"><i class="fas fa-ellipsis-v"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>

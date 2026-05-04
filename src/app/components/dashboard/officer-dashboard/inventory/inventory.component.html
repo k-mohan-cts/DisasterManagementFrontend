@@ -1,0 +1,39 @@
+<div class="app-shell">
+    <app-sidebar role="OFFICER"></app-sidebar>
+    <div class="content">
+        <header class="topbar">
+            <h1>Relief Inventory</h1>
+            <div class="topbar-right">
+                <button class="role-chip">Officer</button>
+            </div>
+        </header>
+        <main class="main">
+            <div class="page">
+                <div class="page-head">
+                    <h2>Inventory Management</h2>
+                    <button class="btn btn-operations">+ Add Item</button>
+                </div>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of items">
+                                <td><strong>{{item.itemName}}</strong></td>
+                                <td>{{item.category}}</td>
+                                <td>{{item.quantity}}</td>
+                                <td><span class="pill" [ngClass]="'pill-' + item.status.toLowerCase()">{{item.status}}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
