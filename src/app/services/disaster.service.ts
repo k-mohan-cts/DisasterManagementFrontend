@@ -79,8 +79,8 @@ export class DisasterService {
   }
 
   // Audit Logs
-  getAuditLogs(): Observable<any> {
-    return this.http.get<any>(`${this.gatewayUrl}/logs/GetAllLogs`, { headers: this.getHeaders() });
+  getAuditLogs(page: number = 0, size: number = 10): Observable<any> {
+    return this.http.get<any>(`${this.gatewayUrl}/logs/GetAllLogs?page=${page}&size=${size}`, { headers: this.getHeaders() });
   }
 
   // Documents

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../../services/disaster.service';
@@ -22,7 +22,7 @@ export class AuditManagementComponent implements OnInit {
     status: 'SCHEDULED'
   };
 
-  constructor(private disasterService: DisasterService) {}
+  constructor(private disasterService: DisasterService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadAudits();
@@ -30,15 +30,25 @@ export class AuditManagementComponent implements OnInit {
 
   loadAudits() {
     this.disasterService.getAudits().subscribe({
-      next: (data: any[]) => {
-        this.audits = data.map((a: any) => ({
-          id: 'AUD-' + a.auditId.toString().padStart(4, '0'),
-          officerId: 'USR-' + a.officerId,
-          scope: a.scope,
+      next: (data: any) => {
+        // Handle Spring Data Page object or direct array, similar to System Logs
+        const auditData = Array.isArray(data) ? data : (data.content || data._embedded?.audits || []);
+        
+        this.audits = auditData.map((a: any) => ({
+          id: 'AUD-' + (a.auditId || a.id || Math.random()).toString().padStart(4, '0'),
+          officerId: a.officerId ? 'USR-' + a.officerId : 'N/A',
+          scope: a.scope || '-',
           findings: a.findings || 'No findings documented',
-          date: new Date(a.createdAt).toLocaleDateString(),
-          status: a.status
+          date: a.createdAt ? new Date(a.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+          status: a.status || 'UNKNOWN'
         }));
+        
+        // Ensure rendering
+        setTimeout(() => {
+          if (this.cdr && !(this.cdr as any).destroyed) {
+            this.cdr.detectChanges();
+          }
+        });
       },
       error: (err: any) => console.error('Error fetching audits', err)
     });

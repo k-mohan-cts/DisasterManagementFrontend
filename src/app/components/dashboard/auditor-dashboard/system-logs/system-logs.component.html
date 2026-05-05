@@ -30,12 +30,13 @@
                 </div>
             </div>
 
-            <div class="table-container">
+            <div class="table-container" style="overflow-x: auto; white-space: nowrap;">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Log ID</th>
+                            <th>S.No.</th>
                             <th>User</th>
+                            <th>Details</th>
                             <th>Action</th>
                             <th>Resource</th>
                             <th>Timestamp</th>
@@ -43,8 +44,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let log of getFilteredLogs()">
-                            <td><a href="#" class="id-link">{{log.id}}</a></td>
+                        <tr *ngFor="let log of displayedLogs; let i = index">
+                            <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
                             <td>
                                 <div class="user-cell">
                                     <div class="avatar">{{log.user.charAt(0)}}</div>
@@ -54,6 +55,7 @@
                                     </div>
                                 </div>
                             </td>
+                            <td>{{log.details}}</td>
                             <td>
                                 <span class="action-badge" [ngClass]="log.action.toLowerCase()">
                                     {{log.action}}
@@ -65,6 +67,12 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            
+            <div class="pagination-controls" style="display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px;">
+                <button (click)="prevPage()" [disabled]="currentPage === 1" style="padding: 8px 16px; border: 1px solid #ccc; border-radius: 4px; background-color: #f8f9fa; cursor: pointer;">Previous</button>
+                <span style="font-size: 14px; color: #555;">Page <b>{{currentPage}}</b> of <b>{{totalPagesServer === 0 ? 1 : totalPagesServer}}</b></span>
+                <button (click)="nextPage()" [disabled]="currentPage >= totalPagesServer" style="padding: 8px 16px; border: 1px solid #ccc; border-radius: 4px; background-color: #f8f9fa; cursor: pointer;">Next</button>
             </div>
         </div>
     </main>
