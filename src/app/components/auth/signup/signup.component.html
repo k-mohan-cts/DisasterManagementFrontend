@@ -1,0 +1,54 @@
+<div class="background-provider">
+    <div class="signup-card">
+        <div class="scroll-content">
+            <h1 class="signup-title">Sign Up</h1>
+            
+            <form (ngSubmit)="handleSignup()">
+                <div class="input-group">
+                    <label>Name</label>
+                    <input type="text" name="name" [(ngModel)]="userData.name" class="field" placeholder="Enter your name" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" name="email" [(ngModel)]="userData.email" class="field" placeholder="Enter your email" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select name="gender" [(ngModel)]="userData.gender" class="field">
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Date of Birth</label>
+                    <input type="date" name="dob" [(ngModel)]="userData.dob" class="field" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Contact Info (Phone)</label>
+                    <input type="text" name="phone" [(ngModel)]="userData.phone" class="field" placeholder="Phone" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Address</label>
+                    <textarea name="address" [(ngModel)]="userData.address" class="field" rows="3" placeholder="Enter your address" required></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" [(ngModel)]="userData.passwordHash" class="field" placeholder="Create a password" required>
+                </div>
+
+                <button type="submit" class="login-submit-btn">Sign Up</button>
+            </form>
+
+            <p class="footer-text">
+                Already have an account? <a routerLink="/login">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>

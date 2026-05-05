@@ -1,0 +1,22 @@
+:root {
+    --sidebar-bg: #1a3547;
+    --main-bg: #f8fafc;
+    --accent-red: #dc2626;
+    --accent-green: #769771;
+    --accent-blue: #3b82f6;
+    --border-color: #e2e8f0;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--main-bg);
+    min-height: 100vh;
+}

@@ -1,0 +1,74 @@
+<div style="display: flex; min-height: 100vh;">
+    <app-sidebar role="MANAGER"></app-sidebar>
+
+    <div class="main-wrapper">
+        <header>
+            <h2>Dashboard</h2>
+            <div class="header-actions">
+                <span style="font-size: 20px;">🔔</span>
+                <button class="pill-btn">Manager</button>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="page-header">
+                <div>
+                    <h1>Welcome back, Michael Manager</h1>
+                    <p class="small-note">Thursday, April 23, 2026</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="card">
+                    <div class="big-card">
+                        <div class="icon-box" style="background: var(--accent-red);">⚠️</div>
+                        <div>
+                            <p class="small-note">Active Emergencies</p>
+                            <h2>{{activeEmergenciesCount}}</h2>
+                        </div>
+                    </div>
+                    <a class="button-link btn-red" routerLink="/emergencies">View Emergencies →</a>
+                </div>
+                <div class="card">
+                    <div class="big-card">
+                        <div class="icon-box" style="background: var(--accent-green);">📋</div>
+                        <div>
+                            <p class="small-note">Active Recovery Programs</p>
+                            <h2 id="dash-rec-count">{{activeRecoveryProgramsCount}}</h2>
+                        </div>
+                    </div>
+                    <a class="button-link btn-green" routerLink="/recovery-programs">View Programs →</a>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center;">
+                        <h3>Recent Emergencies</h3>
+                        <a class="btn-outline" routerLink="/emergencies">View all →</a>
+                    </div>
+                    <table>
+                        <tr *ngFor="let emergency of recentEmergencies">
+                            <td><strong>{{emergency.type}}</strong> - {{emergency.location}}<br><small class="small-note">{{emergency.date}}</small></td>
+                            <td style="text-align: right;"><span class="badge" [ngClass]="'badge-' + emergency.status.toLowerCase()">{{emergency.status}}</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center;">
+                        <h3>Active Recovery Programs</h3>
+                        <a class="btn-outline" style="background: var(--accent-green); color: white;" routerLink="/create-recovery">+ New Program</a>
+                    </div>
+                    <table>
+                        <tbody>
+                            <tr *ngFor="let program of activePrograms">
+                                <td><strong>{{program.name}}</strong><br><small class="small-note">Budget: {{program.budget}}</small></td>
+                                <td style="text-align: right;"><span class="badge" [ngClass]="'badge-' + program.status.toLowerCase()">{{program.status}}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

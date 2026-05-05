@@ -1,0 +1,51 @@
+<div class="dashboard-container">
+    <app-sidebar role="CITIZEN"></app-sidebar>
+    
+    <div class="main-wrapper">
+        <nav class="top-navbar">
+            <div class="user-actions">
+                <i class="far fa-bell"></i>
+                <div class="user-circle">J</div>
+            </div>
+        </nav>
+
+        <main class="content-container">
+            <header class="page-header">
+                <h1>My Reports</h1>
+                <p>View the history and status of all your submitted emergency reports.</p>
+            </header>
+
+            <div class="reports-container">
+                <div class="report-card" *ngFor="let report of reports">
+                    <div class="report-top">
+                        <div class="report-title-section">
+                            <div class="danger-icon-box">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <h2>{{report.type}}</h2>
+                                <span class="report-id">{{report.id}}</span>
+                            </div>
+                        </div>
+                        <span class="status-badge" [ngClass]="getStatusClass(report.status)">{{report.status}}</span>
+                    </div>
+
+                    <div class="report-details">
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{report.location}}
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{report.date}}
+                        </div>
+                    </div>
+
+                    <div class="report-note" *ngIf="report.description">
+                        {{report.description}}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>

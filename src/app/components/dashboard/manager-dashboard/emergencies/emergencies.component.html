@@ -1,0 +1,42 @@
+<div class="dashboard-container">
+    <app-sidebar role="MANAGER"></app-sidebar>
+    
+    <div class="main-wrapper">
+        <header>
+            <h2>Emergency Reports</h2>
+            <div class="header-actions">
+                <button class="pill-btn">Manager</button>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let e of emergencies">
+                            <td><strong>{{e.type}}</strong></td>
+                            <td>{{e.location}}</td>
+                            <td>{{e.reportDate | date}}</td>
+                            <td><span class="badge" [ngClass]="'badge-' + e.status.toLowerCase()">{{e.status}}</span></td>
+                            <td>
+                                <div class="action-buttons" *ngIf="e.status === 'PENDING'">
+                                    <button class="btn-verify" (click)="updateStatus(e.reportId, 'VALIDATED')">Validate</button>
+                                    <button class="btn-reject" (click)="updateStatus(e.reportId, 'REJECTED')">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
