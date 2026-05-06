@@ -3,17 +3,25 @@ import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../services/disaster.service';
 import { FormsModule } from '@angular/forms';
+<<<<<<< HEAD
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+=======
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 
 @Component({
   selector: 'app-auditor-dashboard',
   standalone: true,
+<<<<<<< HEAD
   imports: [CommonModule, SidebarComponent, FormsModule, RouterModule],
+=======
+  imports: [CommonModule, SidebarComponent, FormsModule],
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
   templateUrl: './auditor-dashboard.component.html',
   styleUrl: './auditor-dashboard.component.css'
 })
 export class AuditorDashboardComponent implements OnInit {
+<<<<<<< HEAD
   complianceRate = 0;
   activeAudits = 0;
   pendingReviews = 0;
@@ -30,11 +38,38 @@ export class AuditorDashboardComponent implements OnInit {
     private authService: AuthService,
     private router: Router
   ) {}
+=======
+  complianceRate = 50;
+  pendingReviews = 1;
+  activeAudits = 0;
+  highRiskEntities = 0;
+
+  showAuditModal = false;
+  showComplianceModal = false;
+
+  newAudit = {
+    officerId: null,
+    scope: '',
+    findings: '',
+    status: 'SCHEDULED'
+  };
+
+  newCompliance = {
+    entityId: null,
+    type: 'SAFETY',
+    officerId: null,
+    result: 'COMPLIANT',
+    notes: ''
+  };
+
+  constructor(private disasterService: DisasterService) {}
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 
   ngOnInit() {
     this.loadStats();
   }
 
+<<<<<<< HEAD
   navigateToCompliance() {
     this.router.navigate(['/compliance-records'], { queryParams: { openModal: 'true' } });
   }
@@ -64,11 +99,18 @@ export class AuditorDashboardComponent implements OnInit {
           const status = (a?.status || '').toUpperCase();
           return status === 'SCHEDULED' || status === 'IN_PROGRESS' || status === 'OPEN';
         }).length;
+=======
+  loadStats() {
+    this.disasterService.getAudits().subscribe({
+      next: (data: any[]) => {
+        this.activeAudits = data.length;
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
       },
       error: (err: any) => console.error('Error fetching audits', err)
     });
 
     this.disasterService.getComplianceRecords().subscribe({
+<<<<<<< HEAD
       next: (data: any) => {
         const records = this.normalizeList(data);
         this.totalComplianceRecords = records.length;
@@ -102,10 +144,35 @@ export class AuditorDashboardComponent implements OnInit {
       error: (err: any) => {
         console.error('Error fetching compliance records', err);
         this.loadingDashboard = false;
+=======
+      next: (data: any[]) => {
+        if (data && data.length > 0) {
+          const compliantCount = data.filter((r: any) => r.result === 'COMPLIANT').length;
+          this.complianceRate = Math.round((compliantCount / data.length) * 100);
+          this.pendingReviews = data.filter((r: any) => r.result === 'PENDING_REVIEW').length;
+        }
+      },
+      error: (err: any) => console.error('Error fetching compliance records', err)
+    });
+  }
+
+  submitAudit() {
+    this.disasterService.createAudit(this.newAudit).subscribe({
+      next: () => {
+        alert('Audit initiated successfully!');
+        this.showAuditModal = false;
+        this.loadStats();
+        this.newAudit = { officerId: null, scope: '', findings: '', status: 'SCHEDULED' };
+      },
+      error: (err: any) => {
+        console.error('Failed to create audit', err);
+        alert('Failed to initiate audit. Please check your inputs.');
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
       }
     });
   }
 
+<<<<<<< HEAD
   resultLabel(result: string): string {
     const normalized = this.normalizeResult(result);
     if (normalized === 'PENDINGREVIEW') return 'Pending Review';
@@ -128,5 +195,20 @@ export class AuditorDashboardComponent implements OnInit {
   recordDate(record: any): string {
     const source = record?.createdAt || record?.auditDate;
     return source ? new Date(source).toLocaleDateString() : 'N/A';
+=======
+  submitCompliance() {
+    this.disasterService.createComplianceRecord(this.newCompliance).subscribe({
+      next: () => {
+        alert('Compliance record added successfully!');
+        this.showComplianceModal = false;
+        this.loadStats();
+        this.newCompliance = { entityId: null, type: 'SAFETY', officerId: null, result: 'COMPLIANT', notes: '' };
+      },
+      error: (err: any) => {
+        console.error('Failed to create compliance record', err);
+        alert('Failed to add compliance record. Please check your inputs.');
+      }
+    });
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
   }
 }

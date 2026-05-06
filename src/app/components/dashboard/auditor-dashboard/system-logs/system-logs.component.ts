@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+=======
+import { Component, OnInit } from '@angular/core';
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../../services/disaster.service';
@@ -13,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class SystemLogsComponent implements OnInit {
   logs: any[] = [];
+<<<<<<< HEAD
   
   private _searchTerm: string = '';
   get searchTerm(): string {
@@ -32,12 +37,18 @@ export class SystemLogsComponent implements OnInit {
     private disasterService: DisasterService, 
     private cdr: ChangeDetectorRef
   ) {}
+=======
+  searchTerm: string = '';
+
+  constructor(private disasterService: DisasterService) {}
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 
   ngOnInit() {
     this.loadLogs();
   }
 
   loadLogs() {
+<<<<<<< HEAD
     this.disasterService.getAuditLogs(this.currentPage - 1, this.pageSize).subscribe({
       next: (data: any) => {
         console.log('Raw API Response:', data); // Debug log
@@ -74,12 +85,31 @@ export class SystemLogsComponent implements OnInit {
             this.cdr.detectChanges();
           }
         });
+=======
+    this.disasterService.getAuditLogs().subscribe({
+      next: (data: any) => {
+        // Handle Spring Data Page object or direct array
+        const logData = data.content || data;
+        this.logs = logData.map((l: any) => ({
+          id: 'LOG-' + l.logId.toString().padStart(5, '0'),
+          user: l.user?.name || 'System',
+          role: l.user?.role || 'Automated',
+          action: l.action,
+          resource: l.resourceAffected || 'System',
+          timestamp: new Date(l.timestamp).toLocaleString(),
+          ip: l.ipAddress || '0.0.0.0'
+        }));
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
       },
       error: (err: any) => console.error('Error fetching logs', err)
     });
   }
 
+<<<<<<< HEAD
   get displayedLogs() {
+=======
+  getFilteredLogs() {
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
     if (!this.searchTerm) return this.logs;
     return this.logs.filter((l: any) => 
       l.user.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -87,6 +117,7 @@ export class SystemLogsComponent implements OnInit {
       l.resource.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
+<<<<<<< HEAD
 
   nextPage() {
     if (this.currentPage < this.totalPagesServer) {
@@ -108,4 +139,6 @@ export class SystemLogsComponent implements OnInit {
       this.loadLogs();
     }
   }
+=======
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 }

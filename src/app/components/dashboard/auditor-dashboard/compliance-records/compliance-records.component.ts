@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
@@ -6,6 +7,13 @@ import { AuthService } from '../../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+=======
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
+import { DisasterService } from '../../../../services/disaster.service';
+import { FormsModule } from '@angular/forms';
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 
 @Component({
   selector: 'app-compliance-records',
@@ -17,6 +25,7 @@ import { ActivatedRoute } from '@angular/router';
 export class ComplianceRecordsComponent implements OnInit {
   records: any[] = [];
   showModal = false;
+<<<<<<< HEAD
   isBrowser = false;
   recordsError = '';
   
@@ -293,5 +302,49 @@ export class ComplianceRecordsComponent implements OnInit {
     }
 
     this.authService.getResolvedUserId().subscribe((officerId) => submit(officerId));
+=======
+  
+  newRecord: any = {
+    entityId: null,
+    type: 'SAFETY',
+    officerId: null,
+    result: 'COMPLIANT',
+    notes: ''
+  };
+
+  constructor(private disasterService: DisasterService) {}
+
+  ngOnInit() {
+    this.loadRecords();
+  }
+
+  loadRecords() {
+    this.disasterService.getComplianceRecords().subscribe({
+      next: (data: any[]) => {
+        this.records = data.map((r: any) => ({
+          id: 'COMP-' + r.recordId.toString().padStart(4, '0'),
+          entityId: '#' + r.entityId,
+          type: r.type,
+          result: r.result,
+          date: new Date(r.createdAt).toLocaleDateString(),
+          officerId: 'USR-' + r.officerId,
+          notes: r.notes
+        }));
+      },
+      error: (err: any) => console.error('Error fetching compliance records', err)
+    });
+  }
+
+  submitRecord() {
+    this.disasterService.createComplianceRecord(this.newRecord).subscribe({
+      next: () => {
+        alert('Compliance record added successfully!');
+        this.showModal = false;
+        this.loadRecords();
+        this.newRecord = { entityId: null, type: 'SAFETY', officerId: null, result: 'COMPLIANT', notes: '' };
+      },
+      error: (err: any) => alert('Failed to add record')
+    });
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
   }
 }

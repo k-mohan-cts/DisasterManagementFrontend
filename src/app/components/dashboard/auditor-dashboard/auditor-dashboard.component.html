@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div class="flex h-screen overflow-hidden text-slate-800 bg-gray-50">
     <app-sidebar role="AUDITOR"></app-sidebar>
 
@@ -74,10 +75,64 @@
                     <div class="ml-4">
                         <p class="text-sm text-red-800 font-medium">High-Risk Entities</p>
                         <h3 class="text-2xl font-bold text-red-700">{{highRiskEntities}}</h3>
+=======
+<div class="dashboard-container">
+    <app-sidebar role="AUDITOR"></app-sidebar>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <h1>Auditor Dashboard</h1>
+            <div class="topbar-right">
+                <span class="bell">🔔</span>
+                <div class="role-chip">Compliance</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h2>Compliance & Audit Control Tower</h2>
+                    <p>Monitor compliance health and audit activities across all relief operations</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-primary" (click)="showComplianceModal = true">+ Add Record</button>
+                    <button class="btn-secondary" (click)="showAuditModal = true">Initiate Audit</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card border-green">
+                    <div class="stat-icon bg-green"><i class="fas fa-chart-line"></i></div>
+                    <div class="stat-info">
+                        <p>Compliance Rate</p>
+                        <h3>{{complianceRate}}%</h3>
+                    </div>
+                </div>
+                <div class="stat-card border-yellow">
+                    <div class="stat-icon bg-yellow"><i class="far fa-clock"></i></div>
+                    <div class="stat-info">
+                        <p>Pending Reviews</p>
+                        <h3>{{pendingReviews}}</h3>
+                    </div>
+                </div>
+                <div class="stat-card border-blue">
+                    <div class="stat-icon bg-blue"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="stat-info">
+                        <p>Active Audits</p>
+                        <h3>{{activeAudits}}</h3>
+                    </div>
+                </div>
+                <div class="stat-card border-red">
+                    <div class="stat-icon bg-red"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-info">
+                        <p>High-Risk Entities</p>
+                        <h3>{{highRiskEntities}}</h3>
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
                     </div>
                 </div>
             </div>
 
+<<<<<<< HEAD
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm col-span-1 flex flex-col">
                     <div class="p-5 border-b border-gray-100 flex items-center">
@@ -145,12 +200,121 @@
                                 <span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm" [ngClass]="resultBadgeClass(rec.result)">
                                     {{resultLabel(rec.result)}}
                                 </span>
+=======
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <i class="fas fa-chart-pie"></i>
+                        <h3>Compliance Overview</h3>
+                    </div>
+                    <div class="chart-body">
+                        <!-- Placeholder for Chart -->
+                        <div class="pie-placeholder">
+                            <span class="total-count">2</span>
+                            <span class="total-label">Total</span>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="dot bg-green"></span>
+                                <span>Compliant</span>
+                                <span class="val">1</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="dot bg-red"></span>
+                                <span>Non-Compliant</span>
+                                <span class="val">1</span>
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
         </div>
     </main>
 
+=======
+        </main>
+    </div>
+
+    <!-- Audit Modal -->
+    <div class="modal-overlay" *ngIf="showAuditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Initiate New Audit</h2>
+                <button class="close-modal" (click)="showAuditModal = false">&times;</button>
+            </div>
+            <form (ngSubmit)="submitAudit()">
+                <div class="input-group">
+                    <label>Officer ID</label>
+                    <input type="number" name="officerId" [(ngModel)]="newAudit.officerId" required>
+                </div>
+                <div class="input-group">
+                    <label>Scope</label>
+                    <input type="text" name="scope" [(ngModel)]="newAudit.scope" placeholder="e.g. Food Distribution Q1" required>
+                </div>
+                <div class="input-group">
+                    <label>Audit Type</label>
+                    <select name="status" [(ngModel)]="newAudit.status">
+                        <option value="SCHEDULED">Scheduled</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Findings</label>
+                    <textarea name="findings" [(ngModel)]="newAudit.findings"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="showAuditModal = false">Cancel</button>
+                    <button type="submit" class="btn-submit">Create Audit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Compliance Modal -->
+    <div class="modal-overlay" *ngIf="showComplianceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Compliance Record</h2>
+                <button class="close-modal" (click)="showComplianceModal = false">&times;</button>
+            </div>
+            <form (ngSubmit)="submitCompliance()">
+                <div class="input-group">
+                    <label>Entity ID</label>
+                    <input type="number" name="entityId" [(ngModel)]="newCompliance.entityId" required>
+                </div>
+                <div class="input-group">
+                    <label>Officer ID</label>
+                    <input type="number" name="officerId" [(ngModel)]="newCompliance.officerId" required>
+                </div>
+                <div class="input-group">
+                    <label>Compliance Type</label>
+                    <select name="type" [(ngModel)]="newCompliance.type">
+                        <option value="ENVIRONMENTAL">Environmental</option>
+                        <option value="SAFETY">Safety</option>
+                        <option value="FINANCIAL">Financial</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Result</label>
+                    <select name="result" [(ngModel)]="newCompliance.result">
+                        <option value="COMPLIANT">Compliant</option>
+                        <option value="NON_COMPLIANT">Non Compliant</option>
+                        <option value="PENDING_REVIEW">Pending Review</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Notes</label>
+                    <textarea name="notes" [(ngModel)]="newCompliance.notes"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="showComplianceModal = false">Cancel</button>
+                    <button type="submit" class="btn-submit">Add Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 </div>

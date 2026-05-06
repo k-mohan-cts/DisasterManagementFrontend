@@ -16,7 +16,17 @@
             </header>
 
             <div class="vault-card">
+<<<<<<< HEAD
                 <table class="vault-table">
+=======
+                <div *ngIf="isLoading" style="text-align: center; padding: 40px;">
+                    <p>Loading documents...</p>
+                </div>
+                <div *ngIf="!isLoading && documents.length === 0" style="text-align: center; padding: 40px;">
+                    <p style="color: #64748b;">No documents uploaded yet.</p>
+                </div>
+                <table class="vault-table" *ngIf="!isLoading && documents.length > 0">
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
                     <thead>
                         <tr>
                             <th>Document Name</th>
@@ -42,7 +52,20 @@
                                     {{doc.status | titlecase}}
                                 </span>
                             </td>
+<<<<<<< HEAD
                             <td><button class="action-btn"><i class="fas fa-ellipsis-v"></i></button></td>
+=======
+                            <td>
+                                <div class="action-dropdown">
+                                    <button class="action-btn" (click)="downloadDocument(doc.id, doc.name)" title="Download">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" (click)="deleteDocument(doc.id)" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+>>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
                         </tr>
                     </tbody>
                 </table>

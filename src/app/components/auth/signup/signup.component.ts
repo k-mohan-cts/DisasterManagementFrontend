@@ -28,8 +28,15 @@ export class SignupComponent {
   handleSignup() {
     this.authService.signup(this.userData).subscribe({
       next: (res) => {
-        alert("Signup successful! Please login.");
-        this.router.navigate(['/login']);
+        alert("Signup successful! Proceeding to document verification.");
+        // Auto-login the user with the response token if available
+        if (res.token) {
+          localStorage.setItem('token', res.token);
+          this.router.navigate(['/verification']);
+        } else {
+          // Fallback to login page if no token in response
+          this.router.navigate(['/login']);
+        }
       },
       error: (err) => {
         console.error('Signup failed', err);
