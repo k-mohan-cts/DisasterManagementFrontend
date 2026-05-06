@@ -1,7 +1,8 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DisasterService } from '../../../services/disaster.service';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../../services/auth.service'
+import { DocumentService } from '../../../services/document.service';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 declare let L: any;
@@ -11,12 +12,13 @@ declare let L: any;
   standalone: true,
   imports: [CommonModule, FormsModule, SidebarComponent],
   templateUrl: './citizen-dashboard.component.html',
-  styleUrl: './citizen-dashboard.component.css'
+  styleUrls: ['./citizen-dashboard.component.css']
 })
-export class CitizenDashboardComponent implements OnInit, AfterViewInit {
+export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   reports: any[] = [];
   shelters: any[] = [];
   showReportModal = false;
+  showVerifyModal = false;
   map: any;
   
   newReport = {
@@ -30,9 +32,22 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
 
   emergencyTypes = ['FIRE', 'FLOOD', 'EARTHQUAKE', 'MEDICAL', 'OTHER'];
 
+  // Document verification properties
+  selectedFile: File | null = null;
+  filePreviewUrl: string | null = null;
+  verifyData = {
+    name: '',
+    type: 'PDF Document'
+  };
+  documentTypes = ['PDF Document', 'Image', 'Word Document', 'Other'];
+  isUploading = false;
+
+  serviceError = '';
+
   constructor(
     private disasterService: DisasterService,
-    private authService: AuthService
+    private authService: AuthService,
+    private documentService: DocumentService
   ) {}
 
   ngOnInit() {
@@ -51,7 +66,13 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
     this.initMap();
   }
 
+  ngOnDestroy() {
+    this.revokeFilePreviewUrl();
+  }
+
   loadData() {
+    this.serviceError = '';
+
     this.disasterService.getEmergencies().subscribe({
       next: (data: any[]) => {
         this.reports = data.map((r: any) => ({
@@ -59,6 +80,11 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
           date: new Date(r.reportDate).toLocaleDateString(),
           status: r.status
         }));
+      },
+      error: (err: any) => {
+        console.error('Failed to load emergency reports', err);
+        this.reports = [];
+        this.serviceError += 'Emergency report service unavailable. ';
       }
     });
 
@@ -69,6 +95,11 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
           capacity: Math.floor(Math.random() * 100),
           color: '#14b8a6'
         }));
+      },
+      error: (err: any) => {
+        console.error('Failed to load shelters', err);
+        this.shelters = [];
+        this.serviceError += 'Shelter service unavailable.';
       }
     });
   }
@@ -97,5 +128,73 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
       },
       error: (err: any) => alert('Failed to submit report')
     });
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      this.setSelectedFile(file);
+    }
+  }
+
+  onFileDrop(event: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      this.setSelectedFile(files[0]);
+    }
+  }
+
+  private setSelectedFile(file: File) {
+    this.selectedFile = file;
+    this.revokeFilePreviewUrl();
+    this.filePreviewUrl = URL.createObjectURL(file);
+  }
+
+  private revokeFilePreviewUrl() {
+    if (this.filePreviewUrl) {
+      URL.revokeObjectURL(this.filePreviewUrl);
+      this.filePreviewUrl = null;
+    }
+  }
+
+  submitVerification() {
+    if (!this.verifyData.name || !this.selectedFile) {
+      alert('Please provide a document name and select a file.');
+      return;
+    }
+
+    this.isUploading = true;
+    const formData = new FormData();
+    formData.append('file', this.selectedFile, this.selectedFile.name);
+    formData.append('name', this.verifyData.name);
+    formData.append('type', this.verifyData.type);
+    formData.append('citizenId', this.newReport.citizenId.toString());
+
+    this.documentService.uploadDocument(formData).subscribe({
+      next: () => {
+        alert('Document uploaded successfully!');
+        this.showVerifyModal = false;
+        this.resetVerifyForm();
+        this.isUploading = false;
+      },
+      error: (err: any) => {
+        const message = err?.error?.message || err?.message || 'Upload failed. Please try again.';
+        alert(message);
+        this.isUploading = false;
+      }
+    });
+  }
+
+  resetVerifyForm() {
+    this.verifyData = { name: '', type: 'PDF Document' };
+    this.selectedFile = null;
+    this.revokeFilePreviewUrl();
+  }
+
+  closeVerifyModal() {
+    this.showVerifyModal = false;
+    this.resetVerifyForm();
   }
 }

@@ -9,6 +9,8 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/users';
+  private citizenApiUrl = 'http://localhost:8082/api/citizens';
+  private documentApiUrl = 'http://localhost:8082/api/documents';
 
   constructor(
     private http: HttpClient, 
@@ -28,7 +30,7 @@ export class AuthService {
   }
 
   signup(userData: any): Observable<any> {
-    return this.http.post(this.apiUrl + '/createUser', userData);
+    return this.http.post(this.citizenApiUrl + '/createCitizen', userData);
   }
 
   logout() {
@@ -96,5 +98,9 @@ export class AuthService {
     } catch (e) {
       this.router.navigate(['/lander']);
     }
+  }
+
+  getDocumentApiUrl(userData: any): Observable<any> {
+    return this.http.post<any>(this.documentApiUrl + '/upload', userData);  
   }
 }

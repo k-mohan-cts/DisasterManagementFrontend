@@ -130,12 +130,28 @@
 .pending { background: #fef9c3; color: #854d0e; }
 .rejected { background: #fee2e2; color: #b91c1c; }
 
+.action-dropdown {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .action-btn {
     background: none;
     border: none;
     color: #64748b;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
 }
 
-.action-btn:hover { color: #0f172a; }
+.action-btn:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+}
+
+.delete-btn:hover {
+    color: #dc2626;
+}
