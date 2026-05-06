@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../../services/disaster.service';
@@ -7,13 +6,6 @@ import { AuthService } from '../../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-=======
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
-import { DisasterService } from '../../../../services/disaster.service';
-import { FormsModule } from '@angular/forms';
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 
 @Component({
   selector: 'app-compliance-records',
@@ -25,32 +17,31 @@ import { FormsModule } from '@angular/forms';
 export class ComplianceRecordsComponent implements OnInit {
   records: any[] = [];
   showModal = false;
-<<<<<<< HEAD
   isBrowser = false;
   recordsError = '';
-  
+  isEditMode = false;
+  editingRecordId: number | null = null;
+
   recoveryPrograms: any[] = [];
   reliefItems: any[] = [];
   emergencyReports: any[] = [];
   filteredEntities: any[] = [];
-  entitySearch: string = '';
+  entitySearch = '';
   entityDropdownOpen = false;
   loadingDependencies = false;
   loadingRecords = false;
   dependencyError = '';
-  
+
   newRecord: any = {
     entityId: null,
-    type: 'PROGRAM', // PROGRAM, RELIEF, EMERGENCY
+    type: 'PROGRAM',
     officerId: null,
-    result: 'PENDINGREVIEW', // COMPLIANT, NONCOMPLIANT, PENDINGREVIEW
+    result: 'PENDINGREVIEW',
     notes: ''
   };
 
-  currentOfficerName = 'Auditor';
-
   constructor(
-    private disasterService: DisasterService, 
+    private disasterService: DisasterService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
     private route: ActivatedRoute,
@@ -64,12 +55,9 @@ export class ComplianceRecordsComponent implements OnInit {
       return;
     }
 
-    // Check if navigating from dashboard with openModal query param
     this.route.queryParams.subscribe(params => {
       if (params['openModal'] === 'true') {
-        setTimeout(() => {
-          this.openCreateModal();
-        }, 100);
+        setTimeout(() => this.openCreateModal(), 100);
       }
     });
 
@@ -148,6 +136,19 @@ export class ComplianceRecordsComponent implements OnInit {
     this.entityDropdownOpen = false;
   }
 
+  private extractBackendRecordId(record: any): number | null {
+    const candidate = record?.recordId
+      ?? record?.complianceRecordId
+      ?? record?.complianceRecordID
+      ?? record?.complianceId
+      ?? record?.complianceID
+      ?? record?.recordID
+      ?? record?.id;
+
+    const numericId = Number(candidate);
+    return Number.isFinite(numericId) && numericId > 0 ? numericId : null;
+  }
+
   filterEntities() {
     let baseList: any[] = [];
     if (this.newRecord.type === 'PROGRAM') {
@@ -162,29 +163,31 @@ export class ComplianceRecordsComponent implements OnInit {
       this.filteredEntities = baseList;
     } else {
       const search = this.entitySearch.toLowerCase();
-      this.filteredEntities = baseList.filter(e => {
-        const title = this.getEntityDisplay(e);
+      this.filteredEntities = baseList.filter(entity => {
+        const title = this.getEntityDisplay(entity);
         return title.toLowerCase().includes(search);
       });
     }
   }
 
-  getEntityDisplay(e: any): string {
+  getEntityDisplay(entity: any): string {
     if (this.newRecord.type === 'PROGRAM') {
-      return `${e.title || e.programName || 'Program'} (ID: ${e.programId || e.id})`;
+      return `${entity.title || entity.programName || 'Program'} (ID: ${entity.programId || entity.id})`;
     } else if (this.newRecord.type === 'RELIEF') {
-      return `${e.itemName || 'Relief Item'} - ${e.category || ''} (ID: ${e.itemId || e.id})`;
+      return `${entity.itemName || 'Relief Item'} - ${entity.category || ''} (ID: ${entity.itemId || entity.id})`;
     } else if (this.newRecord.type === 'EMERGENCY') {
-      return `Report: ${e.description || e.type || 'Emergency'} (ID: ${e.reportId || e.id})`;
+      return `Report: ${entity.description || entity.type || 'Emergency'} (ID: ${entity.reportId || entity.id})`;
     }
     return '';
   }
 
-  getEntityId(e: any): any {
-    return e.programId || e.itemId || e.reportId || e.id;
+  getEntityId(entity: any): any {
+    return entity.programId || entity.itemId || entity.reportId || entity.id;
   }
 
   openCreateModal() {
+    this.isEditMode = false;
+    this.editingRecordId = null;
     this.showModal = true;
     this.newRecord = {
       entityId: null,
@@ -199,6 +202,112 @@ export class ComplianceRecordsComponent implements OnInit {
     this.populateOfficerIdFromEmail();
   }
 
+  openEditModal(record: any) {
+    const sourceRecord = record?.raw || record;
+    const recordId = this.extractBackendRecordId(sourceRecord) ?? this.extractBackendRecordId(record);
+
+    if (!recordId) {
+      alert('Unable to determine which compliance record to edit.');
+      return;
+    }
+
+    this.showModal = true;
+    this.isEditMode = true;
+    this.editingRecordId = recordId;
+    this.populateOfficerIdFromEmail();
+
+    this.disasterService.getComplianceRecordById(recordId).subscribe({
+      next: (data: any) => {
+        const recordDetails = this.normalizeSingleComplianceRecord(data) || sourceRecord;
+        this.applyRecordToForm(recordDetails, recordId);
+      },
+      error: () => {
+        this.applyRecordToForm(sourceRecord, recordId);
+      }
+    });
+  }
+
+  private resolveRecordId(record: any): number | null {
+    return this.extractBackendRecordId(record);
+  }
+
+  private normalizeSingleComplianceRecord(data: any): any {
+    if (!data) {
+      return null;
+    }
+
+    if (Array.isArray(data)) {
+      return data[0] || null;
+    }
+
+    const embedded = data?._embedded;
+    const candidates = [
+      data?.content,
+      data?.record,
+      data?.complianceRecord,
+      data?.item,
+      data?.data,
+      embedded?.complianceRecords,
+      embedded?.records,
+      embedded?.items
+    ];
+
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) {
+        return candidate[0] || null;
+      }
+
+      if (candidate && typeof candidate === 'object') {
+        return candidate;
+      }
+    }
+
+    return typeof data === 'object' ? data : null;
+  }
+
+  private buildEntitySearchLabel(record: any): string {
+    if (record?.entityLabel) {
+      return record.entityLabel;
+    }
+
+    if (record?.type === 'PROGRAM') {
+      return `Program (ID: ${record?.entityId ?? 'N/A'})`;
+    }
+
+    if (record?.type === 'RELIEF') {
+      return `Relief Item (ID: ${record?.entityId ?? 'N/A'})`;
+    }
+
+    if (record?.type === 'EMERGENCY') {
+      return `Emergency Report (ID: ${record?.entityId ?? 'N/A'})`;
+    }
+
+    return `Entity (ID: ${record?.entityId ?? 'N/A'})`;
+  }
+
+  private applyRecordToForm(record: any, recordId?: number | null) {
+    const entityId = record?.entityId ?? record?.entityID ?? record?.entity?.id ?? null;
+
+    this.editingRecordId = recordId ?? this.resolveRecordId(record) ?? this.editingRecordId;
+    this.newRecord = {
+      entityId: entityId !== null && entityId !== undefined ? Number(entityId) || entityId : null,
+      type: record?.type || 'PROGRAM',
+      officerId: record?.officerId ?? this.newRecord.officerId ?? null,
+      result: this.normalizeResult(record?.result),
+      notes: record?.notes || ''
+    };
+
+    this.entitySearch = this.buildEntitySearchLabel(record);
+    this.entityDropdownOpen = false;
+    this.filterEntities();
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.isEditMode = false;
+    this.editingRecordId = null;
+  }
+
   private populateOfficerIdFromEmail() {
     this.authService.getResolvedUserId().subscribe((officerId) => {
       this.newRecord.officerId = officerId;
@@ -208,20 +317,23 @@ export class ComplianceRecordsComponent implements OnInit {
   loadRecords() {
     this.loadingRecords = true;
     this.recordsError = '';
+
     this.disasterService.getComplianceRecords().subscribe({
       next: (data: any) => {
         const recordsData = this.normalizeRecordsResponse(data);
-        
-        this.records = recordsData.map((r: any) => ({
-          id: 'COMP-' + (r.recordId || r.id || Math.random()).toString().padStart(4, '0'),
-          entityId: r.entityId ? '#' + r.entityId : 'N/A',
-          type: r.type || 'UNKNOWN',
-          result: this.normalizeResult(r.result),
-          date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
-          officerId: r.officerId ? 'USR-' + r.officerId : 'N/A',
-          notes: r.notes || 'No notes provided'
+
+        this.records = recordsData.map((record: any) => ({
+          recordId: this.resolveRecordId(record),
+          id: 'COMP-' + (record.recordId || record.complianceRecordId || record.id || Math.random()).toString().padStart(4, '0'),
+          entityId: record.entityId ? '#' + record.entityId : 'N/A',
+          type: record.type || 'UNKNOWN',
+          result: this.normalizeResult(record.result),
+          date: record.createdAt ? new Date(record.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+          officerId: record.officerId ? 'USR-' + record.officerId : 'N/A',
+          notes: record.notes || 'No notes provided',
+          raw: record
         }));
-        
+
         setTimeout(() => {
           if (this.cdr && !(this.cdr as any).destroyed) {
             this.cdr.detectChanges();
@@ -283,16 +395,25 @@ export class ComplianceRecordsComponent implements OnInit {
       const payload = {
         ...this.newRecord,
         officerId: officerId || this.newRecord.officerId || null,
-        entityId: parseInt(this.newRecord.entityId) || 0
+        entityId: Number(this.newRecord.entityId) || 0,
+        recordId: this.isEditMode ? this.editingRecordId : undefined,
+        complianceRecordId: this.isEditMode ? this.editingRecordId : undefined
       };
 
-      this.disasterService.createComplianceRecord(payload).subscribe({
+      const request$ = this.isEditMode && this.editingRecordId
+        ? this.disasterService.updateComplianceRecord(this.editingRecordId, payload)
+        : this.disasterService.createComplianceRecord(payload);
+
+      request$.subscribe({
         next: () => {
-          alert('Compliance record added successfully!');
-          this.showModal = false;
+          alert(this.isEditMode ? 'Compliance record updated successfully!' : 'Compliance record added successfully!');
+          this.closeModal();
           this.loadRecords();
         },
-        error: (err: any) => alert('Failed to add record')
+        error: (error: any) => {
+          console.error('Failed to save compliance record', error);
+          alert(this.isEditMode ? 'Failed to update record' : 'Failed to add record');
+        }
       });
     };
 
@@ -302,49 +423,5 @@ export class ComplianceRecordsComponent implements OnInit {
     }
 
     this.authService.getResolvedUserId().subscribe((officerId) => submit(officerId));
-=======
-  
-  newRecord: any = {
-    entityId: null,
-    type: 'SAFETY',
-    officerId: null,
-    result: 'COMPLIANT',
-    notes: ''
-  };
-
-  constructor(private disasterService: DisasterService) {}
-
-  ngOnInit() {
-    this.loadRecords();
-  }
-
-  loadRecords() {
-    this.disasterService.getComplianceRecords().subscribe({
-      next: (data: any[]) => {
-        this.records = data.map((r: any) => ({
-          id: 'COMP-' + r.recordId.toString().padStart(4, '0'),
-          entityId: '#' + r.entityId,
-          type: r.type,
-          result: r.result,
-          date: new Date(r.createdAt).toLocaleDateString(),
-          officerId: 'USR-' + r.officerId,
-          notes: r.notes
-        }));
-      },
-      error: (err: any) => console.error('Error fetching compliance records', err)
-    });
-  }
-
-  submitRecord() {
-    this.disasterService.createComplianceRecord(this.newRecord).subscribe({
-      next: () => {
-        alert('Compliance record added successfully!');
-        this.showModal = false;
-        this.loadRecords();
-        this.newRecord = { entityId: null, type: 'SAFETY', officerId: null, result: 'COMPLIANT', notes: '' };
-      },
-      error: (err: any) => alert('Failed to add record')
-    });
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
   }
 }

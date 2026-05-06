@@ -1,24 +1,15 @@
-<<<<<<< HEAD
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+﻿import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DisasterService } from '../../../services/disaster.service';
 import { AuthService } from '../../../services/auth.service';
-=======
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { DisasterService } from '../../../services/disaster.service';
-import { AuthService } from '../../../services/auth.service'
-import { DocumentService } from '../../../services/document.service';
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
+
 declare let L: any;
 
 @Component({
   selector: 'app-citizen-dashboard',
   standalone: true,
-<<<<<<< HEAD
   imports: [CommonModule, FormsModule, SidebarComponent],
   templateUrl: './citizen-dashboard.component.html',
   styleUrl: './citizen-dashboard.component.css'
@@ -27,21 +18,22 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
   reports: any[] = [];
   shelters: any[] = [];
   showReportModal = false;
-=======
-  imports: [CommonModule, FormsModule, RouterLink, SidebarComponent],
-  templateUrl: './citizen-dashboard.component.html',
-  styleUrls: ['./citizen-dashboard.component.css']
-})
-export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
-  reports: any[] = [];
-  shelters: any[] = [];
-  showReportModal = false;
   showVerifyModal = false;
   isUserVerified = false;
-  verificationStatus: string | null = null;
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
-  map: any;
-  
+  serviceError = '';
+
+  dashboardMap: any;
+  reportMap: any;
+  reportMarker: any;
+
+  selectedFile: File | null = null;
+  filePreviewUrl = '';
+
+  verifyData = {
+    name: '',
+    type: 'Identity Card'
+  };
+
   newReport = {
     citizenId: 0,
     location: '',
@@ -51,8 +43,8 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
     description: ''
   };
 
-<<<<<<< HEAD
   emergencyTypes = ['FIRE', 'FLOOD', 'EARTHQUAKE', 'MEDICAL', 'OTHER'];
+  documentTypes = ['Identity Card', 'Address Proof', 'Passport', 'Driving License', 'Utility Bill'];
 
   constructor(
     private disasterService: DisasterService,
@@ -61,279 +53,196 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
 
   ngOnInit() {
     this.newReport.citizenId = this.authService.getUserId() || 0;
-=======
-  emergencyTypes = ['FLOOD', 'FIRE', 'EARTHQUAKE', 'CYCLONE', 'LANDSLIDE', 'OTHER'];
-
-  // Document verification properties
-  selectedFile: File | null = null;
-  filePreviewUrl: string | null = null;
-  verifyData = {
-    name: '',
-    type: 'PDF Document'
-  };
-  documentTypes = ['PDF Document', 'Image', 'Word Document', 'Other'];
-  isUploading = false;
-
-  serviceError = '';
-
-  constructor(
-    private disasterService: DisasterService,
-    private authService: AuthService,
-    private documentService: DocumentService
-  ) {}
-
-  ngOnInit() {
-    const userId = this.authService.getUserId();
-    this.newReport.citizenId = userId || 0;
-    console.log('Citizen ID:', this.newReport.citizenId);
-    
-    // Check verification status
-    this.verificationStatus = this.authService.getVerificationStatus();
     this.isUserVerified = this.authService.isVerified();
-    
-    console.log('Verification Status:', this.verificationStatus);
-    console.log('Is Verified:', this.isUserVerified);
-    
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
     this.loadData();
-    // Get current location
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
         this.newReport.latitude = position.coords.latitude;
         this.newReport.longitude = position.coords.longitude;
+        this.refreshReportMapCenter();
       });
     }
   }
 
   ngAfterViewInit() {
-    this.initMap();
-  }
-
-<<<<<<< HEAD
-  loadData() {
-=======
-  ngOnDestroy() {
-    this.revokeFilePreviewUrl();
-  }
-
-  openReportModal() {
-    this.showReportModal = true;
-  }
-
-  closeReportModal() {
-    this.showReportModal = false;
-    this.resetReportForm();
-  }
-
-  resetReportForm() {
-    this.newReport = {
-      citizenId: this.authService.getUserId() || 0,
-      location: '',
-      type: 'FIRE',
-      latitude: 0,
-      longitude: 0,
-      description: ''
-    };
+    this.initDashboardMap();
   }
 
   loadData() {
     this.serviceError = '';
 
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
     this.disasterService.getEmergencies().subscribe({
       next: (data: any[]) => {
-        this.reports = data.map((r: any) => ({
-          type: r.type,
-          date: new Date(r.reportDate).toLocaleDateString(),
-          status: r.status
+        this.reports = (data || []).map((report: any) => ({
+          type: report.type || 'UNKNOWN',
+          date: report.reportDate ? new Date(report.reportDate).toLocaleDateString() : new Date().toLocaleDateString(),
+          status: report.status || 'NEW'
         }));
-<<<<<<< HEAD
-=======
       },
-      error: (err: any) => {
-        console.error('Failed to load emergency reports', err);
-        this.reports = [];
-        this.serviceError += 'Emergency report service unavailable. ';
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
+      error: () => {
+        this.serviceError = 'Unable to load recent reports right now.';
       }
     });
 
     this.disasterService.getShelters().subscribe({
       next: (data: any[]) => {
-<<<<<<< HEAD
-        this.shelters = data.map((s: any) => ({
-          name: s.name,
-          capacity: Math.floor(Math.random() * 100),
-          color: '#14b8a6'
-        }));
-=======
-        this.shelters = data.map((s: any) => {
-          const capacity = s.capacity || 0;
-          const occupancy = s.occupancy || 0;
-          const percentage = capacity > 0 ? (occupancy / capacity) * 100 : 0;
-          let color = '#14b8a6';
-          if (percentage > 85) color = '#ef4444';
-          else if (percentage > 60) color = '#f59e0b';
+        this.shelters = (data || []).map((shelter: any) => {
+          const capacity = Number(shelter.capacity ?? 100) || 100;
+          const occupancy = Number(shelter.occupancy ?? Math.floor(Math.random() * Math.max(capacity, 1))) || 0;
           return {
-            name: s.name || 'Unknown Shelter',
-            location: s.location || 'N/A',
-            capacity,
+            name: shelter.name || shelter.shelterName || 'Unknown shelter',
+            location: shelter.location || shelter.address || 'Location unavailable',
             occupancy,
-            color
+            capacity,
+            color: shelter.color || '#14b8a6'
           };
         });
       },
-      error: (err: any) => {
-        console.error('Failed to load shelters', err);
-        this.shelters = [];
-        this.serviceError += 'Shelter service unavailable.';
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
+      error: () => {
+        this.serviceError = 'Unable to load nearby shelters right now.';
       }
     });
   }
 
-  initMap() {
-<<<<<<< HEAD
-=======
-    // Check if map container exists
-    const mapContainer = document.getElementById('map');
-    if (!mapContainer || !this.showReportModal) {
-      return;
-    }
-
-    // If map already exists, don't reinitialize
-    if (this.map) {
-      this.map.invalidateSize();
-      return;
-    }
-
-    // Check if Leaflet is loaded
-    if (typeof L === 'undefined') {
-      console.error('Leaflet library is not loaded');
-      return;
-    }
-
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
-    this.map = L.map('map').setView([this.newReport.latitude || 20.5937, this.newReport.longitude || 78.9629], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(this.map);
-
-    this.map.on('click', (e: any) => {
-      this.newReport.latitude = e.latlng.lat;
-      this.newReport.longitude = e.latlng.lng;
-      L.marker([e.latlng.lat, e.latlng.lng]).addTo(this.map)
-        .bindPopup('Report Location Selected')
-        .openPopup();
-    });
+  openReportModal() {
+    this.showReportModal = true;
+    setTimeout(() => this.initReportMap(), 0);
   }
 
-  submitReport() {
-<<<<<<< HEAD
-    this.disasterService.createEmergency(this.newReport).subscribe({
-      next: (res: any) => {
-        alert('Report submitted successfully!');
-        this.showReportModal = false;
-        this.loadData();
-      },
-      error: (err: any) => alert('Failed to submit report')
-    });
-  }
-=======
-    if (!this.newReport.location || !this.newReport.description || this.newReport.latitude === 0 || this.newReport.longitude === 0) {
-      alert('Please fill in all fields and select a location.');
-      return;
-    }
-
-    const reportData = {
-      ...this.newReport,
-      citizenId: this.authService.getUserId() || 0,
-      date: new Date().toISOString(),
-      status: 'ACTIVE'
-    };
-
-    console.log('Submitting report:', reportData);
-
-    this.disasterService.createEmergency(reportData).subscribe({
-      next: (res: any) => {
-        alert('Report submitted successfully!');
-        this.showReportModal = false;
-        this.resetReportForm();
-        this.loadData();
-      },
-      error: (err: any) => {
-        console.error('Failed to submit report:', err);
-        alert('Failed to submit report');
-      }
-    });
+  closeReportModal() {
+    this.showReportModal = false;
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files?.[0];
+  openVerifyModal() {
+    this.showVerifyModal = true;
+  }
+
+  closeVerifyModal() {
+    this.showVerifyModal = false;
+    this.selectedFile = null;
+    this.filePreviewUrl = '';
+    this.verifyData = { name: '', type: this.documentTypes[0] };
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (file) {
       this.setSelectedFile(file);
     }
   }
 
-  onFileDrop(event: any) {
+  onFileDrop(event: DragEvent) {
     event.preventDefault();
-    event.stopPropagation();
-    const files = event.dataTransfer.files;
-    if (files.length > 0) {
-      this.setSelectedFile(files[0]);
-    }
-  }
-
-  private setSelectedFile(file: File) {
-    this.selectedFile = file;
-    this.revokeFilePreviewUrl();
-    this.filePreviewUrl = URL.createObjectURL(file);
-  }
-
-  private revokeFilePreviewUrl() {
-    if (this.filePreviewUrl) {
-      URL.revokeObjectURL(this.filePreviewUrl);
-      this.filePreviewUrl = null;
+    const file = event.dataTransfer?.files?.[0];
+    if (file) {
+      this.setSelectedFile(file);
     }
   }
 
   submitVerification() {
-    if (!this.verifyData.name || !this.selectedFile) {
-      alert('Please provide a document name and select a file.');
+    if (!this.selectedFile) {
+      this.serviceError = 'Please select a document before uploading.';
       return;
     }
 
-    this.isUploading = true;
     const formData = new FormData();
+    formData.append('citizenId', String(this.newReport.citizenId || this.authService.getUserId() || 0));
+    formData.append('documentName', this.verifyData.name || this.selectedFile.name);
+    formData.append('documentType', this.verifyData.type);
     formData.append('file', this.selectedFile, this.selectedFile.name);
-    formData.append('name', this.verifyData.name);
-    formData.append('type', this.verifyData.type);
-    formData.append('citizenId', this.newReport.citizenId.toString());
 
-    this.documentService.uploadDocument(formData).subscribe({
+    this.disasterService.uploadCitizenDocument(formData).subscribe({
       next: () => {
-        alert('Document uploaded successfully!');
-        this.showVerifyModal = false;
-        this.resetVerifyForm();
-        this.isUploading = false;
+        alert('Verification document uploaded successfully!');
+        this.isUserVerified = true;
+        this.closeVerifyModal();
+        this.loadData();
       },
-      error: (err: any) => {
-        const message = err?.error?.message || err?.message || 'Upload failed. Please try again.';
-        alert(message);
-        this.isUploading = false;
+      error: () => {
+        this.serviceError = 'Failed to upload verification document.';
       }
     });
   }
 
-  resetVerifyForm() {
-    this.verifyData = { name: '', type: 'PDF Document' };
-    this.selectedFile = null;
-    this.revokeFilePreviewUrl();
+  submitReport() {
+    this.disasterService.createEmergency(this.newReport).subscribe({
+      next: () => {
+        alert('Report submitted successfully!');
+        this.closeReportModal();
+        this.loadData();
+      },
+      error: () => {
+        this.serviceError = 'Failed to submit report.';
+      }
+    });
   }
 
-  closeVerifyModal() {
-    this.showVerifyModal = false;
-    this.resetVerifyForm();
+  private setSelectedFile(file: File) {
+    this.selectedFile = file;
+    this.filePreviewUrl = URL.createObjectURL(file);
+
+    if (!this.verifyData.name) {
+      this.verifyData.name = file.name;
+    }
   }
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
+
+  private initDashboardMap() {
+    const mapHost = document.getElementById('dashboardMap');
+    if (!mapHost || this.dashboardMap) {
+      return;
+    }
+
+    this.dashboardMap = L.map('dashboardMap').setView([
+      this.newReport.latitude || 20.5937,
+      this.newReport.longitude || 78.9629
+    ], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.dashboardMap);
+  }
+
+  private initReportMap() {
+    const mapHost = document.getElementById('reportMap');
+    if (!mapHost) {
+      return;
+    }
+
+    if (this.reportMap) {
+      this.reportMap.remove();
+    }
+
+    this.reportMap = L.map('reportMap').setView([
+      this.newReport.latitude || 20.5937,
+      this.newReport.longitude || 78.9629
+    ], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.reportMap);
+
+    this.reportMap.on('click', (event: any) => {
+      this.newReport.latitude = event.latlng.lat;
+      this.newReport.longitude = event.latlng.lng;
+
+      if (this.reportMarker) {
+        this.reportMap.removeLayer(this.reportMarker);
+      }
+
+      this.reportMarker = L.marker([event.latlng.lat, event.latlng.lng]).addTo(this.reportMap)
+        .bindPopup('Report location selected')
+        .openPopup();
+    });
+  }
+
+  private refreshReportMapCenter() {
+    if (this.reportMap) {
+      this.reportMap.setView([
+        this.newReport.latitude || 20.5937,
+        this.newReport.longitude || 78.9629
+      ], this.reportMap.getZoom() || 5);
+    }
+  }
 }

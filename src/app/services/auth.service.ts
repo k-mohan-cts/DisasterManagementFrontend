@@ -1,11 +1,6 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-<<<<<<< HEAD
+﻿import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, of, catchError, map } from 'rxjs';
-=======
-import { HttpClient , HttpHeaders } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -14,14 +9,11 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/users';
-<<<<<<< HEAD
-=======
   private citizenApiUrl = 'http://localhost:8082/api/citizens';
   private documentApiUrl = 'http://localhost:8082/api/documents';
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
@@ -38,21 +30,18 @@ export class AuthService {
   }
 
   signup(userData: any): Observable<any> {
-<<<<<<< HEAD
-    return this.http.post(this.apiUrl + '/createUser', userData);
-=======
-    return this.http.post(this.citizenApiUrl + '/createCitizen', userData);
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
+    const role = (userData?.role || userData?.userType || '').toString().toUpperCase();
+    const signupUrl = role === 'CITIZEN'
+      ? this.citizenApiUrl + '/createCitizen'
+      : this.apiUrl + '/createUser';
+
+    return this.http.post(signupUrl, userData);
   }
 
   logout() {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
     this.router.navigate(['/lander']);
   }
 
@@ -64,23 +53,49 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-<<<<<<< HEAD
-    return !!this.getToken();
+    return this.getToken() !== null;
   }
 
   getUserRole(): string | null {
-    const payload = this.getTokenPayload();
-    return payload?.role || null;
+    const user = this.getCurrentUser();
+    return user?.role || null;
   }
 
   getUserId(): number | null {
-    const payload = this.getTokenPayload();
-    return payload?.userId || payload?.id || null;
+    const user = this.getCurrentUser();
+    return user?.userId || user?.id || null;
   }
 
   getUserEmail(): string | null {
-    const payload = this.getTokenPayload();
-    return payload?.email || payload?.sub || null;
+    const user = this.getCurrentUser();
+    return user?.email || user?.sub || null;
+  }
+
+  getCurrentUser(): any | null {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (error) {
+      return null;
+    }
+  }
+
+  getVerificationStatus(): string | null {
+    const user = this.getCurrentUser();
+    return user?.verificationStatus || null;
+  }
+
+  isVerified(): boolean {
+    return this.getVerificationStatus() === 'VERIFIED';
+  }
+
+  isPendingVerification(): boolean {
+    const status = this.getVerificationStatus();
+    return status === 'PENDING' || status === 'REJECTED';
   }
 
   getUserIdByEmail(email?: string | null): Observable<number | null> {
@@ -117,66 +132,21 @@ export class AuthService {
     return this.getUserIdByEmail();
   }
 
-  private getTokenPayload(): any | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      return JSON.parse(atob(token.split('.')[1]));
-=======
-    return this.getToken() !== null;
+  uploadDocumentForVerification(documentData: any): Observable<any> {
+    return this.http.post<any>(this.documentApiUrl + '/upload', documentData);
   }
 
-  getUserRole(): string | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role || null;
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
-    } catch (e) {
-      return null;
-    }
-  }
-
-<<<<<<< HEAD
-=======
-  getUserId(): number | null {
-    const user = this.getCurrentUser();
-    return user && user.id ? user.id : null;
-  }
-
-  getCurrentUser(): any | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  getVerificationStatus(): string | null {
-    const user = this.getCurrentUser();
-    return user && user.verificationStatus ? user.verificationStatus : null;
-  }
-
-  isVerified(): boolean {
-    return this.getVerificationStatus() === 'VERIFIED';
-  }
-
-  isPendingVerification(): boolean {
-    const status = this.getVerificationStatus();
-    return status === 'PENDING' || status === 'REJECTED';
-  }
-
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
   private decodeTokenAndRedirect(token: string) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const role = payload.role;
-<<<<<<< HEAD
-      
+      const verificationStatus = payload.verificationStatus;
+
+      if (role === 'CITIZEN' && (verificationStatus === 'PENDING' || verificationStatus === 'REJECTED')) {
+        this.router.navigate(['/verification']);
+        return;
+      }
+
       switch (role) {
         case 'MANAGER':
           this.router.navigate(['/manager-dashboard']);
@@ -192,36 +162,9 @@ export class AuthService {
           break;
         default:
           this.router.navigate(['/lander']);
-=======
-      const verificationStatus = payload.verificationStatus;
-
-      // Check verification status for citizens
-      if (role === 'CITIZEN') {
-        if (verificationStatus === 'PENDING' || verificationStatus === 'REJECTED') {
-          // Redirect to verification page instead of dashboard
-          this.router.navigate(['/verification']);
-          return;
-        }
       }
-
-      switch (role) {
-        case 'MANAGER': this.router.navigate(['/manager-dashboard']); break;
-        case 'OFFICER': this.router.navigate(['/officer-dashboard']); break;
-        case 'AUDITOR': this.router.navigate(['/auditor-dashboard']); break;
-        case 'CITIZEN': this.router.navigate(['/citizen-dashboard']); break;
-        default: this.router.navigate(['/lander']);
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
-      }
-    } catch (e) {
+    } catch (error) {
       this.router.navigate(['/lander']);
     }
   }
-<<<<<<< HEAD
 }
-=======
-
-  getDocumentApiUrl(userData: any): Observable<any> {
-    return this.http.post<any>(this.documentApiUrl + '/upload', userData);  
-  }
-}
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2

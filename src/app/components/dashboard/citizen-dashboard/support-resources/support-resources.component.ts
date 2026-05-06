@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
-=======
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // Added ChangeDetectorRef
+﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../../services/disaster.service';
@@ -36,7 +31,6 @@ interface Distribution {
   expectedDelivery?: string;
   location?: string;
 }
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 
 @Component({
   selector: 'app-support-resources',
@@ -45,8 +39,7 @@ interface Distribution {
   templateUrl: './support-resources.component.html',
   styleUrl: './support-resources.component.css'
 })
-<<<<<<< HEAD
-export class SupportResourcesComponent {
+export class SupportResourcesComponent implements OnInit {
   showHelplineModal = false;
   showStatusModal = false;
 
@@ -62,18 +55,6 @@ export class SupportResourcesComponent {
     { title: 'Medical Supplies', badge: 'PENDING', badgeClass: 'badge-yellow', info: 'In Queue for processing', location: 'Main Warehouse' }
   ];
 
-  openModal(type: string) {
-    if (type === 'helpline') this.showHelplineModal = true;
-    else if (type === 'status') this.showStatusModal = true;
-  }
-
-  closeModals() {
-    this.showHelplineModal = false;
-    this.showStatusModal = false;
-  }
-}
-=======
-export class SupportResourcesComponent implements OnInit {
   reliefItems: ReliefItem[] = [];
   recoveryPrograms: RecoveryProgram[] = [];
   distributions: Distribution[] = [];
@@ -86,10 +67,9 @@ export class SupportResourcesComponent implements OnInit {
   errorPrograms: string | null = null;
   errorDistribution: string | null = null;
 
-  // Added cd to constructor
   constructor(
     private disasterService: DisasterService,
-    private cd: ChangeDetectorRef 
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -98,14 +78,28 @@ export class SupportResourcesComponent implements OnInit {
     this.fetchDistributions();
   }
 
+  openModal(type: string) {
+    if (type === 'helpline') {
+      this.showHelplineModal = true;
+    } else if (type === 'status') {
+      this.showStatusModal = true;
+    }
+  }
+
+  closeModals() {
+    this.showHelplineModal = false;
+    this.showStatusModal = false;
+  }
+
   fetchReliefItems() {
     this.loadingRelief = true;
     this.errorRelief = null;
+
     this.disasterService.getReliefItems().subscribe({
       next: (data) => {
         this.reliefItems = data || [];
         this.loadingRelief = false;
-        this.cd.detectChanges(); // Tell Angular data changed
+        this.cd.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching relief items:', err);
@@ -119,11 +113,12 @@ export class SupportResourcesComponent implements OnInit {
   fetchRecoveryPrograms() {
     this.loadingPrograms = true;
     this.errorPrograms = null;
+
     this.disasterService.getRecoveryPrograms().subscribe({
       next: (data) => {
         this.recoveryPrograms = data || [];
         this.loadingPrograms = false;
-        this.cd.detectChanges(); // Tell Angular data changed
+        this.cd.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching recovery programs:', err);
@@ -137,11 +132,12 @@ export class SupportResourcesComponent implements OnInit {
   fetchDistributions() {
     this.loadingDistribution = true;
     this.errorDistribution = null;
+
     this.disasterService.getDistributions().subscribe({
       next: (data) => {
         this.distributions = data || [];
         this.loadingDistribution = false;
-        this.cd.detectChanges(); // Tell Angular data changed
+        this.cd.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching distributions:', err);
@@ -160,4 +156,3 @@ export class SupportResourcesComponent implements OnInit {
     return 'badge-gray';
   }
 }
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2

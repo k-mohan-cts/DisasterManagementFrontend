@@ -1,4 +1,4 @@
-<div class="dashboard-container">
+﻿<div class="dashboard-container">
     <app-sidebar role="AUDITOR"></app-sidebar>
 
     <main class="main-content">
@@ -30,70 +30,50 @@
                 </div>
             </div>
 
-<<<<<<< HEAD
-            <div class="table-container" style="overflow-x: auto; white-space: nowrap;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>S.No.</th>
-                            <th>User</th>
-                            <th>Details</th>
-=======
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>Log ID</th>
                             <th>User</th>
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
                             <th>Action</th>
                             <th>Resource</th>
                             <th>Timestamp</th>
                             <th>IP Address</th>
+                            <th>Details</th>
                         </tr>
                     </thead>
                     <tbody>
-<<<<<<< HEAD
                         <tr *ngFor="let log of displayedLogs; let i = index">
-                            <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-=======
-                        <tr *ngFor="let log of getFilteredLogs()">
-                            <td><a href="#" class="id-link">{{log.id}}</a></td>
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
+                            <td><a href="#" class="id-link">{{ log.id }}</a></td>
                             <td>
                                 <div class="user-cell">
-                                    <div class="avatar">{{log.user.charAt(0)}}</div>
+                                    <div class="avatar">{{ log.user.charAt(0) }}</div>
                                     <div>
-                                        <div class="user-name">{{log.user}}</div>
-                                        <div class="user-role">{{log.role}}</div>
+                                        <div class="user-name">{{ log.user }}</div>
+                                        <div class="user-role">{{ log.role }}</div>
                                     </div>
                                 </div>
                             </td>
-<<<<<<< HEAD
-                            <td>{{log.details}}</td>
-=======
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
                             <td>
                                 <span class="action-badge" [ngClass]="log.action.toLowerCase()">
-                                    {{log.action}}
+                                    {{ log.action }}
                                 </span>
                             </td>
-                            <td class="resource-cell">{{log.resource}}</td>
-                            <td class="text-gray">{{log.timestamp}}</td>
-                            <td class="ip-cell">{{log.ip}}</td>
+                            <td class="resource-cell">{{ log.resource }}</td>
+                            <td class="text-gray">{{ log.timestamp }}</td>
+                            <td class="ip-cell">{{ log.ip }}</td>
+                            <td>{{ log.details }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-<<<<<<< HEAD
-            
+
             <div class="pagination-controls" style="display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px;">
                 <button (click)="prevPage()" [disabled]="currentPage === 1" style="padding: 8px 16px; border: 1px solid #ccc; border-radius: 4px; background-color: #f8f9fa; cursor: pointer;">Previous</button>
-                <span style="font-size: 14px; color: #555;">Page <b>{{currentPage}}</b> of <b>{{totalPagesServer === 0 ? 1 : totalPagesServer}}</b></span>
+                <span style="font-size: 14px; color: #555;">Page <b>{{ currentPage }}</b> of <b>{{ totalPagesServer === 0 ? 1 : totalPagesServer }}</b></span>
                 <button (click)="nextPage()" [disabled]="currentPage >= totalPagesServer" style="padding: 8px 16px; border: 1px solid #ccc; border-radius: 4px; background-color: #f8f9fa; cursor: pointer;">Next</button>
             </div>
-=======
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
         </div>
     </main>
 </div>

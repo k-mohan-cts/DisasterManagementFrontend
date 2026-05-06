@@ -1,17 +1,10 @@
-<<<<<<< HEAD
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-=======
-import { Component, OnInit } from '@angular/core';
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
+﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../../services/disaster.service';
 import { FormsModule } from '@angular/forms';
-<<<<<<< HEAD
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../services/auth.service';
-=======
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 
 @Component({
   selector: 'app-audit-management',
@@ -23,12 +16,11 @@ import { AuthService } from '../../../../services/auth.service';
 export class AuditManagementComponent implements OnInit {
   audits: any[] = [];
   showModal = false;
-<<<<<<< HEAD
   isLoading = false;
   pageError = '';
-=======
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
-  
+  isEditMode = false;
+  editingAuditId: number | null = null;
+
   newAudit: any = {
     officerId: null,
     scope: '',
@@ -36,7 +28,6 @@ export class AuditManagementComponent implements OnInit {
     status: 'SCHEDULED'
   };
 
-<<<<<<< HEAD
   constructor(
     private disasterService: DisasterService,
     private cdr: ChangeDetectorRef,
@@ -50,10 +41,13 @@ export class AuditManagementComponent implements OnInit {
         this.openCreateModal();
       }
     });
+
     this.loadAudits();
   }
 
   openCreateModal() {
+    this.isEditMode = false;
+    this.editingAuditId = null;
     this.newAudit = {
       officerId: null,
       scope: '',
@@ -62,6 +56,85 @@ export class AuditManagementComponent implements OnInit {
     };
     this.showModal = true;
     this.populateOfficerIdFromEmail();
+  }
+
+  openEditModal(audit: any) {
+    const sourceAudit = audit?.raw || audit;
+    const auditId = this.resolveAuditId(sourceAudit) ?? this.resolveAuditId(audit);
+
+    if (!auditId) {
+      alert('Unable to determine which audit to edit.');
+      return;
+    }
+
+    this.showModal = true;
+    this.isEditMode = true;
+    this.editingAuditId = auditId;
+    this.populateOfficerIdFromEmail();
+
+    this.disasterService.getAuditById(auditId).subscribe({
+      next: (data: any) => {
+        const auditDetails = this.normalizeSingleAuditResponse(data) || sourceAudit;
+        this.applyAuditToForm(auditDetails, auditId);
+      },
+      error: () => {
+        this.applyAuditToForm(sourceAudit, auditId);
+      }
+    });
+  }
+
+  private resolveAuditId(audit: any): number | null {
+    const candidate = audit?.auditId ?? audit?.auditID ?? audit?.id;
+    const numericId = Number(candidate);
+    return Number.isFinite(numericId) && numericId > 0 ? numericId : null;
+  }
+
+  private normalizeSingleAuditResponse(data: any): any {
+    if (!data) {
+      return null;
+    }
+
+    if (Array.isArray(data)) {
+      return data[0] || null;
+    }
+
+    const embedded = data?._embedded;
+    const candidates = [
+      data?.content,
+      data?.audit,
+      data?.item,
+      data?.data,
+      embedded?.audits,
+      embedded?.items
+    ];
+
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) {
+        return candidate[0] || null;
+      }
+
+      if (candidate && typeof candidate === 'object') {
+        return candidate;
+      }
+    }
+
+    return typeof data === 'object' ? data : null;
+  }
+
+  private applyAuditToForm(audit: any, auditId?: number | null) {
+    this.editingAuditId = auditId ?? this.resolveAuditId(audit) ?? this.editingAuditId;
+    this.newAudit = {
+      officerId: audit?.officerId ?? this.newAudit.officerId ?? null,
+      scope: audit?.scope || '',
+      findings: audit?.findings || '',
+      status: audit?.status || 'SCHEDULED'
+    };
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.isEditMode = false;
+    this.editingAuditId = null;
   }
 
   private populateOfficerIdFromEmail() {
@@ -73,21 +146,22 @@ export class AuditManagementComponent implements OnInit {
   loadAudits() {
     this.isLoading = true;
     this.pageError = '';
+
     this.disasterService.getAudits().subscribe({
       next: (data: any) => {
-        // Handle Spring Data Page object or direct array, similar to System Logs
         const auditData = this.normalizeAuditResponse(data);
-        
-        this.audits = auditData.map((a: any) => ({
-          id: 'AUD-' + (a.auditId || a.id || Math.random()).toString().padStart(4, '0'),
-          officerId: a.officerId ? String(a.officerId) : 'N/A',
-          scope: a.scope || '-',
-          findings: a.findings || 'No findings documented',
-          date: a.createdAt ? new Date(a.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
-          status: a.status || 'UNKNOWN'
+
+        this.audits = auditData.map((audit: any) => ({
+          auditId: this.resolveAuditId(audit),
+          id: 'AUD-' + (audit.auditId || audit.auditID || audit.id || Math.random()).toString().padStart(4, '0'),
+          officerId: audit.officerId ? String(audit.officerId) : 'N/A',
+          scope: audit.scope || '-',
+          findings: audit.findings || 'No findings documented',
+          date: audit.createdAt ? new Date(audit.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+          status: audit.status || 'UNKNOWN'
+          ,raw: audit
         }));
-        
-        // Ensure rendering
+
         setTimeout(() => {
           if (this.cdr && !(this.cdr as any).destroyed) {
             this.cdr.detectChanges();
@@ -135,17 +209,25 @@ export class AuditManagementComponent implements OnInit {
     const submit = (officerId: number | null) => {
       const payload = {
         ...this.newAudit,
-        officerId: officerId || this.newAudit.officerId || null
+        officerId: officerId || this.newAudit.officerId || null,
+        auditId: this.isEditMode ? this.editingAuditId : undefined
       };
 
-      this.disasterService.createAudit(payload).subscribe({
+      const request$ = this.isEditMode && this.editingAuditId
+        ? this.disasterService.updateAudit(this.editingAuditId, payload)
+        : this.disasterService.createAudit(payload);
+
+      request$.subscribe({
         next: () => {
-          alert('Audit initiated successfully!');
-          this.showModal = false;
+          alert(this.isEditMode ? 'Audit updated successfully!' : 'Audit initiated successfully!');
+          this.closeModal();
           this.loadAudits();
           this.newAudit = { officerId: null, scope: '', findings: '', status: 'SCHEDULED' };
         },
-        error: (err: any) => alert('Failed to initiate audit')
+        error: (error: any) => {
+          console.error('Failed to save audit', error);
+          alert(this.isEditMode ? 'Failed to update audit' : 'Failed to initiate audit');
+        }
       });
     };
 
@@ -155,39 +237,5 @@ export class AuditManagementComponent implements OnInit {
     }
 
     this.authService.getResolvedUserId().subscribe((officerId) => submit(officerId));
-=======
-  constructor(private disasterService: DisasterService) {}
-
-  ngOnInit() {
-    this.loadAudits();
-  }
-
-  loadAudits() {
-    this.disasterService.getAudits().subscribe({
-      next: (data: any[]) => {
-        this.audits = data.map((a: any) => ({
-          id: 'AUD-' + a.auditId.toString().padStart(4, '0'),
-          officerId: 'USR-' + a.officerId,
-          scope: a.scope,
-          findings: a.findings || 'No findings documented',
-          date: new Date(a.createdAt).toLocaleDateString(),
-          status: a.status
-        }));
-      },
-      error: (err: any) => console.error('Error fetching audits', err)
-    });
-  }
-
-  submitAudit() {
-    this.disasterService.createAudit(this.newAudit).subscribe({
-      next: () => {
-        alert('Audit initiated successfully!');
-        this.showModal = false;
-        this.loadAudits();
-        this.newAudit = { officerId: null, scope: '', findings: '', status: 'SCHEDULED' };
-      },
-      error: (err: any) => alert('Failed to initiate audit')
-    });
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
   }
 }

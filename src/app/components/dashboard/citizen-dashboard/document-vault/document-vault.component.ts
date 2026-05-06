@@ -1,12 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
-<<<<<<< HEAD
-import { DisasterService } from '../../../../services/disaster.service';
-=======
 import { DocumentService } from '../../../../services/document.service';
 import { AuthService } from '../../../../services/auth.service';
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 
 @Component({
   selector: 'app-document-vault',
@@ -16,19 +12,6 @@ import { AuthService } from '../../../../services/auth.service';
   styleUrl: './document-vault.component.css'
 })
 export class DocumentVaultComponent implements OnInit {
-<<<<<<< HEAD
-  documents: any[] = [
-    { name: 'Identity_Card_Front.jpg', type: 'Image', date: '15 Oct 2023', status: 'VERIFIED' },
-    { name: 'Proof_of_Address.pdf', type: 'PDF', date: '16 Oct 2023', status: 'PENDING' },
-    { name: 'Medical_Certificate.doc', type: 'Document', date: '10 Oct 2023', status: 'REJECTED' }
-  ];
-
-  constructor(private disasterService: DisasterService) {}
-
-  ngOnInit() {
-    // In a real scenario, we'd fetch documents for the logged-in citizen
-    // For now, keeping the prototype data as fallback
-=======
   documents: any[] = [];
   isLoading = true;
   citizenId: number | null = null;
@@ -42,6 +25,8 @@ export class DocumentVaultComponent implements OnInit {
     this.citizenId = this.authService.getUserId();
     if (this.citizenId) {
       this.loadDocuments();
+    } else {
+      this.isLoading = false;
     }
   }
 
@@ -50,29 +35,29 @@ export class DocumentVaultComponent implements OnInit {
     if (this.citizenId) {
       this.documentService.getDocumentsByCitizenId(this.citizenId).subscribe({
         next: (data: any[]) => {
-          this.documents = data.map((doc: any) => ({
-            id: doc.id,
-            name: doc.name,
-            type: doc.type,
-            date: new Date(doc.uploadDate).toLocaleDateString(),
-            status: doc.status || 'PENDING'
+          this.documents = (data || []).map((document: any) => ({
+            id: document.id,
+            name: document.name,
+            type: document.type,
+            date: new Date(document.uploadDate).toLocaleDateString(),
+            status: document.status || 'PENDING'
           }));
           this.isLoading = false;
         },
         error: (err) => {
           console.error('Failed to load documents', err);
+          this.documents = [];
           this.isLoading = false;
         }
       });
+    } else {
+      this.isLoading = false;
     }
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
   }
 
   getStatusClass(status: string): string {
-    return status.toLowerCase();
+    return (status || '').toLowerCase();
   }
-<<<<<<< HEAD
-=======
 
   downloadDocument(documentId: number, documentName: string) {
     this.documentService.downloadDocument(documentId).subscribe({
@@ -95,9 +80,8 @@ export class DocumentVaultComponent implements OnInit {
           alert('Document deleted successfully!');
           this.loadDocuments();
         },
-        error: (err) => alert('Failed to delete document')
+        error: () => alert('Failed to delete document')
       });
     }
   }
->>>>>>> 7543fd4b73c987159bd25f87895f6ff4d0c58ee2
 }

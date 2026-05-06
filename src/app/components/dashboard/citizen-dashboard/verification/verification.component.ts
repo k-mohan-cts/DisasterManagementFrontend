@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../services/auth.service';
 import { DisasterService } from '../../../../services/disaster.service';
-import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 
 interface CitizenDocumentRequestDTO {
   citizenId: number;
@@ -16,7 +15,7 @@ interface CitizenDocumentRequestDTO {
 @Component({
   selector: 'app-verification',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './verification.component.html',
   styleUrl: './verification.component.css'
 })
