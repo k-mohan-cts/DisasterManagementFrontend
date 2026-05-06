@@ -96,16 +96,17 @@
         <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden transform transition-all">
             <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center bg-gray-50">
                 <h3 class="text-lg font-bold text-gray-900">New Compliance Record</h3>
-                <button (click)="showModal = false" class="text-gray-400 hover:text-gray-600 focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button type="button" (click)="showModal = false" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
                 </button>
             </div>
-            
+
             <form (ngSubmit)="submitRecord()" class="p-6">
-                <!-- Entity Selection Section -->
                 <div class="mb-6">
                     <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">1. Select Target Entity</h4>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Entity Type</label>
@@ -115,19 +116,22 @@
                                 <option value="EMERGENCY">Emergency Response</option>
                             </select>
                         </div>
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Search Entity</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
                                 </div>
                                 <input type="text" name="search" [(ngModel)]="entitySearch" (input)="filterEntities()" placeholder="Search..." class="w-full pl-9 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="relative">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Select Target (<span class="text-gray-500 text-xs">{{filteredEntities.length}} found</span>)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Select Target (<span class="text-gray-500 text-xs">{{ filteredEntities.length }} found</span>)</label>
                         <input
                             type="text"
                             name="entitySearch"
@@ -157,20 +161,24 @@
                     </div>
                 </div>
 
-                <!-- Audit Results Section -->
                 <div>
                     <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">2. Audit Assessment</h4>
-                    
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Officer ID</label>
+                        <input type="text" [value]="newRecord.officerId || 'Resolving from token email...'" disabled class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50" />
+                    </div>
+
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-3">Compliance Status</label>
-                        <input type="text" [value]="newRecord.officerId || 'Resolving from token email...'" disabled class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50" />
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <label class="relative flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" [ngClass]="{'ring-2 ring-green-500 border-green-500 bg-green-50': newRecord.result === 'COMPLIANT'}">
                                 <input type="radio" name="result" [(ngModel)]="newRecord.result" value="COMPLIANT" class="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
                                 <span class="ml-3 flex flex-col">
                                     <span class="block text-sm font-medium text-gray-900">Compliant</span>
                                 </span>
                             </label>
-                            
+
                             <label class="relative flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" [ngClass]="{'ring-2 ring-yellow-500 border-yellow-500 bg-yellow-50': newRecord.result === 'PENDINGREVIEW'}">
                                 <input type="radio" name="result" [(ngModel)]="newRecord.result" value="PENDINGREVIEW" class="h-4 w-4 text-yellow-500 border-gray-300 focus:ring-yellow-500">
                                 <span class="ml-3 flex flex-col">
@@ -193,7 +201,6 @@
                     </div>
                 </div>
 
-                <!-- Footer Actions -->
                 <div class="mt-8 flex justify-end space-x-3 border-t border-gray-100 pt-5">
                     <button type="button" (click)="showModal = false" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                         Cancel
