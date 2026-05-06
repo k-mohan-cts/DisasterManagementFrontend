@@ -1,6 +1,6 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, of } from 'rxjs';
+import { Observable, tap, of, catchError, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -50,23 +50,59 @@ export class AuthService {
   }
 
   getUserRole(): string | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role || null;
-    } catch (e) {
-      return null;
-    }
+    const payload = this.getTokenPayload();
+    return payload?.role || null;
   }
 
   getUserId(): number | null {
+    const payload = this.getTokenPayload();
+    return payload?.userId || payload?.id || null;
+  }
+
+  getUserEmail(): string | null {
+    const payload = this.getTokenPayload();
+    return payload?.email || payload?.sub || null;
+  }
+
+  getUserIdByEmail(email?: string | null): Observable<number | null> {
+    const resolvedEmail = email || this.getUserEmail();
+    if (!resolvedEmail) {
+      return of(null);
+    }
+
+    const requestUrl = `${this.apiUrl}/getUserIdByEmail?email=${encodeURIComponent(resolvedEmail)}`;
+    return this.http.get<any>(requestUrl).pipe(
+      map((response: any) => {
+        if (typeof response === 'number') {
+          return response;
+        }
+
+        if (typeof response === 'string' && response.trim() !== '' && !Number.isNaN(Number(response))) {
+          return Number(response);
+        }
+
+        if (response && typeof response === 'object') {
+          return response.userId || response.id || response.data?.userId || response.data?.id || null;
+        }
+
+        return null;
+      }),
+      catchError((error) => {
+        console.error('Error resolving user id by email', error);
+        return of(null);
+      })
+    );
+  }
+
+  getResolvedUserId(): Observable<number | null> {
+    return this.getUserIdByEmail();
+  }
+
+  private getTokenPayload(): any | null {
     const token = this.getToken();
     if (!token) return null;
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      // Check for userId or sub in JWT
-      return payload.userId || payload.id || null;
+      return JSON.parse(atob(token.split('.')[1]));
     } catch (e) {
       return null;
     }

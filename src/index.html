@@ -9,7 +9,27 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                },
+                colors: {
+                    sidebar: '#1a365d',
+                    sidebarHover: '#2a4a75',
+                    brandBlue: '#1a4b6e',
+                    success: '#10b981',
+                    warning: '#f59e0b',
+                    danger: '#ef4444',
+                }
+            }
+        }
+    }
+  </script>
 </head>
 <body>
   <app-root></app-root>
