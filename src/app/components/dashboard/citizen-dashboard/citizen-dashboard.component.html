@@ -29,10 +29,10 @@
                 <!-- Emergency Reporting -->
                 <div class="card">
                     <div class="card-header">
-                        <h3><i class="fas fa- megaphone"></i> Quick Report</h3>
+                        <h3><i class="fas fa-megaphone"></i> Quick Report</h3>
                     </div>
                     <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Report an emergency or request immediate assistance.</p>
-                    <button class="emergency-btn" (click)="showReportModal = true">Report Emergency</button>
+                    <button type="button" class="emergency-btn" (click)="openReportModal()">Report Emergency</button>
                     <button class="request-btn">Request Relief</button>
                 </div>
 
@@ -59,13 +59,25 @@
                         <h3><i class="fas fa-building"></i> Nearby Shelters</h3>
                     </div>
                     <div class="shelter-list">
-                        <div class="shelter-item" *ngFor="let shelter of shelters">
-                            <div class="shelter-info">
-                                <span>{{shelter.name}}</span>
-                                <span>{{shelter.capacity}}% full</span>
+                        <!-- Data fetched from ShelterResponseDTO -->
+                        <div class="shelter-item" *ngFor="let shelter of shelters" style="margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+                            <div class="shelter-info" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                <div class="shelter-text">
+                                    <span class="shelter-name" style="font-weight: 600; color: #1e293b; display: block;">{{shelter.name}}</span>
+                                    <span class="shelter-location" style="font-size: 12px; color: #64748b;">{{shelter.location}}</span>
+                                </div>
+                                <!-- Showing Occupied / Total capacity -->
+                                <span class="occupancy-stats" style="font-size: 13px; font-weight: 500; color: #475569;">
+                                    {{shelter.occupancy}} / {{shelter.capacity}}
+                                </span>
                             </div>
-                            <div class="progress-container">
-                                <div class="progress-bar" [style.width.%]="shelter.capacity" [style.background-color]="shelter.color"></div>
+                            <!-- Progress bar tracking occupancy percentage -->
+                            <div class="progress-container" style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div class="progress-bar" 
+                                     [style.width.%]="(shelter.occupancy / shelter.capacity) * 100" 
+                                     [style.background-color]="shelter.color || '#14b8a6'"
+                                     style="height: 100%; transition: width 0.4s ease;">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -127,27 +139,54 @@
     <div class="modal-overlay" *ngIf="showReportModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Report Emergency</h2>
-                <button class="close-modal" (click)="showReportModal = false">&times;</button>
+                <h2><i class="fas fa-exclamation-circle" style="color: #dc2626; margin-right: 12px;"></i>Report Emergency</h2>
+                <button type="button" class="close-modal" (click)="closeReportModal()">&times;</button>
             </div>
             <form (ngSubmit)="submitReport()">
+                <!-- Location Name -->
                 <div class="input-group">
-                    <label>Type of Emergency</label>
-                    <select name="type" [(ngModel)]="newReport.type">
+                    <label><i class="fas fa-map-marker-alt" style="color: #14b8a6; margin-right: 8px;"></i>Location Name</label>
+                    <input type="text" name="location" [(ngModel)]="newReport.location" placeholder="e.g., Riverside District, Downtown Area" required>
+                </div>
+
+                <!-- Type of Emergency -->
+                <div class="input-group">
+                    <label><i class="fas fa-exclamation-triangle" style="color: #f59e0b; margin-right: 8px;"></i>Type of Emergency</label>
+                    <select name="type" [(ngModel)]="newReport.type" required>
+                        <option value="" disabled selected>Select emergency type...</option>
                         <option *ngFor="let t of emergencyTypes" [value]="t">{{t}}</option>
                     </select>
                 </div>
+
+                <!-- Description -->
                 <div class="input-group">
-                    <label>Location Name</label>
-                    <input type="text" name="location" [(ngModel)]="newReport.location" placeholder="e.g. Riverside District">
+                    <label><i class="fas fa-pen-fancy" style="color: #6366f1; margin-right: 8px;"></i>Description</label>
+                    <textarea name="description" [(ngModel)]="newReport.description" placeholder="Provide detailed information about the emergency situation..." required></textarea>
                 </div>
+
+                <!-- Map for Location Selection -->
                 <div class="input-group">
-                    <label>Description</label>
-                    <textarea name="description" [(ngModel)]="newReport.description" rows="3"></textarea>
+                    <label><i class="fas fa-map" style="color: #8b5cf6; margin-right: 8px;"></i>Select Location on Map</label>
+                    <p style="font-style: italic; background: #f0fdfa; padding: 10px; border-radius: 8px; border-left: 3px solid #14b8a6;">📍 Click on the map to pinpoint the exact location. Coordinates will update automatically.</p>
+                    <div id="map" class="modal-map"></div>
                 </div>
+
+                <!-- Coordinates Display -->
+                <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label><i class="fas fa-arrows-alt-v" style="color: #3b82f6; margin-right: 8px;"></i>Latitude</label>
+                        <input type="number" name="latitude" [(ngModel)]="newReport.latitude" readonly style="background: #f1f5f9; cursor: not-allowed;">
+                    </div>
+                    <div>
+                        <label><i class="fas fa-arrows-alt-h" style="color: #3b82f6; margin-right: 8px;"></i>Longitude</label>
+                        <input type="number" name="longitude" [(ngModel)]="newReport.longitude" readonly style="background: #f1f5f9; cursor: not-allowed;">
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" (click)="showReportModal = false">Cancel</button>
-                    <button type="submit" class="btn-emergency-submit">Submit Report</button>
+                    <button type="button" class="btn-cancel" (click)="closeReportModal()">Cancel</button>
+                    <button type="submit" class="btn-emergency-submit"><i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Submit Report</button>
                 </div>
             </form>
         </div>

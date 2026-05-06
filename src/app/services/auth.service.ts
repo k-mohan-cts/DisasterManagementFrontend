@@ -1,6 +1,6 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap, of } from 'rxjs';
+import { HttpClient , HttpHeaders } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -37,6 +37,7 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
     }
+
     this.router.navigate(['/lander']);
   }
 
@@ -45,10 +46,6 @@ export class AuthService {
       return localStorage.getItem('token');
     }
     return null;
-  }
-
-  isLoggedIn(): boolean {
-    return !!this.getToken();
   }
 
   getUserRole(): string | null {
@@ -63,12 +60,16 @@ export class AuthService {
   }
 
   getUserId(): number | null {
+    const user = this.getCurrentUser();
+    return user && user.id ? user.id : null;
+  }
+
+  getCurrentUser(): any | null {
     const token = this.getToken();
     if (!token) return null;
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      // Check for userId or sub in JWT
-      return payload.userId || payload.id || null;
+      return payload;
     } catch (e) {
       return null;
     }
@@ -78,22 +79,12 @@ export class AuthService {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const role = payload.role;
-      
       switch (role) {
-        case 'MANAGER':
-          this.router.navigate(['/manager-dashboard']);
-          break;
-        case 'OFFICER':
-          this.router.navigate(['/officer-dashboard']);
-          break;
-        case 'AUDITOR':
-          this.router.navigate(['/auditor-dashboard']);
-          break;
-        case 'CITIZEN':
-          this.router.navigate(['/citizen-dashboard']);
-          break;
-        default:
-          this.router.navigate(['/lander']);
+        case 'MANAGER': this.router.navigate(['/manager-dashboard']); break;
+        case 'OFFICER': this.router.navigate(['/officer-dashboard']); break;
+        case 'AUDITOR': this.router.navigate(['/auditor-dashboard']); break;
+        case 'CITIZEN': this.router.navigate(['/citizen-dashboard']); break;
+        default: this.router.navigate(['/lander']);
       }
     } catch (e) {
       this.router.navigate(['/lander']);

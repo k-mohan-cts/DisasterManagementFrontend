@@ -9,10 +9,18 @@ export const authGuard: CanActivateFn = (route, state) => {
   const platformId = inject(PLATFORM_ID);
 
   if (!isPlatformBrowser(platformId)) {
-    return true; // Allow navigation during SSR to avoid redirect loops
+    return true; 
   }
 
   if (authService.isLoggedIn()) {
+    const userRole = authService.getUserRole();
+    const expectedRole = route.data['role'];
+
+    // If the route has a required role and user doesn't match, block access
+    if (expectedRole && userRole !== expectedRole) {
+      router.navigate(['/lander']);
+      return false;
+    }
     return true;
   } else {
     router.navigate(['/login']);
