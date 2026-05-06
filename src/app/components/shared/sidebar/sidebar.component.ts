@@ -11,13 +11,13 @@ import { AuthService } from '../../../services/auth.service';
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent {
+
   @Input() role: string = 'CITIZEN';
-  
+
   userName: string = 'User';
   userAvatar: string = 'U';
 
   constructor(private authService: AuthService) {
-    // In a real app, you'd get this from the token or a user service
     const token = this.authService.getToken();
     if (token) {
       try {
@@ -25,7 +25,7 @@ export class SidebarComponent {
         this.userName = payload.sub || 'User';
         this.userAvatar = this.userName.charAt(0).toUpperCase();
         this.role = payload.role || 'CITIZEN';
-      } catch (e) {}
+      } catch {}
     }
   }
 

@@ -1,103 +1,213 @@
 <div class="sidebar">
-    
-    <div class="logo-container">
-        <div class="logo-box">
-            <i class="fas fa-shield-alt"></i>
-            <span>DisasterRelief</span>
-        </div>
+
+  <div class="logo-container">
+    <!-- LOGO -->
+    <div class="logo-box">
+      <i class="fas fa-shield-alt"></i>
+      <span>DisasterRelief</span>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <div class="nav-content">
+
+    <!-- ===================== CITIZEN ===================== -->
+    <ng-container *ngIf="role === 'CITIZEN'">
+      <div class="nav-section">
+        <div class="nav-title">Dashboard</div>
+        <ul class="nav-links">
+          <li>
+            <a routerLink="/citizen-dashboard" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-home"></i>
+              Overview
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-title">Support & Resources</div>
+        <ul class="nav-links">
+          <li>
+            <a routerLink="/resources" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-heart"></i>
+              Resources
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-title">Documents</div>
+        <ul class="nav-links">
+          <li>
+            <a routerLink="/documents" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-file-alt"></i>
+              Document Vault
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-title">My Reports</div>
+        <ul class="nav-links">
+          <li>
+            <a routerLink="/history" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-file-invoice"></i>
+              History
+            </a>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+
+    <!-- ===================== OFFICER ===================== -->
+<ng-container *ngIf="role === 'OFFICER'">
+      <div class="nav-section">
+        <div class="nav-title">OPERATIONS</div>
+        <ul class="nav-links">
+          <li>
+            <a routerLink="/officer-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+              <i class="fas fa-home"></i>
+              Dashboard
+            </a>
+          </li>
+
+          <li>
+            <a routerLink="/relief-inventory" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-box"></i>
+              Relief Inventory
+            </a>
+          </li>
+
+          <li>
+            <a routerLink="/distributions" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-truck"></i>
+              Distributions
+            </a>
+          </li>
+
+          <li>
+            <a routerLink="/shelters" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-building"></i>
+              Shelters
+            </a>
+          </li>
+
+          <li>
+            <a routerLink="/citizens" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-users"></i>
+              Citizen Registry
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-title emergencies">EMERGENCIES</div>
+        <ul class="nav-links">
+          <li>
+            <!-- Updated to ensure it hits Officer-specific logic -->
+            <a routerLink="/emergencies" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-exclamation-triangle"></i>
+              Emergencies
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-title recovery">RECOVERY</div>
+        <ul class="nav-links">
+          <li>
+            <!-- Updated path to keep it within Officer scope -->
+            <a routerLink="/recovery-programs" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-clipboard-list"></i>
+              Recovery Programs
+            </a>
+          </li>
+        </ul>
+      </div>
+</ng-container>
+
+    <!-- ===================== MANAGER ===================== -->
+    <ng-container *ngIf="role === 'MANAGER'">
+      <div class="nav-section">
+        <div class="nav-title">Management</div>
+        <ul class="nav-links">
+          <li>
+            <a routerLink="/manager-dashboard" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-chart-line"></i>
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a routerLink="/incidents" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-exclamation-triangle"></i>
+              Incidents
+            </a>
+          </li>
+          <li>
+            <!-- Manager specific path -->
+            <a routerLink="/recovery-programs" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-clipboard-list"></i>
+              Recovery Programs
+            </a>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+
+    <!-- ===================== AUDITOR ===================== -->
+    <ng-container *ngIf="role === 'AUDITOR'">
+      <div class="nav-section">
+        <div class="nav-title">Audit & Compliance</div>
+        <ul class="nav-links">
+          <li>
+            <a routerLink="/auditor-dashboard" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-shield-alt"></i>
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a routerLink="/compliance-records" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-clipboard-check"></i>
+              Compliance Records
+            </a>
+          </li>
+          <li>
+            <a routerLink="/audit-management" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-file-signature"></i>
+              Audit Management
+            </a>
+          </li>
+          <li>
+            <a routerLink="/system-logs" routerLinkActive="active" class="nav-item">
+              <i class="fas fa-server"></i>
+              System Logs
+            </a>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <!-- USER PROFILE -->
+  <div class="user-profile-container">
+    <div class="user-profile">
+      <div class="avatar">{{ userAvatar }}</div>
+      <div class="user-info">
+        <h4>{{ userName }}</h4>
+        <p>{{ role }}</p>
+      </div>
     </div>
 
-    <div class="nav-content">
-        <!-- Citizen Menu -->
-        <ng-container *ngIf="role === 'CITIZEN'">
-            <div class="nav-section">
-                <div class="nav-title">Dashboard</div>
-                <ul class="nav-links">
-                    <li><a routerLink="/citizen-dashboard" routerLinkActive="active" class="nav-item"><i class="fas fa-home"></i> Overview</a></li>
-                </ul>
-            </div>
+    <button (click)="logout()" class="logout-btn">
+      <i class="fas fa-sign-out-alt"></i>
+      Sign out
+    </button>
+  </div>
 
-            <div class="nav-section">
-                <div class="nav-title">Support & Resources</div>
-                <ul class="nav-links">
-                    <li><a routerLink="/resources" routerLinkActive="active" class="nav-item"><i class="fas fa-heart"></i> Resources</a></li>
-                </ul>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-title">Document Vault</div>
-                <ul class="nav-links">
-                    <li><a routerLink="/documents" routerLinkActive="active" class="nav-item"><i class="fas fa-file-alt"></i> Documents</a></li>
-                </ul>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-title">Notification History</div>
-                <ul class="nav-links">
-                    <li><a routerLink="/notifications" routerLinkActive="active" class="nav-item"><i class="fas fa-bell"></i> Notifications</a></li>
-                </ul>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-title">My Reports</div>
-                <ul class="nav-links">
-                    <li><a routerLink="/history" routerLinkActive="active" class="nav-item"><i class="fas fa-file-invoice"></i> History</a></li>
-                </ul>
-            </div>
-        </ng-container>
-
-        <!-- Manager Menu -->
-        <ng-container *ngIf="role === 'MANAGER'">
-            <div class="nav-section">
-                <div class="nav-title">Management</div>
-                <ul class="nav-links">
-                    <li><a routerLink="/manager-dashboard" routerLinkActive="active" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a routerLink="/incidents" routerLinkActive="active" class="nav-item"><i class="fas fa-exclamation-triangle"></i> Incidents</a></li>
-                    <li><a routerLink="/resources-mgmt" routerLinkActive="active" class="nav-item"><i class="fas fa-cubes"></i> Resources</a></li>
-                    <li><a routerLink="/recovery-programs" routerLinkActive="active" class="nav-item"><i class="fas fa-clipboard-list"></i> Recovery Programs</a></li>
-                </ul>
-            </div>
-        </ng-container>
-
-        <!-- Officer Menu -->
-        <ng-container *ngIf="role === 'OFFICER'">
-            <div class="nav-section">
-                <div class="nav-title">Operations</div>
-                <ul class="nav-links">
-                    <li><a routerLink="/officer-dashboard" routerLinkActive="active" class="nav-item"><i class="fas fa-dashboard"></i> Dashboard</a></li>
-                    <li><a routerLink="/relief-inventory" routerLinkActive="active" class="nav-item"><i class="fas fa-box"></i> Relief Inventory</a></li>
-                    <li><a routerLink="/distributions" routerLinkActive="active" class="nav-item"><i class="fas fa-truck"></i> Distributions</a></li>
-                    <li><a routerLink="/shelters" routerLinkActive="active" class="nav-item"><i class="fas fa-building"></i> Shelters</a></li>
-                </ul>
-            </div>
-        </ng-container>
-
-        <!-- Auditor Menu -->
-        <ng-container *ngIf="role === 'AUDITOR'">
-            <div class="nav-section">
-                <div class="nav-title">Audit & Compliance</div>
-                <ul class="nav-links">
-                    <li><a routerLink="/auditor-dashboard" routerLinkActive="active" class="nav-item"><i class="fas fa-shield-alt"></i> Dashboard</a></li>
-                    <li><a routerLink="/compliance-records" routerLinkActive="active" class="nav-item"><i class="fas fa-clipboard-check"></i> Compliance Records</a></li>
-                    <li><a routerLink="/audit-management" routerLinkActive="active" class="nav-item"><i class="fas fa-file-signature"></i> Audit Management</a></li>
-                    <li><a routerLink="/system-logs" routerLinkActive="active" class="nav-item"><i class="fas fa-server"></i> System Logs</a></li>
-                </ul>
-            </div>
-        </ng-container>
-    </div>
-
-    <div class="user-profile-container">
-        <div class="user-profile">
-            <div class="avatar">{{userAvatar}}</div>
-            <div class="user-info">
-                <h4>{{userName}}</h4>
-                <p>{{role}}</p>
-            </div>
-        </div>
-        <div class="logout-container">
-            <button (click)="logout()" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Sign out
-            </button>
-        </div>
-    </div>
 </div>

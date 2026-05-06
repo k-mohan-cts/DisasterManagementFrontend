@@ -1,113 +1,85 @@
 <div class="app-shell">
-    <app-sidebar role="OFFICER"></app-sidebar>
+  <app-sidebar role="OFFICER"></app-sidebar>
 
-    <div class="content">
-        <header class="topbar">
-            <h1>Officer Command Center</h1>
-            <div class="topbar-right">
-                <span class="bell">🔔</span>
-                <div class="role-chip">Relief Officer</div>
+  <section class="content">
+    <header class="topbar">
+      <h1>Dashboard</h1>
+      <div class="topbar-right">
+        <span class="role-chip">Officer</span>
+        <button class="text-btn" (click)="onLogout()">Sign out</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="page">
+        
+        <!-- Top Stats Row -->
+        <div class="stats-grid">
+          <article class="card" *ngFor="let category of [
+            { title: 'Emergencies', obs: emergencyCounts$, icon: 'emergency', iconSym: '⚠' },
+            { title: 'Shelters', obs: shelterCounts$, icon: 'shelters', iconSym: '▣' },
+            { title: 'Programs', obs: programCounts$, icon: 'programs', iconSym: '▤' },
+            { title: 'Inventory', obs: inventoryCounts$, icon: 'inventory', iconSym: '◈' },
+            { title: 'Citizens', obs: citizenCounts$, icon: 'citizens', iconSym: '⚭' }
+          ]">
+            <div class="card-body">
+              <div class="stat-title">
+                <span class="stat-icon" [ngClass]="category.icon">{{category.iconSym}}</span>
+                <h4>{{category.title}}</h4>
+              </div>
+              <div class="mini-list">
+                <div class="status-row" *ngFor="let item of (category.obs | async)">
+                  <span><i class="dot" [ngClass]="getToneForStatus(item.label)"></i> {{ item.label }}</span>
+                  <b>{{ item.count }}</b>
+                </div>
+              </div>
             </div>
-        </header>
+          </article>
+        </div>
 
-        <main class="main">
-            <div class="page">
-                <div class="page-head">
-                    <div>
-                        <h2>Dashboard</h2>
-                        <p class="sub">Welcome back, Relief Officer</p>
-                    </div>
-                </div>
-
-                <!-- Stats Grid -->
-                <div class="stats-grid">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="stat-title">
-                                <div class="stat-icon emergency">⚠️</div>
-                                <h4>Emergencies</h4>
-                            </div>
-                            <p class="big">{{emergenciesCount}}</p>
-                            <div class="mini-list">
-                                <div>Active Reports <b>{{emergenciesCount}}</b></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="stat-title">
-                                <div class="stat-icon shelters">⛺</div>
-                                <h4>Shelters</h4>
-                            </div>
-                            <p class="big">{{sheltersCount}}</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="stat-title">
-                                <div class="stat-icon programs">📋</div>
-                                <h4>Recovery</h4>
-                            </div>
-                            <p class="big">{{recoveryProgramsCount}}</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="stat-title">
-                                <div class="stat-icon inventory">🏢</div>
-                                <h4>Inventory</h4>
-                            </div>
-                            <p class="big">{{inventoryCount}}</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="stat-title">
-                                <div class="stat-icon citizens">👥</div>
-                                <h4>Citizens</h4>
-                            </div>
-                            <p class="big">{{citizensCount}}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="split-grid">
-                    <!-- Recent Emergencies -->
-                    <div class="panel">
-                        <div class="panel-head">
-                            <h3>Recent Emergencies</h3>
-                            <a routerLink="/emergencies">View all →</a>
-                        </div>
-                        <div class="panel-body">
-                            <div class="list-item" *ngFor="let e of recentEmergencies">
-                                <p><strong>{{e.type}}</strong> - {{e.location}}</p>
-                                <small>{{e.reportDate | date}}</small>
-                                <span class="pill" [ngClass]="'pill-' + e.status.toLowerCase()">{{e.status}}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Active Recovery Programs -->
-                    <div class="panel">
-                        <div class="panel-head">
-                            <h3>Recovery Programs</h3>
-                            <a routerLink="/recovery-programs">View all →</a>
-                        </div>
-                        <div class="panel-body">
-                            <div class="list-item" *ngFor="let p of activePrograms">
-                                <p><strong>{{p.programName}}</strong></p>
-                                <div class="budget-line">
-                                    <span>Budget: ${{p.budget}}</span>
-                                    <span>{{p.status}}</span>
-                                </div>
-                                <div class="progress">
-                                    <span style="width: 65%"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <!-- ✅ Bottom Recent Activity Grid -->
+        <div class="recent-grid">
+          
+          <!-- Recent Emergencies -->
+          <section class="card">
+            <div class="box-header">
+              <h3>Recent Emergencies</h3>
+              <a routerLink="/emergencies" class="view-link">View all →</a>
             </div>
-        </main>
-    </div>
+            <div class="activity-list">
+              <div class="activity-item" *ngFor="let item of (recentEmergencies$ | async)">
+                <div class="item-meta">
+                  <span class="item-title">{{ item.incidentType }} - {{ item.location }}</span>
+                  <span class="item-sub">{{ item.reportDate | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <span class="status-pill" [ngClass]="getToneForStatus(item.status)">
+                  {{ item.status }}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Active Programs -->
+          <section class="card">
+            <div class="box-header">
+              <h3>Active Programs</h3>
+              <a routerLink="/recovery-programs" class="view-link">View all →</a>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item" *ngFor="let prog of (activePrograms$ | async)">
+                <div class="item-meta">
+                  <span class="item-title">{{ prog.programName }}</span>
+                  <span class="item-sub">Budget: ${{ prog.budget | number }}</span>
+                </div>
+                <span class="status-pill" [ngClass]="getToneForStatus(prog.status)">
+                  {{ prog.status }}
+                </span>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </main>
+  </section>
 </div>

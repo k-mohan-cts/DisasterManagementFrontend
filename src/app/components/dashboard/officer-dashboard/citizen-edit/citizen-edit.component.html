@@ -1,0 +1,45 @@
+<div class="app-shell" *ngIf="!loading; else loadingTemplate">
+  <app-sidebar role="OFFICER"></app-sidebar>
+
+  <section class="content">
+    <header class="topbar">
+      <h1>Citizen Management</h1>
+    </header>
+
+    <main class="main">
+      <div class="edit-card" *ngIf="citizen">
+        <h2>Edit Status for {{ citizen.name }}</h2>
+        <form (ngSubmit)="updateCitizen()">
+          <div class="form-group">
+            <label>Validation Status</label>
+            <select [(ngModel)]="citizen.status" name="status" class="status-select">
+              <option value="PENDING">Unverified</option>
+              <option value="VERIFIED">Verified</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
+            <button type="submit" class="update-btn" [disabled]="saving">
+              {{ saving ? 'Updating...' : 'Update Status' }}
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <div *ngIf="!citizen" class="error-state">
+          <p>No citizen data found.</p>
+          <button (click)="cancel()">Go Back</button>
+      </div>
+    </main>
+  </section>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading citizen records...</p>
+  </div>
+</ng-template>

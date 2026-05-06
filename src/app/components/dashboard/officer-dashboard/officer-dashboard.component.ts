@@ -1,49 +1,74 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { Observable, map } from 'rxjs';
+
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
-import { DisasterService } from '../../../services/disaster.service';
-import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
+import { DashboardStateService } from './dashboard-state.service';
 
 @Component({
   selector: 'app-officer-dashboard',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, RouterLink],
+  imports: [CommonModule, RouterLink, SidebarComponent, DatePipe, DecimalPipe],
   templateUrl: './officer-dashboard.component.html',
-  styleUrl: './officer-dashboard.component.css'
+  styleUrls: ['./officer-dashboard.component.css']
 })
 export class OfficerDashboardComponent implements OnInit {
-  emergenciesCount = 0;
-  sheltersCount = 0;
-  recoveryProgramsCount = 0;
-  inventoryCount = 0;
-  citizensCount = 0;
+  // Summary Count Observables from State Service
+  emergencyCounts$!: Observable<any>;
+  shelterCounts$!: Observable<any>;
+  programCounts$!: Observable<any>;
+  inventoryCounts$!: Observable<any>;
+  citizenCounts$!: Observable<any>;
 
-  recentEmergencies: any[] = [];
-  activePrograms: any[] = [];
+  // Data Lists for the bottom section
+  recentEmergencies$!: Observable<any[]>;
+  activePrograms$!: Observable<any[]>;
 
-  constructor(private disasterService: DisasterService) {}
+  constructor(
+    private stateService: DashboardStateService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-  ngOnInit() {
-    this.loadStats();
+  ngOnInit(): void {
+    // 1. Initialize Observables
+    this.emergencyCounts$ = this.stateService.emergencyCounts$;
+    this.shelterCounts$ = this.stateService.shelterCounts$;
+    this.programCounts$ = this.stateService.programCounts$;
+    this.inventoryCounts$ = this.stateService.inventoryCounts$;
+    this.citizenCounts$ = this.stateService.citizenCounts$;
+
+    // 2. Trigger the backend fetch from the service
+    this.stateService.loadAll();
+
+    // 3. Fetch raw Emergencies from the service's BehaviorSubject
+    this.recentEmergencies$ = this.stateService.emergencies$.pipe(
+      map(list => list.slice(0, 2)) // Show only top 2 from DB
+    );
+
+    // 4. Fetch Citizens or Programs list from DB
+    this.activePrograms$ = this.stateService.citizens$.pipe(
+      map(list => list.slice(0, 2)) 
+    );
   }
 
-  loadStats() {
-    this.disasterService.getEmergencies().subscribe(data => {
-      this.recentEmergencies = data.slice(0, 5);
-      this.emergenciesCount = data.length;
-    });
+  // Logic to return CSS classes based on status string
+  getToneForStatus(label: string): string {
+    const status = String(label || '').toUpperCase();
+    const statusMap: any = {
+      ACTIVE: 'emerald', VALIDATED: 'emerald', OPEN: 'emerald', VERIFIED: 'emerald',
+      PENDING: 'amber', LOW: 'amber',
+      RESOLVED: 'violet', COMPLETED: 'violet',
+      FULL: 'rose', OUTOFSTOCK: 'rose',
+      CLOSED: 'slate', INACTIVE: 'slate'
+    };
+    return statusMap[status] || 'slate';
+  }
 
-    this.disasterService.getShelters().subscribe(data => {
-      this.sheltersCount = data.length;
-    });
-
-    this.disasterService.getRecoveryPrograms().subscribe(data => {
-      this.activePrograms = data.slice(0, 2);
-      this.recoveryProgramsCount = data.length;
-    });
-
-    this.disasterService.getReliefItems().subscribe(data => {
-      this.inventoryCount = data.length;
-    });
+  onLogout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }
