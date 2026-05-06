@@ -253,10 +253,9 @@
 .modal-content {
     background: white;
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
     max-height: 90vh;
     border-radius: 20px;
-    padding: 32px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     position: relative;
     display: flex;
@@ -268,8 +267,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    padding: 32px 32px 20px 32px;
     flex-shrink: 0;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-header h2 { 
@@ -302,33 +302,33 @@
 }
 
 /* Form Container with Scroll */
-form {
+.modal-form {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-right: 8px;
+    padding: 32px;
 }
 
-form::-webkit-scrollbar {
-    width: 6px;
+.modal-form::-webkit-scrollbar {
+    width: 8px;
 }
 
-form::-webkit-scrollbar-track {
+.modal-form::-webkit-scrollbar-track {
     background: #f1f5f9;
     border-radius: 10px;
 }
 
-form::-webkit-scrollbar-thumb {
+.modal-form::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 10px;
 }
 
-form::-webkit-scrollbar-thumb:hover {
+.modal-form::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
 
 .input-group { 
-    margin-bottom: 24px; 
+    margin-bottom: 28px; 
 }
 
 .input-group label { 
@@ -336,7 +336,7 @@ form::-webkit-scrollbar-thumb:hover {
     font-size: 15px; 
     font-weight: 600; 
     color: #1e293b; 
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     letter-spacing: 0.3px;
 }
 
@@ -379,17 +379,17 @@ form::-webkit-scrollbar-thumb:hover {
 .input-group p {
     font-size: 13px;
     color: #64748b;
-    margin: 8px 0 12px 0;
-    line-height: 1.4;
+    margin: 10px 0 16px 0;
+    line-height: 1.5;
 }
 
 .modal-map {
     width: 100%;
-    height: 300px;
+    height: 320px;
     border-radius: 14px;
     border: 2px solid #e2e8f0;
-    margin-top: 12px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    transition: box-shadow 0.3s ease;
 }
 
 .modal-footer {
@@ -397,7 +397,6 @@ form::-webkit-scrollbar-thumb:hover {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-top: 32px;
-    flex-shrink: 0;
 }
 
 .btn-cancel {

@@ -100,7 +100,8 @@
                 <h2><i class="fas fa-exclamation-circle" style="color: #dc2626; margin-right: 12px;"></i>Report Emergency</h2>
                 <button type="button" class="close-modal" (click)="closeReportModal()">&times;</button>
             </div>
-            <form (ngSubmit)="submitReport()">
+            
+            <form (ngSubmit)="submitReport()" class="modal-form">
                 <!-- Location Name -->
                 <div class="input-group">
                     <label><i class="fas fa-map-marker-alt" style="color: #14b8a6; margin-right: 8px;"></i>Location Name</label>
@@ -125,7 +126,7 @@
                 <!-- Map for Location Selection -->
                 <div class="input-group">
                     <label><i class="fas fa-map" style="color: #8b5cf6; margin-right: 8px;"></i>Select Location on Map</label>
-                    <p style="font-style: italic; background: #f0fdfa; padding: 10px; border-radius: 8px; border-left: 3px solid #14b8a6;">📍 Click on the map to pinpoint the exact location. Coordinates will update automatically.</p>
+                    <p style="font-style: italic; background: #f0fdfa; padding: 10px; border-radius: 8px; border-left: 3px solid #14b8a6; margin-bottom: 12px; font-size: 13px;">📍 Click on the map to pinpoint the exact location. Coordinates will update automatically.</p>
                     <div id="map" class="modal-map"></div>
                 </div>
 
@@ -133,11 +134,11 @@
                 <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
                         <label><i class="fas fa-arrows-alt-v" style="color: #3b82f6; margin-right: 8px;"></i>Latitude</label>
-                        <input type="number" name="latitude" [(ngModel)]="newReport.latitude" readonly style="background: #f1f5f9; cursor: not-allowed;">
+                        <input type="number" name="latitude" [(ngModel)]="newReport.latitude" placeholder="e.g., 20.5937" required step="any">
                     </div>
                     <div>
                         <label><i class="fas fa-arrows-alt-h" style="color: #3b82f6; margin-right: 8px;"></i>Longitude</label>
-                        <input type="number" name="longitude" [(ngModel)]="newReport.longitude" readonly style="background: #f1f5f9; cursor: not-allowed;">
+                        <input type="number" name="longitude" [(ngModel)]="newReport.longitude" placeholder="e.g., 78.9629" required step="any">
                     </div>
                 </div>
 
