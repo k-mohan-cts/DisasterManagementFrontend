@@ -1,39 +1,167 @@
 <div class="app-shell">
+
     <app-sidebar role="OFFICER"></app-sidebar>
+
+
+
     <div class="content">
+
         <header class="topbar">
-            <h1>Relief Inventory</h1>
+
+            <h1>Relief Operations</h1>
+
             <div class="topbar-right">
-                <button class="role-chip">Officer</button>
+
+                <span class="bell">🔔</span>
+
+                <span class="text-btn" style="margin-left: 15px; font-weight: 500;">Sign out</span>
+
             </div>
+
         </header>
+
+
+
         <main class="main">
+
             <div class="page">
+
+                <!-- Header Section -->
+
                 <div class="page-head">
-                    <h2>Inventory Management</h2>
-                    <button class="btn btn-operations">+ Add Item</button>
+
+                    <div class="page-head-left">
+
+                        <h2>Relief Inventory</h2>
+
+                        <p class="sub">Manage relief items and track program budget allocations.</p>
+
+                    </div>
+
+                    <div class="page-head-right">
+
+                        <input
+
+                            type="text"
+
+                            class="search-input"
+
+                            placeholder="Search inventory..."
+
+                            (input)="onSearch($event)"
+
+                        />
+
+                        <a class="btn btn-operations" routerLink="/add-relief-item">+ Add Item</a>
+
+                    </div>
+
                 </div>
+
+
+
+                <!-- Table Card -->
+
                 <div class="card">
-                    <table>
+
+                   
+
+                    <!-- 1. Loading State -->
+
+                    <div *ngIf="isLoading" style="text-align: center; padding: 60px; color: #6b7280;">
+
+                        <p>Loading inventory...</p>
+
+                    </div>
+
+
+
+                    <!-- 2. Empty State (Only shows if NOT loading and NO items exist) -->
+
+                    <div *ngIf="!isLoading && filteredItems.length === 0" style="text-align: center; padding: 40px; color: #6b7280;">
+
+                        <p>No items found in inventory.</p>
+
+                    </div>
+
+
+
+                    <!-- 3. Data Table (Only shows if NOT loading and items DO exist) -->
+
+                    <table *ngIf="!isLoading && filteredItems.length > 0">
+
                         <thead>
+
                             <tr>
+
                                 <th>Item Name</th>
-                                <th>Category</th>
+
+                                <th>Program</th>
+
+                                <th>Type</th>
+
                                 <th>Quantity</th>
+
+                                <th>Unit Cost</th>
+
+                                <th>Total Value</th>
+
                                 <th>Status</th>
+
+                                <th></th> <!-- Actions -->
+
                             </tr>
+
                         </thead>
+
                         <tbody>
-                            <tr *ngFor="let item of items">
-                                <td><strong>{{item.itemName}}</strong></td>
-                                <td>{{item.category}}</td>
-                                <td>{{item.quantity}}</td>
-                                <td><span class="pill" [ngClass]="'pill-' + item.status.toLowerCase()">{{item.status}}</span></td>
+
+                            <tr *ngFor="let item of filteredItems">
+
+                                <td><strong>{{item.name}}</strong></td>
+
+                                <td>{{item.program || 'Coastal Flood Rehabilitation'}}</td>
+
+                                <td>{{item.type}}</td>
+
+                                <td>{{item.quantity}} {{item.unit}}</td>
+
+                                <td>${{item.unitCost || 0}}</td>
+
+                                <td>${{(item.quantity || 0) * (item.unitCost || 0)}}</td>
+
+                                <td>
+
+                                    <span class="pill" [ngClass]="'pill-' + (item.status?.toLowerCase() || 'available')">
+
+                                        {{item.status || 'Available'}}
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <a href="javascript:void(0)" class="action-link">Edit</a>
+
+                                    <!-- Delete binding -->
+
+                                    <a href="javascript:void(0)" class="action-link" style="color: #dc2626;" (click)="deleteItem(item.itemId)">Delete</a>
+
+                                </td>
+
                             </tr>
+
                         </tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </main>
+
     </div>
+
 </div>

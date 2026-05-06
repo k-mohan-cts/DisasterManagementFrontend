@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../services/disaster.service';
 import { RouterLink } from '@angular/router';
@@ -25,34 +25,36 @@ export class ManagerDashboardComponent implements OnInit {
     { name: 'Downtown Earthquake Recovery', budget: '$12,000,000', status: 'Planned' }
   ];
 
-  constructor(private disasterService: DisasterService) {}
+  constructor(private disasterService: DisasterService, @Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit() {
-    this.disasterService.getEmergencies().subscribe({
-      next: (data) => {
-        if (data && data.length > 0) {
-          this.recentEmergencies = data.slice(0, 5).map(r => ({
-            type: r.type,
-            location: r.location,
-            date: new Date(r.reportDate).toLocaleDateString(),
-            status: r.status
-          }));
-          this.activeEmergenciesCount = data.filter(r => r.status === 'ACTIVE' || r.status === 'VALIDATED').length;
+    if (isPlatformBrowser(this.platformId)) {
+      this.disasterService.getEmergencies().subscribe({
+        next: (data) => {
+          if (data && data.length > 0) {
+            this.recentEmergencies = data.slice(0, 5).map(r => ({
+              type: r.type,
+              location: r.location,
+              date: new Date(r.reportDate).toLocaleDateString(),
+              status: r.status
+            }));
+            this.activeEmergenciesCount = data.filter(r => r.status === 'ACTIVE' || r.status === 'VALIDATED').length;
+          }
         }
-      }
-    });
+      });
 
-    this.disasterService.getRecoveryPrograms().subscribe({
-      next: (data) => {
-        if (data && data.length > 0) {
-          this.activePrograms = data.slice(0, 5).map(p => ({
-            name: p.programName,
-            budget: `$${p.budget}`,
-            status: p.status
-          }));
-          this.activeRecoveryProgramsCount = data.length;
+      this.disasterService.getRecoveryPrograms().subscribe({
+        next: (data) => {
+          if (data && data.length > 0) {
+            this.activePrograms = data.slice(0, 5).map(p => ({
+              name: p.programName,
+              budget: `$${p.budget}`,
+              status: p.status
+            }));
+            this.activeRecoveryProgramsCount = data.length;
+          }
         }
-      }
-    });
+      });
+    }
   }
 }

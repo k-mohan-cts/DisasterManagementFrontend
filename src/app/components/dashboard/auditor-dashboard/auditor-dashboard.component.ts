@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../services/disaster.service';
 import { FormsModule } from '@angular/forms';
@@ -35,10 +35,12 @@ export class AuditorDashboardComponent implements OnInit {
     notes: ''
   };
 
-  constructor(private disasterService: DisasterService) {}
+  constructor(private disasterService: DisasterService, @Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit() {
-    this.loadStats();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadStats();
+    }
   }
 
   loadStats() {

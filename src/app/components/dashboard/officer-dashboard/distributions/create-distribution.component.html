@@ -1,0 +1,88 @@
+<div class="app-shell">
+  <app-sidebar role="OFFICER"></app-sidebar>
+  
+  <section class="content">
+    <header class="topbar">
+      <h1>Relief Operations</h1>
+      <div class="topbar-right">
+        <span class="bell">🔔</span>
+        <button class="text-btn">Sign out</button>
+      </div>
+    </header>
+    
+    <main class="main">
+      <div class="page form-wrap">
+        <h2>Create Distribution</h2>
+        <p class="sub">Allocate relief items to an incident under a recovery program.</p>
+        
+        <section class="panel">
+          <div *ngIf="submitError" style="padding: 12px 14px; background: #ffe4e6; color: #9f1239; border-bottom: 1px solid #fecdd3; font-size: 14px;">
+              {{ submitError }}
+          </div>
+          
+          <form (ngSubmit)="onSubmit()">
+            <div class="form-grid">
+              
+              <!-- Row 1: Item (Left) and Incident (Right) -->
+              <div>
+                <label>Relief Item</label>
+                <select name="itemId" [(ngModel)]="newDistribution.itemId" required>
+                  <option [ngValue]="null" disabled>Select an item</option>
+                  <option *ngFor="let item of reliefItems" [ngValue]="item.itemId || item.id || item.ItemID || item.reliefItemId">
+                    {{ item.itemName || item.name || item.Name || 'Unnamed Item' }} 
+                    ({{ item.quantity || item.Quantity || 0 }} available)
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label>Incident</label>
+                <select name="incident" [(ngModel)]="newDistribution.incident">
+                  <option [ngValue]="null">Select an incident</option>
+                  <option *ngFor="let inc of incidents" 
+                          [ngValue]="(inc.type || inc.name || 'Incident') + ' at ' + (inc.location || 'Unknown')">
+                    {{ inc.type || inc.name || 'Incident' }} at {{ inc.location || inc.address || 'Unknown' }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Row 2: Recovery Program (Full Width) -->
+              <div class="full">
+                <label>Recovery Program</label>
+                <select name="program" [(ngModel)]="newDistribution.program">
+                  <option [ngValue]="null">Select a program</option>
+                  <option *ngFor="let prog of programs" [ngValue]="prog.title || prog.name || prog.Title">
+                    {{ prog.title || prog.name || prog.Title }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Row 3: Quantity (Left) and Citizen ID (Right) -->
+              <div>
+                <label>Quantity</label>
+                <input type="number" name="quantity" [(ngModel)]="newDistribution.quantity" min="1" required/>
+              </div>
+
+              <div>
+                <label>Recipient Citizen ID</label>
+                <input type="number" name="citizenId" [(ngModel)]="newDistribution.citizenId" min="1" required/>
+                <small style="color: #6b7280; font-size: 12px; margin-top:4px; display:block;">Must exist in database</small>
+              </div>
+              
+            </div>
+            
+            <!-- Footer Actions -->
+            <div class="form-actions">
+              <a class="btn btn-secondary" routerLink="/distributions">Cancel</a>
+              <button class="btn btn-operations" type="submit" [disabled]="isSubmitting">
+                <span *ngIf="!isSubmitting">Create Distribution</span>
+                <span *ngIf="isSubmitting">Saving...</span>
+              </button>
+            </div>
+          </form>
+        </section>
+        
+      </div>
+    </main>
+  </section>
+</div>

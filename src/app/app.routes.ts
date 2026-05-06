@@ -76,13 +76,31 @@ export const routes: Routes = [
     canActivate: [authGuard] 
   },
   { 
+    // Navigation for the "Add Item" form page
+    path: 'add-relief-item', 
+    loadComponent: () => import('./components/dashboard/officer-dashboard/inventory/add-item-form.component').then(m => m.AddItemFormComponent),
+    canActivate: [authGuard] 
+  },
+  { 
     path: 'distributions', 
     loadComponent: () => import('./components/dashboard/officer-dashboard/distributions/distributions.component').then(m => m.DistributionsComponent),
     canActivate: [authGuard] 
   },
   { 
+    // Navigation for the "Create Distribution" form page
+    path: 'create-distribution', 
+    loadComponent: () => import('./components/dashboard/officer-dashboard/distributions/create-distribution.component').then(m => m.CreateDistributionComponent),
+    canActivate: [authGuard] 
+  },
+  { 
     path: 'shelters', 
     loadComponent: () => import('./components/dashboard/officer-dashboard/shelters/shelters.component').then(m => m.SheltersComponent),
+    canActivate: [authGuard] 
+  },
+  { 
+    // FIXED: Removed the extra /add-shelter folder from the path
+    path: 'add-shelter', 
+    loadComponent: () => import('./components/dashboard/officer-dashboard/shelters/add-shelter.component').then(m => m.AddShelterComponent),
     canActivate: [authGuard] 
   },
 

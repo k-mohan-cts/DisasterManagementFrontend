@@ -1,5 +1,5 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { DisasterService } from '../../../services/disaster.service';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
@@ -32,18 +32,21 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
 
   constructor(
     private disasterService: DisasterService,
-    private authService: AuthService
+    private authService: AuthService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
-    this.newReport.citizenId = this.authService.getUserId() || 0;
-    this.loadData();
-    // Get current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.newReport.latitude = position.coords.latitude;
-        this.newReport.longitude = position.coords.longitude;
-      });
+    if (isPlatformBrowser(this.platformId)) {
+      this.newReport.citizenId = this.authService.getUserId() || 0;
+      this.loadData();
+      // Get current location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          this.newReport.latitude = position.coords.latitude;
+          this.newReport.longitude = position.coords.longitude;
+        });
+      }
     }
   }
 
