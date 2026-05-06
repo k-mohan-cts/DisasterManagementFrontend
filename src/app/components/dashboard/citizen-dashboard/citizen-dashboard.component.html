@@ -10,18 +10,19 @@
         </div>
 
         <div class="main-content">
-            <!-- Document Verification Banner -->
             <div class="verification-banner">
                 <div class="banner-info">
-                    <div class="icon-shield">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
+                    <div class="icon-shield"><i class="fas fa-file-upload"></i></div>
                     <div class="banner-text">
-                        <h2>Verify your identity</h2>
-                        <p>Upload your identification documents to access priority relief services.</p>
+                        <h2>Upload documents for verification</h2>
+                        <p>Submit identity, address, or relief documents directly to the backend.</p>
                     </div>
                 </div>
-                <button class="verify-btn">Verify Now</button>
+                <button class="verify-btn" (click)="showVerifyModal = true">Upload Document</button>
+            </div>
+
+            <div *ngIf="serviceError" class="service-error-banner">
+                {{ serviceError }}
             </div>
 
             <div class="dashboard-grid">
@@ -90,10 +91,51 @@
                     <div id="map"></div>
                 </div>
             </div>
+
+            <div *ngIf="showVerifyModal" class="modal-overlay">
+                <div class="modal-content verify-modal">
+                    <div class="modal-header">
+                        <h2>Document Verification</h2>
+                        <button class="close-btn" (click)="closeVerifyModal()">✕</button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Document Name</label>
+                            <input type="text" [(ngModel)]="verifyData.name" placeholder="e.g. Identity Card, Proof of Address" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Document Type</label>
+                            <select [(ngModel)]="verifyData.type" class="form-input">
+                                <option *ngFor="let type of documentTypes">{{ type }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Upload File</label>
+                            <div class="file-upload-area" (click)="fileInput.click()" (drop)="onFileDrop($event)" (dragover)="$event.preventDefault()">
+                                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v12"></path>
+                                </svg>
+                                <p class="upload-text">Click to browse</p>
+                                <p class="upload-subtext">or drag and drop here</p>
+                                <p *ngIf="selectedFile" class="file-name">{{ selectedFile.name }}</p>
+                                <p *ngIf="filePreviewUrl" class="file-uri">File URI: {{ filePreviewUrl }}</p>
+                            </div>
+                            <input #fileInput type="file" (change)="onFileSelected($event)" hidden>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-cancel" (click)="closeVerifyModal()">Cancel</button>
+                        <button class="btn btn-submit" (click)="submitVerification()">Upload Document</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Emergency Report Modal -->
     <div class="modal-overlay" *ngIf="showReportModal">
         <div class="modal-content">
             <div class="modal-header">

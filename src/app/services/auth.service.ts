@@ -9,17 +9,14 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/users';
-  private shelterUrl = 'http://localhost:8082/api/shelters'; 
+  private citizenApiUrl = 'http://localhost:8082/api/citizens';
+  private documentApiUrl = 'http://localhost:8082/api/documents';
 
   constructor(
     private http: HttpClient, 
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
-
-  signup(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/signup`, userData);
-  }
 
   login(credentials: any): Observable<string> {
     return this.http.post(this.apiUrl + '/login', credentials, { responseType: 'text' }).pipe(
@@ -32,24 +29,8 @@ export class AuthService {
     );
   }
 
-  // --- ADDED: Method to fix TS2339 in auth.guard.ts ---
-  isLoggedIn(): boolean {
-    return !!this.getToken();
-  }
-
-  getUserId(): number | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.userId || payload.id || null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  getAllShelters(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.shelterUrl}/getShelters`);
+  signup(userData: any): Observable<any> {
+    return this.http.post(this.citizenApiUrl + '/createCitizen', userData);
   }
 
   logout() {
@@ -78,6 +59,22 @@ export class AuthService {
     }
   }
 
+  getUserId(): number | null {
+    const user = this.getCurrentUser();
+    return user && user.id ? user.id : null;
+  }
+
+  getCurrentUser(): any | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload;
+    } catch (e) {
+      return null;
+    }
+  }
+
   private decodeTokenAndRedirect(token: string) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -92,5 +89,9 @@ export class AuthService {
     } catch (e) {
       this.router.navigate(['/lander']);
     }
+  }
+
+  getDocumentApiUrl(userData: any): Observable<any> {
+    return this.http.post<any>(this.documentApiUrl + '/upload', userData);  
   }
 }

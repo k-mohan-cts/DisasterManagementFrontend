@@ -1,8 +1,9 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { DisasterService } from '../../../services/disaster.service';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../../services/auth.service'
+import { DocumentService } from '../../../services/document.service';
+import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 declare let L: any;
 
@@ -13,36 +14,46 @@ declare let L: any;
   templateUrl: './citizen-dashboard.component.html',
   styleUrls: ['./citizen-dashboard.component.css']
 })
-export class CitizenDashboardComponent implements OnInit, AfterViewInit {
+export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   reports: any[] = [];
   shelters: any[] = [];
   showReportModal = false;
+  showVerifyModal = false;
   map: any;
-  mapMarker: any;
-
+  
   newReport = {
     citizenId: 0,
     location: '',
     type: 'FIRE',
-    status: 'ACTIVE',
     latitude: 0,
     longitude: 0,
     description: ''
   };
 
-  emergencyTypes = ['FLOOD', 'FIRE', 'EARTHQUAKE', 'CYCLONE', 'LANDSLIDE', 'OTHER'];
-  reportStatus = ['ACTIVE']; // Only ACTIVE by default
+  emergencyTypes = ['FIRE', 'FLOOD', 'EARTHQUAKE', 'MEDICAL', 'OTHER'];
+
+  // Document verification properties
+  selectedFile: File | null = null;
+  filePreviewUrl: string | null = null;
+  verifyData = {
+    name: '',
+    type: 'PDF Document'
+  };
+  documentTypes = ['PDF Document', 'Image', 'Word Document', 'Other'];
+  isUploading = false;
+
+  serviceError = '';
 
   constructor(
     private disasterService: DisasterService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private documentService: DocumentService
   ) {}
 
   ngOnInit() {
     this.newReport.citizenId = this.authService.getUserId() || 0;
     this.loadData();
-
+    // Get current location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
         this.newReport.latitude = position.coords.latitude;
@@ -55,16 +66,13 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
     this.initMap();
   }
 
-  openReportModal() {
-    this.showReportModal = true;
-    // Initialize map after modal is shown and DOM is updated
-    this.cdr.detectChanges();
-    setTimeout(() => {
-      this.initMap();
-    }, 300);
+  ngOnDestroy() {
+    this.revokeFilePreviewUrl();
   }
 
   loadData() {
+    this.serviceError = '';
+
     this.disasterService.getEmergencies().subscribe({
       next: (data: any[]) => {
         this.reports = data.map((r: any) => ({
@@ -72,161 +80,121 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
           date: new Date(r.reportDate).toLocaleDateString(),
           status: r.status
         }));
-        this.cdr.detectChanges();
       },
-      error: (err: any) => console.error('Failed to load reports:', err)
+      error: (err: any) => {
+        console.error('Failed to load emergency reports', err);
+        this.reports = [];
+        this.serviceError += 'Emergency report service unavailable. ';
+      }
     });
 
     this.disasterService.getShelters().subscribe({
       next: (data: any[]) => {
-        console.log('Backend Response:', data);
-
-        if (!data || data.length === 0) {
-          console.warn('No shelter data received from backend');
-          return;
-        }
-
-        this.shelters = data.map((s: any) => {
-          const name = s.name || s.shelterName || 'Unknown Shelter';
-          const capacity = s.capacity || 0;
-          const occupancy = s.occupancy || 0;
-          const percentage = capacity > 0 ? (occupancy / capacity) * 100 : 0;
-          let statusColor = '#14b8a6';
-          if (percentage > 85) statusColor = '#ef4444';
-          else if (percentage > 60) statusColor = '#f59e0b';
-
-          return {
-            name,
-            location: s.location || 'N/A',
-            capacity,
-            occupancy,
-            color: statusColor
-          };
-        });
-
-        console.log('Mapped Shelters:', this.shelters);
-        this.cdr.detectChanges();
+        this.shelters = data.map((s: any) => ({
+          name: s.name,
+          capacity: Math.floor(Math.random() * 100),
+          color: '#14b8a6'
+        }));
       },
-      error: (err: any) => console.error('Failed to load shelters:', err)
+      error: (err: any) => {
+        console.error('Failed to load shelters', err);
+        this.shelters = [];
+        this.serviceError += 'Shelter service unavailable.';
+      }
     });
   }
 
   initMap() {
-    // Check if Leaflet is loaded
-    if (typeof (window as any).L === 'undefined') {
-      console.error('Leaflet library is not loaded');
-      return;
-    }
+    this.map = L.map('map').setView([this.newReport.latitude || 20.5937, this.newReport.longitude || 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
 
-    const mapContainer = document.getElementById('map');
-    if (!mapContainer) {
-      console.error('Map container not found');
-      return;
-    }
-
-    // If map already exists, just update it
-    if (this.map) {
-      this.map.invalidateSize();
-      return;
-    }
-
-    try {
-      const lat = this.newReport.latitude || 20.5937;
-      const lng = this.newReport.longitude || 78.9629;
-      
-      // Initialize map
-      this.map = (window as any).L.map('map', {
-        center: [lat, lng],
-        zoom: 5,
-        layers: []
-      });
-
-      // Add tile layer
-      (window as any).L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-      }).addTo(this.map);
-
-      // Add initial marker if coordinates exist
-      if (this.newReport.latitude && this.newReport.longitude) {
-        this.mapMarker = (window as any).L.marker([this.newReport.latitude, this.newReport.longitude])
-          .addTo(this.map)
-          .bindPopup('Report Location')
-          .openPopup();
-      }
-
-      // Click event to select location
-      this.map.on('click', (e: any) => {
-        this.newReport.latitude = e.latlng.lat;
-        this.newReport.longitude = e.latlng.lng;
-
-        if (this.mapMarker) {
-          this.map.removeLayer(this.mapMarker);
-        }
-
-        this.mapMarker = (window as any).L.marker([e.latlng.lat, e.latlng.lng])
-          .addTo(this.map)
-          .bindPopup('Report Location Selected')
-          .openPopup();
-      });
-
-      // Ensure map displays correctly
-      this.map.invalidateSize(true);
-      console.log('Map initialized successfully');
-    } catch (error) {
-      console.error('Error initializing map:', error);
-    }
+    this.map.on('click', (e: any) => {
+      this.newReport.latitude = e.latlng.lat;
+      this.newReport.longitude = e.latlng.lng;
+      L.marker([e.latlng.lat, e.latlng.lng]).addTo(this.map)
+        .bindPopup('Report Location Selected')
+        .openPopup();
+    });
   }
 
   submitReport() {
-    if (!this.newReport.location || !this.newReport.description || this.newReport.latitude === 0 || this.newReport.longitude === 0) {
-      alert('Please fill in all fields and select a location on the map.');
+    this.disasterService.createEmergency(this.newReport).subscribe({
+      next: (res: any) => {
+        alert('Report submitted successfully!');
+        this.showReportModal = false;
+        this.loadData();
+      },
+      error: (err: any) => alert('Failed to submit report')
+    });
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      this.setSelectedFile(file);
+    }
+  }
+
+  onFileDrop(event: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      this.setSelectedFile(files[0]);
+    }
+  }
+
+  private setSelectedFile(file: File) {
+    this.selectedFile = file;
+    this.revokeFilePreviewUrl();
+    this.filePreviewUrl = URL.createObjectURL(file);
+  }
+
+  private revokeFilePreviewUrl() {
+    if (this.filePreviewUrl) {
+      URL.revokeObjectURL(this.filePreviewUrl);
+      this.filePreviewUrl = null;
+    }
+  }
+
+  submitVerification() {
+    if (!this.verifyData.name || !this.selectedFile) {
+      alert('Please provide a document name and select a file.');
       return;
     }
 
-    const report = {
-      ...this.newReport,
-      status: 'ACTIVE',
-      date: new Date().toISOString(),
-      citizenId: this.authService.getUserId() || 0
-    };
+    this.isUploading = true;
+    const formData = new FormData();
+    formData.append('file', this.selectedFile, this.selectedFile.name);
+    formData.append('name', this.verifyData.name);
+    formData.append('type', this.verifyData.type);
+    formData.append('citizenId', this.newReport.citizenId.toString());
 
-    this.disasterService.createEmergency(report).subscribe({
+    this.documentService.uploadDocument(formData).subscribe({
       next: () => {
-        alert('Report submitted successfully!');
-        this.showReportModal = false;
-        this.resetForm();
-        this.loadData();
+        alert('Document uploaded successfully!');
+        this.showVerifyModal = false;
+        this.resetVerifyForm();
+        this.isUploading = false;
       },
       error: (err: any) => {
-        console.error('Failed to submit report:', err);
-        alert('Failed to submit report');
+        const message = err?.error?.message || err?.message || 'Upload failed. Please try again.';
+        alert(message);
+        this.isUploading = false;
       }
     });
   }
 
-  resetForm() {
-    this.newReport = {
-      citizenId: this.authService.getUserId() || 0,
-      location: '',
-      type: 'FIRE',
-      status: 'ACTIVE',
-      latitude: 0,
-      longitude: 0,
-      description: ''
-    };
-    if (this.mapMarker) {
-      this.map.removeLayer(this.mapMarker);
-      this.mapMarker = null;
-    }
+  resetVerifyForm() {
+    this.verifyData = { name: '', type: 'PDF Document' };
+    this.selectedFile = null;
+    this.revokeFilePreviewUrl();
   }
 
-  closeReportModal() {
-    this.showReportModal = false;
-    this.resetForm();
-    if (this.map) {
-      this.map.remove();
-      this.map = null;
-    }
+  closeVerifyModal() {
+    this.showVerifyModal = false;
+    this.resetVerifyForm();
   }
 }
