@@ -1,0 +1,176 @@
+<div class="verification-container">
+    <div class="verification-content">
+        <!-- Welcome Step -->
+        <div *ngIf="currentStep === 'welcome'" class="step-container">
+            <div class="step-header">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Document Verification</h1>
+                <p>Complete your account verification</p>
+            </div>
+
+            <div class="verification-info">
+                <div class="info-card">
+                    <h3>Why do we need this?</h3>
+                    <p>We require document verification to ensure the security and legitimacy of your account, and to comply with disaster relief regulations.</p>
+                </div>
+
+                <div class="documents-required">
+                    <h3>Required Documents:</h3>
+                    <div class="doc-list">
+                        <div class="doc-item">
+                            <i class="fas fa-id-card"></i>
+                            <div>
+                                <h4>ID Proof</h4>
+                                <p>Passport, Aadhar, or Driver License</p>
+                            </div>
+                        </div>
+                        <div class="doc-item">
+                            <i class="fas fa-home"></i>
+                            <div>
+                                <h4>Residence Proof</h4>
+                                <p>Address Certificate or Utility Bill</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" (click)="startVerification()">
+                    <i class="fas fa-arrow-right"></i> Start Verification
+                </button>
+            </div>
+        </div>
+
+        <!-- Upload ID Proof Step -->
+        <div *ngIf="currentStep === 'upload-idproof'" class="step-container">
+            <div class="step-header">
+                <div class="step-indicator">
+                    <span class="step-number">1</span>
+                    <span class="step-title">ID Proof Upload</span>
+                </div>
+                <p>Upload your government-issued ID document</p>
+            </div>
+
+            <div class="upload-form">
+                <div class="form-group">
+                    <label>File URI</label>
+                    <p class="helper-text">Provide the URI/URL where your ID document is stored</p>
+                    <textarea 
+                        [(ngModel)]="fileURI" 
+                        placeholder="https://example.com/documents/id-proof.pdf"
+                        class="file-uri-input"
+                        [disabled]="isUploading">
+                    </textarea>
+                </div>
+
+                <div *ngIf="uploadError" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{uploadError}}
+                </div>
+
+                <div *ngIf="uploadSuccess && docType === 'IDPROOF'" class="success-message">
+                    <i class="fas fa-check-circle"></i>
+                    {{uploadMessage}}
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-secondary" (click)="goBack()" [disabled]="isUploading">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button 
+                        class="btn-primary" 
+                        (click)="uploadDocument()" 
+                        [disabled]="isUploading || !fileURI.trim()">
+                        <i class="fas fa-upload"></i> 
+                        {{ isUploading ? 'Uploading...' : 'Upload & Continue' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Residence Proof Step -->
+        <div *ngIf="currentStep === 'upload-residence'" class="step-container">
+            <div class="step-header">
+                <div class="step-indicator">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Residence Proof Upload</span>
+                </div>
+                <p>Upload your residence proof document</p>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 50%;"></div>
+            </div>
+
+            <div class="upload-form">
+                <div class="form-group">
+                    <label>File URI</label>
+                    <p class="helper-text">Provide the URI/URL where your residence proof document is stored</p>
+                    <textarea 
+                        [(ngModel)]="fileURI" 
+                        placeholder="https://example.com/documents/residence-proof.pdf"
+                        class="file-uri-input"
+                        [disabled]="isUploading">
+                    </textarea>
+                </div>
+
+                <div *ngIf="uploadError" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{uploadError}}
+                </div>
+
+                <div *ngIf="uploadSuccess && docType === 'RESIDENCE'" class="success-message">
+                    <i class="fas fa-check-circle"></i>
+                    {{uploadMessage}}
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-secondary" (click)="goBack()" [disabled]="isUploading">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button 
+                        class="btn-primary" 
+                        (click)="uploadDocument()" 
+                        [disabled]="isUploading || !fileURI.trim()">
+                        <i class="fas fa-upload"></i> 
+                        {{ isUploading ? 'Uploading...' : 'Complete Verification' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Verification Step -->
+        <div *ngIf="currentStep === 'pending'" class="step-container">
+            <div class="pending-content">
+                <div class="pending-icon">
+                    <i class="fas fa-hourglass-start"></i>
+                </div>
+                <h2>Verification in Progress</h2>
+                <p>Your documents have been submitted successfully!</p>
+
+                <div class="status-info">
+                    <div class="status-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>ID Proof uploaded</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Residence Proof uploaded</span>
+                    </div>
+                    <div class="status-item pending">
+                        <i class="fas fa-clock"></i>
+                        <span>Awaiting officer review</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>What happens next?</h4>
+                    <p>An authorized officer will review your documents and verify your account within 24-48 hours. You'll receive an email notification once your account is verified.</p>
+                </div>
+
+                <button class="btn-primary" (click)="completeVerification()">
+                    <i class="fas fa-arrow-right"></i> Continue to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

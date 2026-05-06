@@ -4,68 +4,148 @@
     <main class="main-content">
         <div class="header-section">
             <h1>Support & Resources</h1>
-            <p>Access critical support services and track relief allocations.</p>
+            <p>Access relief items, recovery programs, and track your distributions.</p>
         </div>
 
-        <div class="cards-container">
-            <div class="resource-card">
-                <div class="icon-circle bg-blue">
-                    <i class="fas fa-phone-alt" style="transform: rotate(90deg);"></i>
-                </div>
-                <h2>Contact Helpline</h2>
-                <p>Access emergency contact numbers for medical, fire, and disaster relief services.</p>
-                <button class="btn btn-dark" (click)="openModal('helpline')">View Numbers</button>
+        <!-- Relief Items Section -->
+        <section class="section-container">
+            <div class="section-header">
+                <h2><i class="fas fa-box"></i> Relief Items</h2>
+                <p>Available resources and relief supplies</p>
             </div>
 
-            <div class="resource-card">
-                <div class="icon-circle bg-purple">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h2>Track Distribution Status</h2>
-                <p>Monitor the status of your requested relief items and expected delivery times.</p>
-                <button class="btn btn-purple" (click)="openModal('status')">Track Items</button>
+            <div *ngIf="loadingRelief" class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading relief items...</p>
             </div>
-        </div>
+
+            <div *ngIf="errorRelief && !loadingRelief" class="error-state">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>{{errorRelief}}</p>
+            </div>
+
+            <div *ngIf="!loadingRelief && reliefItems.length > 0" class="cards-grid">
+                <div *ngFor="let item of reliefItems" class="relief-card">
+                    <div class="card-header">
+                        <h3>{{item.itemName}}</h3>
+                        <span class="category-badge" *ngIf="item.category">{{item.category}}</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="description">{{item.description}}</p>
+                        <div class="item-details">
+                            <div class="detail-row">
+                                <span class="label">Available Quantity:</span>
+                                <span class="value">{{item.available || item.quantity}} units</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-small btn-primary">Request Item</button>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!loadingRelief && reliefItems.length === 0 && !errorRelief" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No relief items available at this time</p>
+            </div>
+        </section>
+
+        <!-- Recovery Programs Section -->
+        <section class="section-container">
+            <div class="section-header">
+                <h2><i class="fas fa-clipboard-list"></i> Recovery Programs</h2>
+                <p>Participate in community recovery and rebuilding initiatives</p>
+            </div>
+
+            <div *ngIf="loadingPrograms" class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading recovery programs...</p>
+            </div>
+
+            <div *ngIf="errorPrograms && !loadingPrograms" class="error-state">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>{{errorPrograms}}</p>
+            </div>
+
+            <div *ngIf="!loadingPrograms && recoveryPrograms.length > 0" class="cards-grid">
+                <div *ngFor="let program of recoveryPrograms" class="program-card">
+                    <div class="card-header">
+                        <h3>{{program.programName}}</h3>
+                        <span class="status-badge" *ngIf="program.status">{{program.status}}</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="description">{{program.description}}</p>
+                        <div class="program-details">
+                            <div class="detail-row" *ngIf="program.targetAudience">
+                                <span class="label">Target Audience:</span>
+                                <span class="value">{{program.targetAudience}}</span>
+                            </div>
+                            <div class="detail-row" *ngIf="program.startDate">
+                                <span class="label">Start Date:</span>
+                                <span class="value">{{program.startDate | date: 'MMM d, y'}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-small btn-secondary">Learn More</button>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!loadingPrograms && recoveryPrograms.length === 0 && !errorPrograms" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No recovery programs available at this time</p>
+            </div>
+        </section>
+
+        <!-- Distribution Status Section -->
+        <section class="section-container">
+            <div class="section-header">
+                <h2><i class="fas fa-truck"></i> Distribution Status</h2>
+                <p>Track your relief allocations and delivery status</p>
+            </div>
+
+            <div *ngIf="loadingDistribution" class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading distribution status...</p>
+            </div>
+
+            <div *ngIf="errorDistribution && !loadingDistribution" class="error-state">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>{{errorDistribution}}</p>
+            </div>
+
+            <div *ngIf="!loadingDistribution && distributions.length > 0" class="distribution-list">
+                <div *ngFor="let dist of distributions" class="distribution-item">
+                    <div class="dist-header">
+                        <div class="dist-title">
+                            <h4>{{dist.itemName}}</h4>
+                            <span class="badge" [ngClass]="getStatusBadgeClass(dist.status)">{{dist.status}}</span>
+                        </div>
+                        <div class="dist-quantity">{{dist.quantity}} units</div>
+                    </div>
+                    <div class="dist-body">
+                        <div class="dist-detail" *ngIf="dist.allocatedDate">
+                            <i class="far fa-calendar"></i>
+                            <span>Allocated: {{dist.allocatedDate | date: 'MMM d, y'}}</span>
+                        </div>
+                        <div class="dist-detail" *ngIf="dist.expectedDelivery">
+                            <i class="far fa-clock"></i>
+                            <span>Expected: {{dist.expectedDelivery | date: 'MMM d, y'}}</span>
+                        </div>
+                        <div class="dist-detail" *ngIf="dist.location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Location: {{dist.location}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!loadingDistribution && distributions.length === 0 && !errorDistribution" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No distributions allocated yet</p>
+            </div>
+        </section>
     </main>
-
-    <!-- Helpline Modal -->
-    <div class="modal-overlay" *ngIf="showHelplineModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Emergency Helplines</h2>
-                <button class="close-modal" (click)="closeModals()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="helpline-list">
-                <div class="helpline-item" *ngFor="let h of helplines" [ngClass]="h.class">
-                    <div class="helpline-info">
-                        <h4>{{h.title}}</h4>
-                        <p>{{h.sub}}</p>
-                    </div>
-                    <div class="helpline-number">{{h.number}}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Status Modal -->
-    <div class="modal-overlay" *ngIf="showStatusModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Distribution Status</h2>
-                <button class="close-modal" (click)="closeModals()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="status-list">
-                <div class="status-item" *ngFor="let s of statuses">
-                    <div class="status-header">
-                        <h4>{{s.title}}</h4>
-                        <span class="badge" [ngClass]="s.badgeClass">{{s.badge}}</span>
-                    </div>
-                    <div class="status-body">
-                        <p><i class="far fa-clock"></i> {{s.info}}</p>
-                        <p><i class="fas fa-map-marker-alt"></i> {{s.location}}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>

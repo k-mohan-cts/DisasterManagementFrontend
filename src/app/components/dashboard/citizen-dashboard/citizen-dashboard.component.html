@@ -10,15 +10,19 @@
         </div>
 
         <div class="main-content">
-            <div class="verification-banner">
-                <div class="banner-info">
-                    <div class="icon-shield"><i class="fas fa-file-upload"></i></div>
-                    <div class="banner-text">
-                        <h2>Upload documents for verification</h2>
-                        <p>Submit identity, address, or relief documents directly to the backend.</p>
+            <!-- Verification Status Banner (if not verified) -->
+            <div *ngIf="!isUserVerified" class="verification-pending-banner">
+                <div class="banner-content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <h3>Account Verification Required</h3>
+                        <p>Your account is pending verification. Please complete the document verification process to unlock all features.</p>
                     </div>
                 </div>
-                <button class="verify-btn" (click)="showVerifyModal = true">Upload Document</button>
+                <a routerLink="/verification" class="banner-action">
+                    <i class="fas fa-arrow-right"></i>
+                    Complete Verification
+                </a>
             </div>
 
             <div *ngIf="serviceError" class="service-error-banner">

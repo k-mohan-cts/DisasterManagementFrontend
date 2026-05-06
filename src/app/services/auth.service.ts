@@ -79,10 +79,35 @@ export class AuthService {
     }
   }
 
+  getVerificationStatus(): string | null {
+    const user = this.getCurrentUser();
+    return user && user.verificationStatus ? user.verificationStatus : null;
+  }
+
+  isVerified(): boolean {
+    return this.getVerificationStatus() === 'VERIFIED';
+  }
+
+  isPendingVerification(): boolean {
+    const status = this.getVerificationStatus();
+    return status === 'PENDING' || status === 'REJECTED';
+  }
+
   private decodeTokenAndRedirect(token: string) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const role = payload.role;
+      const verificationStatus = payload.verificationStatus;
+
+      // Check verification status for citizens
+      if (role === 'CITIZEN') {
+        if (verificationStatus === 'PENDING' || verificationStatus === 'REJECTED') {
+          // Redirect to verification page instead of dashboard
+          this.router.navigate(['/verification']);
+          return;
+        }
+      }
+
       switch (role) {
         case 'MANAGER': this.router.navigate(['/manager-dashboard']); break;
         case 'OFFICER': this.router.navigate(['/officer-dashboard']); break;

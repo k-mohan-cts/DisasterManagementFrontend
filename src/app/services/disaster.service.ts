@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
 })
 export class DisasterService {
   private gatewayUrl = 'http://localhost:8082/api';
-  private reliefUrl = 'http://localhost:8082/api/shelters'; // For ReliefItems and Distributions which don't start with /api in Gateway
+  private reliefUrl = 'http://localhost:8082'; // Base URL for Relief Items, Distributions, and Shelters
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -53,7 +53,7 @@ export class DisasterService {
   getShelters(): Observable<any[]> {
   const token = this.authService.getToken();
   console.log('Shelter token:', token);
-  return this.http.get<any[]>(`${this.reliefUrl}/getShelters`, { headers: this.getHeaders() });
+  return this.http.get<any[]>(`${this.reliefUrl}/api/shelters/getShelters`, { headers: this.getHeaders() });
 }
 
   // Relief Items
@@ -92,6 +92,11 @@ export class DisasterService {
   // Documents
   uploadDocument(doc: any): Observable<any> {
     return this.http.post(`${this.gatewayUrl}/documents/upload`, doc, { headers: this.getHeaders() });
+  }
+
+  // Upload Citizen Document for Verification
+  uploadCitizenDocument(documentRequest: any): Observable<any> {
+    return this.http.post(`${this.gatewayUrl}/documents/upload`, documentRequest, { headers: this.getHeaders() });
   }
 
   getDocumentById(id: number): Observable<any> {

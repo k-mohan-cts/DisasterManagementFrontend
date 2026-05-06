@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { DisasterService } from '../../../services/disaster.service';
 import { AuthService } from '../../../services/auth.service'
 import { DocumentService } from '../../../services/document.service';
@@ -10,7 +11,7 @@ declare let L: any;
 @Component({
   selector: 'app-citizen-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent],
+  imports: [CommonModule, FormsModule, RouterLink, SidebarComponent],
   templateUrl: './citizen-dashboard.component.html',
   styleUrls: ['./citizen-dashboard.component.css']
 })
@@ -19,6 +20,8 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
   shelters: any[] = [];
   showReportModal = false;
   showVerifyModal = false;
+  isUserVerified = false;
+  verificationStatus: string | null = null;
   map: any;
   
   newReport = {
@@ -54,6 +57,14 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
     const userId = this.authService.getUserId();
     this.newReport.citizenId = userId || 0;
     console.log('Citizen ID:', this.newReport.citizenId);
+    
+    // Check verification status
+    this.verificationStatus = this.authService.getVerificationStatus();
+    this.isUserVerified = this.authService.isVerified();
+    
+    console.log('Verification Status:', this.verificationStatus);
+    console.log('Is Verified:', this.isUserVerified);
+    
     this.loadData();
     // Get current location
     if (navigator.geolocation) {

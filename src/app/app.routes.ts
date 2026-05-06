@@ -41,6 +41,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { role: 'CITIZEN' } 
   },
+  { 
+    path: 'verification', 
+    loadComponent: () => import('./components/dashboard/citizen-dashboard/verification/verification.component').then(m => m.VerificationComponent),
+    canActivate: [authGuard],
+    data: { role: 'CITIZEN' } 
+  },
 
   // Manager Dashboards
   { 
