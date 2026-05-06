@@ -48,6 +48,10 @@ export class AuthService {
     return null;
   }
 
+  isLoggedIn(): boolean {
+    return this.getToken() !== null;
+  }
+
   getUserRole(): string | null {
     const token = this.getToken();
     if (!token) return null;

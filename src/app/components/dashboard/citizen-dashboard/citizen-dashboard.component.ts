@@ -30,7 +30,7 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
     description: ''
   };
 
-  emergencyTypes = ['FIRE', 'FLOOD', 'EARTHQUAKE', 'MEDICAL', 'OTHER'];
+  emergencyTypes = ['FLOOD', 'FIRE', 'EARTHQUAKE', 'CYCLONE', 'LANDSLIDE', 'OTHER'];
 
   // Document verification properties
   selectedFile: File | null = null;
@@ -51,7 +51,9 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
   ) {}
 
   ngOnInit() {
-    this.newReport.citizenId = this.authService.getUserId() || 0;
+    const userId = this.authService.getUserId();
+    this.newReport.citizenId = userId || 0;
+    console.log('Citizen ID:', this.newReport.citizenId);
     this.loadData();
     // Get current location
     if (navigator.geolocation) {
@@ -68,6 +70,26 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
 
   ngOnDestroy() {
     this.revokeFilePreviewUrl();
+  }
+
+  openReportModal() {
+    this.showReportModal = true;
+  }
+
+  closeReportModal() {
+    this.showReportModal = false;
+    this.resetReportForm();
+  }
+
+  resetReportForm() {
+    this.newReport = {
+      citizenId: this.authService.getUserId() || 0,
+      location: '',
+      type: 'FIRE',
+      latitude: 0,
+      longitude: 0,
+      description: ''
+    };
   }
 
   loadData() {
@@ -90,11 +112,21 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
 
     this.disasterService.getShelters().subscribe({
       next: (data: any[]) => {
-        this.shelters = data.map((s: any) => ({
-          name: s.name,
-          capacity: Math.floor(Math.random() * 100),
-          color: '#14b8a6'
-        }));
+        this.shelters = data.map((s: any) => {
+          const capacity = s.capacity || 0;
+          const occupancy = s.occupancy || 0;
+          const percentage = capacity > 0 ? (occupancy / capacity) * 100 : 0;
+          let color = '#14b8a6';
+          if (percentage > 85) color = '#ef4444';
+          else if (percentage > 60) color = '#f59e0b';
+          return {
+            name: s.name || 'Unknown Shelter',
+            location: s.location || 'N/A',
+            capacity,
+            occupancy,
+            color
+          };
+        });
       },
       error: (err: any) => {
         console.error('Failed to load shelters', err);
@@ -105,6 +137,24 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   initMap() {
+    // Check if map container exists
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer || !this.showReportModal) {
+      return;
+    }
+
+    // If map already exists, don't reinitialize
+    if (this.map) {
+      this.map.invalidateSize();
+      return;
+    }
+
+    // Check if Leaflet is loaded
+    if (typeof L === 'undefined') {
+      console.error('Leaflet library is not loaded');
+      return;
+    }
+
     this.map = L.map('map').setView([this.newReport.latitude || 20.5937, this.newReport.longitude || 78.9629], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
@@ -120,13 +170,31 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   submitReport() {
-    this.disasterService.createEmergency(this.newReport).subscribe({
+    if (!this.newReport.location || !this.newReport.description || this.newReport.latitude === 0 || this.newReport.longitude === 0) {
+      alert('Please fill in all fields and select a location.');
+      return;
+    }
+
+    const reportData = {
+      ...this.newReport,
+      citizenId: this.authService.getUserId() || 0,
+      date: new Date().toISOString(),
+      status: 'ACTIVE'
+    };
+
+    console.log('Submitting report:', reportData);
+
+    this.disasterService.createEmergency(reportData).subscribe({
       next: (res: any) => {
         alert('Report submitted successfully!');
         this.showReportModal = false;
+        this.resetReportForm();
         this.loadData();
       },
-      error: (err: any) => alert('Failed to submit report')
+      error: (err: any) => {
+        console.error('Failed to submit report:', err);
+        alert('Failed to submit report');
+      }
     });
   }
 
