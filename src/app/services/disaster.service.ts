@@ -8,14 +8,18 @@ import { AuthService } from './auth.service';
 })
 export class DisasterService {
   private gatewayUrl = 'http://localhost:8082/api';
-  private reliefUrl = 'http://localhost:8082'; // For ReliefItems and Distributions which don't start with /api in Gateway
+  private reliefUrl = 'http://localhost:8082/api/shelters'; // For ReliefItems and Distributions which don't start with /api in Gateway
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  private getHeaders() {
-    const token = this.authService.getToken();
-    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  private getHeaders(): HttpHeaders {
+  let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+  const token = this.authService.getToken();
+  if (token) {
+    headers = headers.set('Authorization', `Bearer ${token}`);
   }
+  return headers;
+}
 
   // Emergencies/Reports
   getEmergencies(): Observable<any[]> {
@@ -47,8 +51,10 @@ export class DisasterService {
 
   // Shelters
   getShelters(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/shelters/getShelters`, { headers: this.getHeaders() });
-  }
+  const token = this.authService.getToken();
+  console.log('Shelter token:', token);
+  return this.http.get<any[]>(`${this.reliefUrl}/getShelters`, { headers: this.getHeaders() });
+}
 
   // Relief Items
   getReliefItems(): Observable<any[]> {
