@@ -1,6 +1,6 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+﻿import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, of } from 'rxjs';
+import { Observable, tap, of, catchError, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -9,9 +9,11 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/users';
+  private citizenApiUrl = 'http://localhost:8082/api/citizens';
+  private documentApiUrl = 'http://localhost:8082/api/documents';
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
@@ -28,7 +30,12 @@ export class AuthService {
   }
 
   signup(userData: any): Observable<any> {
-    return this.http.post(this.apiUrl + '/createUser', userData);
+    const role = (userData?.role || userData?.userType || '').toString().toUpperCase();
+    const signupUrl = role === 'CITIZEN'
+      ? this.citizenApiUrl + '/createCitizen'
+      : this.apiUrl + '/createUser';
+
+    return this.http.post(signupUrl, userData);
   }
 
   logout() {
@@ -46,37 +53,100 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return this.getToken() !== null;
   }
 
   getUserRole(): string | null {
+    const user = this.getCurrentUser();
+    return user?.role || null;
+  }
+
+  getUserId(): number | null {
+    const user = this.getCurrentUser();
+    return user?.userId || user?.id || null;
+  }
+
+  getUserEmail(): string | null {
+    const user = this.getCurrentUser();
+    return user?.email || user?.sub || null;
+  }
+
+  getCurrentUser(): any | null {
     const token = this.getToken();
-    if (!token) return null;
+    if (!token) {
+      return null;
+    }
+
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role || null;
-    } catch (e) {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (error) {
       return null;
     }
   }
 
-  getUserId(): number | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      // Check for userId or sub in JWT
-      return payload.userId || payload.id || null;
-    } catch (e) {
-      return null;
+  getVerificationStatus(): string | null {
+    const user = this.getCurrentUser();
+    return user?.verificationStatus || null;
+  }
+
+  isVerified(): boolean {
+    return this.getVerificationStatus() === 'VERIFIED';
+  }
+
+  isPendingVerification(): boolean {
+    const status = this.getVerificationStatus();
+    return status === 'PENDING' || status === 'REJECTED';
+  }
+
+  getUserIdByEmail(email?: string | null): Observable<number | null> {
+    const resolvedEmail = email || this.getUserEmail();
+    if (!resolvedEmail) {
+      return of(null);
     }
+
+    const requestUrl = `${this.apiUrl}/getUserIdByEmail?email=${encodeURIComponent(resolvedEmail)}`;
+    return this.http.get<any>(requestUrl).pipe(
+      map((response: any) => {
+        if (typeof response === 'number') {
+          return response;
+        }
+
+        if (typeof response === 'string' && response.trim() !== '' && !Number.isNaN(Number(response))) {
+          return Number(response);
+        }
+
+        if (response && typeof response === 'object') {
+          return response.userId || response.id || response.data?.userId || response.data?.id || null;
+        }
+
+        return null;
+      }),
+      catchError((error) => {
+        console.error('Error resolving user id by email', error);
+        return of(null);
+      })
+    );
+  }
+
+  getResolvedUserId(): Observable<number | null> {
+    return this.getUserIdByEmail();
+  }
+
+  uploadDocumentForVerification(documentData: any): Observable<any> {
+    return this.http.post<any>(this.documentApiUrl + '/upload', documentData);
   }
 
   private decodeTokenAndRedirect(token: string) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const role = payload.role;
-      
+      const verificationStatus = payload.verificationStatus;
+
+      if (role === 'CITIZEN' && (verificationStatus === 'PENDING' || verificationStatus === 'REJECTED')) {
+        this.router.navigate(['/verification']);
+        return;
+      }
+
       switch (role) {
         case 'MANAGER':
           this.router.navigate(['/manager-dashboard']);
@@ -93,7 +163,7 @@ export class AuthService {
         default:
           this.router.navigate(['/lander']);
       }
-    } catch (e) {
+    } catch (error) {
       this.router.navigate(['/lander']);
     }
   }

@@ -18,7 +18,7 @@ export class SignupComponent {
     phone: '',
     email: '',
     address: '',
-    passwordHash: '',
+    password: '',
     role: 'CITIZEN',
     status: 'ACTIVE'
   };
@@ -28,8 +28,21 @@ export class SignupComponent {
   handleSignup() {
     this.authService.signup(this.userData).subscribe({
       next: (res) => {
-        alert("Signup successful! Please login.");
-        this.router.navigate(['/login']);
+        alert("Signup successful! Proceeding to document verification.");
+        // Auto-login the user with the response token if available
+        if (res.token) {
+          localStorage.setItem('token', res.token);
+        }
+        
+        // Store citizenId if available in response
+        if (res.citizenId) {
+          localStorage.setItem('citizenId', res.citizenId.toString());
+        } else if (res.id) {
+          localStorage.setItem('citizenId', res.id.toString());
+        }
+        
+        // Navigate to document verification page
+        this.router.navigate(['/document-verification']);
       },
       error: (err) => {
         console.error('Signup failed', err);
