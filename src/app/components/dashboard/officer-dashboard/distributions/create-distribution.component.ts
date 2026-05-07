@@ -12,19 +12,20 @@ import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
   templateUrl: './create-distribution.component.html',
   styleUrls: ['./create-distribution.component.css']
 })
-export class CreateDistributionComponent implements OnInit { // <--- THIS WAS THE CAUSE OF THE ERROR
+export class CreateDistributionComponent implements OnInit {
   isSubmitting: boolean = false;
   submitError: string = '';
 
   reliefItems: any[] = [];
   incidents: any[] = [];
   programs: any[] = [];
+  citizens: any[] = []; // NEW: Array for the citizen list
 
   newDistribution: any = {
     itemId: null, 
     incident: null,
     program: null,
-    citizenId: 1, 
+    citizenId: null, // Initialized as null for selection
     quantity: 1
   };
 
@@ -34,7 +35,6 @@ export class CreateDistributionComponent implements OnInit { // <--- THIS WAS TH
   ) {}
 
   ngOnInit() {
-    this.reliefItems = [{ itemId: 9999, name: 'Loading inventory...', quantity: 0 }];
     this.loadDropdownData();
   }
 
@@ -43,26 +43,16 @@ export class CreateDistributionComponent implements OnInit { // <--- THIS WAS TH
     this.disasterService.getReliefItems().subscribe({
       next: (data: any) => {
         let items = Array.isArray(data) ? data : (data?.content || data?.data || []);
-        if (items.length > 0) {
-          this.reliefItems = items;
-        } else {
-          this.loadReliefFallback();
-        }
+        this.reliefItems = items.length > 0 ? items : this.getReliefFallback();
       },
-      error: (err) => {
-        console.error("Relief Items blocked by CORS or Network error:", err);
-        this.loadReliefFallback();
-      }
+      error: () => { this.reliefItems = this.getReliefFallback(); }
     });
 
     // 2. Fetch Incidents
     this.disasterService.getIncidents().subscribe({
       next: (data: any) => {
-        if (data && data.length > 0) {
-          this.incidents = data;
-        } else {
-          this.loadEmergenciesFallback();
-        }
+        this.incidents = (data && data.length > 0) ? data : [];
+        if (this.incidents.length === 0) this.loadEmergenciesFallback();
       },
       error: () => this.loadEmergenciesFallback()
     });
@@ -71,24 +61,34 @@ export class CreateDistributionComponent implements OnInit { // <--- THIS WAS TH
     this.disasterService.getRecoveryPrograms().subscribe({
       next: (data: any) => {
         this.programs = Array.isArray(data) ? data : (data?.content || []);
-        if (this.programs.length === 0) this.loadProgramsFallback();
       },
-      error: () => this.loadProgramsFallback()
+      error: () => { this.programs = []; }
+    });
+
+    // 4. NEW: Fetch Citizens from Database for the Recipient list
+    this.disasterService.getCitizens().subscribe({
+      next: (data: any) => {
+        this.citizens = Array.isArray(data) ? data : (data?.content || []);
+      },
+      error: (err) => {
+        console.error("Failed to load citizens:", err);
+        this.citizens = []; // Keeps list empty if database is unreachable
+      }
     });
   }
 
-  // --- Fallback Generators ---
-  loadReliefFallback() {
-    this.reliefItems = [
-      { itemId: 1, name: "Water Bottles (Fallback DB)", quantity: 5000 },
-      { itemId: 2, name: "Medical Kits (Fallback DB)", quantity: 300 }
+  // --- Fallbacks ---
+  private getReliefFallback() {
+    return [
+      { itemId: 1, itemName: "Water Bottles (Fallback)", quantity: 5000 },
+      { itemId: 2, itemName: "Medical Kits (Fallback)", quantity: 300 }
     ];
   }
 
   loadEmergenciesFallback() {
     this.disasterService.getEmergencies().subscribe({
-      next: (data) => { this.incidents = data || []; },
-      error: (err) => {
+      next: (data: any) => { this.incidents = data || []; },
+      error: () => {
         this.incidents = [
           { type: "Flood", location: "Sector 7" },
           { type: "Earthquake", location: "Downtown" }
@@ -97,18 +97,11 @@ export class CreateDistributionComponent implements OnInit { // <--- THIS WAS TH
     });
   }
 
-  loadProgramsFallback() {
-    this.programs = [
-      { title: "Flood Recovery 2026" },
-      { title: "Downtown Rebuild Initiative" }
-    ];
-  }
-
   onSubmit() {
     this.submitError = '';
 
-    if (!this.newDistribution.itemId || !this.newDistribution.quantity) {
-      this.submitError = 'Please select a Relief Item and enter a Quantity.';
+    if (!this.newDistribution.itemId || !this.newDistribution.citizenId) {
+      this.submitError = 'Please select a Relief Item and a Recipient Citizen.';
       return;
     }
 
@@ -123,19 +116,20 @@ export class CreateDistributionComponent implements OnInit { // <--- THIS WAS TH
       notes: `Incident: ${this.newDistribution.incident || 'None'} | Program: ${this.newDistribution.program || 'None'}`
     };
 
+    // This adds the record to your Distribution table
     this.disasterService.createDistribution(payload).subscribe({
-      next: (res: any) => {
+      next: () => {
         this.isSubmitting = false;
-        this.router.navigate(['/distributions']);
+        this.router.navigate(['/distributions']); // Navigate to the table view
       },
       error: (err: any) => {
         this.isSubmitting = false;
+        // Handle cases where Spring returns a string instead of JSON but creates the record
         if (err.status === 200 || err.status === 201) {
           this.router.navigate(['/distributions']);
           return;
         }
-        console.error('API Error:', err);
-        this.submitError = `Failed to create (Status ${err.status}). Make sure Citizen ID ${payload.citizenId} exists in your Backend!`;
+        this.submitError = `Error: Citizen ID ${payload.citizenId} might not be valid in the system.`;
       }
     });
   }

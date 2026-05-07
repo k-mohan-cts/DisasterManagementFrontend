@@ -23,65 +23,69 @@
           <form (ngSubmit)="onSubmit()">
             <div class="form-grid">
               
-              <!-- Row 1: Item (Left) and Incident (Right) -->
+              <!-- Item Selection -->
               <div>
                 <label>Relief Item</label>
                 <select name="itemId" [(ngModel)]="newDistribution.itemId" required>
                   <option [ngValue]="null" disabled>Select an item</option>
-                  <option *ngFor="let item of reliefItems" [ngValue]="item.itemId || item.id || item.ItemID || item.reliefItemId">
-                    {{ item.itemName || item.name || item.Name || 'Unnamed Item' }} 
-                    ({{ item.quantity || item.Quantity || 0 }} available)
+                  <option *ngFor="let item of reliefItems" [ngValue]="item.itemId || item.id">
+                    {{ item.itemName || item.name }} 
                   </option>
                 </select>
               </div>
 
+              <!-- Incident Selection -->
               <div>
                 <label>Incident</label>
                 <select name="incident" [(ngModel)]="newDistribution.incident">
                   <option [ngValue]="null">Select an incident</option>
                   <option *ngFor="let inc of incidents" 
-                          [ngValue]="(inc.type || inc.name || 'Incident') + ' at ' + (inc.location || 'Unknown')">
-                    {{ inc.type || inc.name || 'Incident' }} at {{ inc.location || inc.address || 'Unknown' }}
+                          [ngValue]="(inc.type || 'Incident') + ' at ' + (inc.location || 'Unknown')">
+                    {{ inc.type || 'Incident' }} at {{ inc.location || 'Unknown' }}
                   </option>
                 </select>
               </div>
 
-              <!-- Row 2: Recovery Program (Full Width) -->
+              <!-- Program Selection -->
               <div class="full">
                 <label>Recovery Program</label>
                 <select name="program" [(ngModel)]="newDistribution.program">
                   <option [ngValue]="null">Select a program</option>
-                  <option *ngFor="let prog of programs" [ngValue]="prog.title || prog.name || prog.Title">
-                    {{ prog.title || prog.name || prog.Title }}
+                  <option *ngFor="let prog of programs" [ngValue]="prog.title || prog.name">
+                    {{ prog.title || prog.name }}
                   </option>
                 </select>
               </div>
 
-              <!-- Row 3: Quantity (Left) and Citizen ID (Right) -->
+              <!-- Quantity -->
               <div>
                 <label>Quantity</label>
                 <input type="number" name="quantity" [(ngModel)]="newDistribution.quantity" min="1" required/>
               </div>
 
+              <!-- Recipient Citizen Dropdown (Matches your DB data) -->
               <div>
-                <label>Recipient Citizen ID</label>
-                <input type="number" name="citizenId" [(ngModel)]="newDistribution.citizenId" min="1" required/>
-                <small style="color: #6b7280; font-size: 12px; margin-top:4px; display:block;">Must exist in database</small>
+                <label>Recipient Citizen</label>
+                <select name="citizenId" [(ngModel)]="newDistribution.citizenId" required>
+                  <option [ngValue]="null" disabled selected>Select a Recipient</option>
+                  <!-- Uses citizen.name as seen in your Postman output -->
+                  <option *ngFor="let citizen of citizens" [value]="citizen.citizenId">
+                    {{ citizen.name }} (ID: {{ citizen.citizenId }})
+                  </option>
+                </select>
+                <small style="color: #6b7280; font-size: 12px; margin-top:4px; display:block;">Only verified citizens from database</small>
               </div>
               
             </div>
             
-            <!-- Footer Actions -->
             <div class="form-actions">
               <a class="btn btn-secondary" routerLink="/distributions">Cancel</a>
               <button class="btn btn-operations" type="submit" [disabled]="isSubmitting">
-                <span *ngIf="!isSubmitting">Create Distribution</span>
-                <span *ngIf="isSubmitting">Saving...</span>
+                <span>{{ isSubmitting ? 'Saving...' : 'Create Distribution' }}</span>
               </button>
             </div>
           </form>
         </section>
-        
       </div>
     </main>
   </section>

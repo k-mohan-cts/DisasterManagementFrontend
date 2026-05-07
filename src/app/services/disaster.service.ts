@@ -24,7 +24,13 @@ export class DisasterService {
     return headers;
   }
 
-  // --- Emergencies / Reports (FIXES THE COMPILER ERRORS) ---
+  // --- Citizens (ADDED FOR DROPDOWN LIST) ---
+  getCitizens(): Observable<any[]> {
+    // FIXED: Changed 'getallcitizens' to 'getAllCitizens' to match your backend exactly
+    return this.http.get<any[]>(`${this.gatewayUrl}/citizens/getAllCitizens`, { headers: this.getHeaders() });
+  }
+
+  // --- Emergencies / Reports ---
   getEmergencies(): Observable<any[]> {
     return this.http.get<any[]>(`${this.gatewayUrl}/reports/getallreports`, { headers: this.getHeaders() });
   }
