@@ -31,7 +31,7 @@ files.forEach(file => {
         const fileDir = path.dirname(file);
         let relPath = path.relative(fileDir, path.dirname(sidebarPathExt)).replace(/\\/g, '/');
         if (!relPath.startsWith('.')) relPath = './' + relPath;
-        const newImport = \import { SidebarComponent } from '\/sidebar.component';\;
+        const newImport = `import { SidebarComponent } from '${relPath}/sidebar.component';`;
         content = content.replace(importRegex, newImport);
         updated = true;
     }

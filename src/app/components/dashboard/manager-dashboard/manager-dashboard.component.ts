@@ -18,7 +18,7 @@
 //   resourceForm!: FormGroup;
 
 //   constructor(
-//     private fb: FormBuilder, 
+//     private fb: FormBuilder,
 //     private disasterService: DisasterService,
 //     private router: Router, // 3. Injected Router
 //     @Inject(PLATFORM_ID) private platformId: Object
@@ -78,7 +78,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router'; 
+import { Router, RouterModule } from '@angular/router';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../services/disaster.service';
 
@@ -95,9 +95,9 @@ export class ManagerDashboardComponent implements OnInit {
   resourceForm!: FormGroup;
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private disasterService: DisasterService,
-    private router: Router, 
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.resourceForm = this.fb.group({

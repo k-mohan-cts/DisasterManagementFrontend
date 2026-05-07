@@ -9,7 +9,7 @@ import { authInterceptor } from './interceptors/auth.interceptor'; // Added impo
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes), 
+    provideRouter(routes),
     provideHttpClient(
       withInterceptors([authInterceptor]) // Registering the interceptor here
     ),

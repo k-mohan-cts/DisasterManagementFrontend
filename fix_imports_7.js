@@ -33,7 +33,7 @@ files.forEach(file => {
             relPath = './' + relPath;
         }
         
-        const newImport = \import { SidebarComponent } from '\';\;
+        const newImport = `import { SidebarComponent } from '${relPath}';`;
         
         let newContent = content.replace(importRegex, newImport);
         if (newContent !== content) {
