@@ -41,10 +41,10 @@
                 <div class="card">
                     <div class="card-header">
                         <h3><i class="fas fa-history"></i> My Recent Reports</h3>
-                        <a href="#" style="font-size: 13px; color: #14b8a6; text-decoration: none; font-weight: 600;">View All</a>
+                        <a routerLink="/history" style="font-size: 13px; color: #14b8a6; text-decoration: none; font-weight: 600;">View All</a>
                     </div>
                     <div class="report-list">
-                        <div class="report-item" *ngFor="let report of reports">
+                        <div class="report-item" *ngFor="let report of reports.slice(0, 3)">
                             <div class="report-meta">
                                 <h4>{{ report.type }}</h4>
                                 <span>{{ report.date }}</span>

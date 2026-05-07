@@ -1,5 +1,6 @@
 ﻿import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { DisasterService } from '../../../services/disaster.service';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ declare let L: any;
 @Component({
   selector: 'app-citizen-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent],
+  imports: [CommonModule, FormsModule, SidebarComponent, RouterLink],
   templateUrl: './citizen-dashboard.component.html',
   styleUrl: './citizen-dashboard.component.css'
 })
@@ -74,7 +75,14 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
 
     this.disasterService.getEmergencies().subscribe({
       next: (data: any[]) => {
-        this.reports = (data || []).map((report: any) => ({
+        // Sort by date descending to get latest first, then take only 3
+        const sortedReports = (data || []).sort((a, b) => {
+          const dateA = new Date(a.reportDate).getTime();
+          const dateB = new Date(b.reportDate).getTime();
+          return dateB - dateA; // Latest first
+        });
+
+        this.reports = sortedReports.slice(0, 3).map((report: any) => ({
           type: report.type || 'UNKNOWN',
           date: report.reportDate ? new Date(report.reportDate).toLocaleDateString() : new Date().toLocaleDateString(),
           status: report.status || 'NEW'

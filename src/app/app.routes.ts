@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LanderComponent } from './components/auth/lander/lander.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { SignupComponent } from './components/auth/signup/signup.component';
+import { DocumentVerificationComponent } from './components/auth/document-verification/document-verification.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -9,6 +10,7 @@ export const routes: Routes = [
   { path: 'lander', component: LanderComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+  { path: 'document-verification', component: DocumentVerificationComponent },
 
   // Citizen Dashboards
   {

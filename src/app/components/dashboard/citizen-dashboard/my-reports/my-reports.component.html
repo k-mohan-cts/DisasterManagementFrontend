@@ -11,40 +11,72 @@
 
         <main class="content-container">
             <header class="page-header">
-                <h1>My Reports</h1>
-                <p>View the history and status of all your submitted emergency reports.</p>
+                <h1><i class="fas fa-history"></i> My Reports History</h1>
+                <p>View the complete history and status of all your submitted emergency reports.</p>
             </header>
 
-            <div class="reports-container">
-                <div class="report-card" *ngFor="let report of reports">
-                    <div class="report-top">
-                        <div class="report-title-section">
-                            <div class="danger-icon-box">
+            <div *ngIf="loading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading your reports...</p>
+            </div>
+
+            <div *ngIf="error && !loading" class="error-state">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>{{ error }}</p>
+                <button (click)="loadReports()" class="retry-btn">Try Again</button>
+            </div>
+
+            <div class="reports-container" *ngIf="!loading && reports.length > 0">
+                <div class="report-card" *ngFor="let report of reports; let i = index">
+                    <div class="report-header">
+                        <div class="report-title-info">
+                            <div class="icon-box">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </div>
-                            <div>
-                                <h2>{{report.type}}</h2>
-                                <span class="report-id">{{report.id}}</span>
+                            <div class="title-info">
+                                <h3>{{ report.type }}</h3>
+                                <span class="report-id">{{ report.id }}</span>
                             </div>
                         </div>
-                        <span class="status-badge" [ngClass]="getStatusClass(report.status)">{{report.status}}</span>
+                        <span class="status-badge" [ngClass]="getStatusClass(report.status)">
+                            {{ report.status }}
+                        </span>
                     </div>
 
-                    <div class="report-details">
-                        <div class="detail-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            {{report.location}}
+                    <div class="report-content">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>
+                                    <span class="label">Location</span>
+                                    <span class="value">{{ report.location }}</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <div>
+                                    <span class="label">Reported Date</span>
+                                    <span class="value">{{ report.date }}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="detail-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            {{report.date}}
+
+                        <div class="description-section" *ngIf="report.description">
+                            <span class="label">Description</span>
+                            <p class="description-text">{{ report.description }}</p>
                         </div>
                     </div>
 
-                    <div class="report-note" *ngIf="report.description">
-                        {{report.description}}
+                    <div class="report-footer">
+                        <span class="report-number">{{ i + 1 }} of {{ reports.length }}</span>
                     </div>
                 </div>
+            </div>
+
+            <div *ngIf="!loading && reports.length === 0 && !error" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No Reports Found</h3>
+                <p>You haven't submitted any emergency reports yet.</p>
             </div>
         </main>
     </div>

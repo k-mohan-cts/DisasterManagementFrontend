@@ -2,30 +2,7 @@
     <app-sidebar role="CITIZEN"></app-sidebar>
 
     <main class="main-content">
-        <div class="header-section">
-            <h1>Support & Resources</h1>
-            <p>Access emergency helplines, relief items, recovery programs, and track your distributions.</p>
-        </div>
-
-        <div class="cards-container">
-            <div class="resource-card">
-                <div class="icon-circle bg-blue">
-                    <i class="fas fa-phone-alt" style="transform: rotate(90deg);"></i>
-                </div>
-                <h2>Contact Helpline</h2>
-                <p>Access emergency contact numbers for medical, fire, and disaster relief services.</p>
-                <button class="btn btn-dark" (click)="openModal('helpline')">View Numbers</button>
-            </div>
-
-            <div class="resource-card">
-                <div class="icon-circle bg-purple">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h2>Track Distribution Status</h2>
-                <p>Monitor the status of your requested relief items and expected delivery times.</p>
-                <button class="btn btn-purple" (click)="openModal('status')">Track Items</button>
-            </div>
-        </div>
+        
 
         <section class="section-container">
             <div class="section-header">
@@ -47,7 +24,7 @@
                 <div *ngFor="let item of reliefItems" class="relief-card">
                     <div class="card-header">
                         <h3>{{ item.itemName }}</h3>
-                        <span class="category-badge" *ngIf="item.category">{{ item.category }}</span>
+                        <span class="category-badge" *ngIf="item.type">{{ item.category }}</span>
                     </div>
                     <div class="card-body">
                         <p class="description">{{ item.description }}</p>
@@ -150,10 +127,6 @@
                         <div class="dist-detail" *ngIf="dist.expectedDelivery">
                             <i class="far fa-clock"></i>
                             <span>Expected: {{ dist.expectedDelivery | date: 'MMM d, y' }}</span>
-                        </div>
-                        <div class="dist-detail" *ngIf="dist.location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Location: {{ dist.location }}</span>
                         </div>
                     </div>
                 </div>

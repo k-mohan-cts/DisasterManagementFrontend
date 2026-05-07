@@ -7,9 +7,9 @@ import { DisasterService } from '../../../../services/disaster.service';
 
 interface CitizenDocumentRequestDTO {
   citizenId: number;
-  docType: 'IDPROOF' | 'RESIDENCE';
+  docType: 'IDPROOF';
   fileURI: string;
-  verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  verificationStatus: 'PENDING';
 }
 
 @Component({
@@ -21,20 +21,12 @@ interface CitizenDocumentRequestDTO {
 })
 export class VerificationComponent implements OnInit {
   citizenId: number = 0;
-  docType: 'IDPROOF' | 'RESIDENCE' = 'IDPROOF';
   fileURI: string = '';
   isUploading: boolean = false;
-  uploadMessage: string = '';
   uploadError: string = '';
-  uploadSuccess: boolean = false;
 
-  docTypeOptions = [
-    { label: 'ID Proof (Passport, Aadhar, Driver License)', value: 'IDPROOF' },
-    { label: 'Residence Proof (Address Certificate, Utility Bill)', value: 'RESIDENCE' }
-  ];
-
-  currentStep: 'welcome' | 'upload-idproof' | 'upload-residence' | 'pending' = 'welcome';
-  documentsUploaded: { IDPROOF?: boolean; RESIDENCE?: boolean } = {};
+  // Simplified steps: 'welcome' -> 'upload' -> 'success' (labeled 'pending' in HTML)
+  currentStep: 'welcome' | 'upload' | 'success' = 'welcome';
 
   constructor(
     private authService: AuthService,
@@ -52,23 +44,10 @@ export class VerificationComponent implements OnInit {
   }
 
   startVerification() {
-    this.currentStep = 'upload-idproof';
-    this.docType = 'IDPROOF';
+    this.currentStep = 'upload';
   }
 
-  proceedToResidenceProof() {
-    if (!this.fileURI.trim()) {
-      this.uploadError = 'Please enter a file URI for ID Proof';
-      return;
-    }
-    this.documentsUploaded['IDPROOF'] = true;
-    this.currentStep = 'upload-residence';
-    this.docType = 'RESIDENCE';
-    this.fileURI = '';
-    this.uploadError = '';
-  }
-
-  uploadDocument() {
+  submitToBackend() {
     if (!this.fileURI.trim()) {
       this.uploadError = 'Please enter a valid File URI';
       return;
@@ -76,58 +55,45 @@ export class VerificationComponent implements OnInit {
 
     this.isUploading = true;
     this.uploadError = '';
-    this.uploadMessage = '';
 
     const documentRequest: CitizenDocumentRequestDTO = {
       citizenId: this.citizenId,
-      docType: this.docType,
+      docType: 'IDPROOF',
       fileURI: this.fileURI.trim(),
       verificationStatus: 'PENDING'
     };
 
-    console.log('Uploading document:', documentRequest);
-
+    // Triggering the send function to the backend
     this.disasterService.uploadCitizenDocument(documentRequest).subscribe({
       next: (response: any) => {
-        console.log('Document uploaded successfully:', response);
-        this.documentsUploaded[this.docType] = true;
-        this.uploadSuccess = true;
-        this.uploadMessage = `${this.docType} document uploaded successfully!`;
-        this.fileURI = '';
         this.isUploading = false;
-
-        // If both documents uploaded, move to pending status
-        if (this.documentsUploaded['IDPROOF'] && this.documentsUploaded['RESIDENCE']) {
-          setTimeout(() => {
-            this.currentStep = 'pending';
-          }, 1500);
-        } else if (this.docType === 'IDPROOF') {
-          setTimeout(() => {
-            this.proceedToResidenceProof();
-          }, 1500);
-        }
+        this.currentStep = 'success'; // Show the "Stay Tuned" screen
+        
+        // Auto-redirect to dashboard after 3 seconds
+        setTimeout(() => {
+          this.completeVerification();
+        }, 3000);
       },
       error: (err: any) => {
-        console.error('Error uploading document:', err);
-        this.uploadError = err?.error?.message || 'Failed to upload document. Please try again.';
         this.isUploading = false;
+        // Handle 503 or other backend errors
+        if (err.status === 503) {
+          this.uploadError = 'Service Unavailable: The server is currently unable to handle the request. Please try again later.';
+        } else {
+          this.uploadError = err?.error?.message || 'Failed to submit document. Please check your connection.';
+        }
       }
     });
   }
 
   completeVerification() {
-    // Redirect to dashboard or another page after verification is complete
     this.router.navigate(['/citizen-dashboard']);
   }
 
   goBack() {
-    if (this.currentStep === 'upload-residence') {
-      this.currentStep = 'upload-idproof';
-      this.docType = 'IDPROOF';
-      this.fileURI = '';
-      this.uploadError = '';
-    } else if (this.currentStep !== 'welcome') {
+    if (this.currentStep === 'upload') {
       this.currentStep = 'welcome';
+      this.uploadError = '';
     }
   }
 }

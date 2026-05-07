@@ -4,32 +4,50 @@ import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../../services/disaster.service';
 
 interface ReliefItem {
-  itemId: number;
+  itemId?: number;
   itemName: string;
   quantity: number;
-  description: string;
+  description?: string;
   category?: string;
   available?: number;
+  // API response fields
+  name?: string;
+  type?: string;
+  status?: string;
+  unit?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface RecoveryProgram {
-  programId: number;
+  programId?: number;
   programName: string;
   description: string;
   targetAudience?: string;
   startDate?: string;
   endDate?: string;
   status?: string;
+  // API response fields
+  title?: string;
+  budget?: number;
+  managerId?: number;
+  createdAt?: string;
 }
 
 interface Distribution {
-  distributionId: number;
+  distributionId?: number;
   itemName: string;
   quantity: number;
   status: string;
   allocatedDate?: string;
   expectedDelivery?: string;
   location?: string;
+  // API response fields
+  citizenId?: number;
+  itemId?: number;
+  officeId?: number;
+  date?: string;
+  notes?: string;
 }
 
 @Component({
@@ -97,7 +115,15 @@ export class SupportResourcesComponent implements OnInit {
 
     this.disasterService.getReliefItems().subscribe({
       next: (data) => {
-        this.reliefItems = data || [];
+        // Map API response to component interface
+        this.reliefItems = (data || []).map((item: any) => ({
+          itemId: item.itemId,
+          itemName: item.itemName || item.name,
+          quantity: item.quantity,
+          description: item.description || item.type,
+          category: item.category || item.type,
+          available: item.available || item.quantity
+        }));
         this.loadingRelief = false;
         this.cd.detectChanges();
       },
@@ -116,7 +142,16 @@ export class SupportResourcesComponent implements OnInit {
 
     this.disasterService.getRecoveryPrograms().subscribe({
       next: (data) => {
-        this.recoveryPrograms = data || [];
+        // Map API response to component interface
+        this.recoveryPrograms = (data || []).map((program: any) => ({
+          programId: program.programId,
+          programName: program.programName || program.title,
+          description: program.description,
+          targetAudience: program.targetAudience,
+          startDate: program.startDate,
+          endDate: program.endDate,
+          status: program.status
+        }));
         this.loadingPrograms = false;
         this.cd.detectChanges();
       },
@@ -135,7 +170,16 @@ export class SupportResourcesComponent implements OnInit {
 
     this.disasterService.getDistributions().subscribe({
       next: (data) => {
-        this.distributions = data || [];
+        // Map API response to component interface
+        this.distributions = (data || []).map((dist: any) => ({
+          distributionId: dist.distributionId,
+          itemName: dist.notes || `Item ${dist.itemId}`,
+          quantity: dist.quantity,
+          status: dist.status,
+          allocatedDate: dist.date,
+          expectedDelivery: dist.expectedDelivery,
+          location: dist.location
+        }));
         this.loadingDistribution = false;
         this.cd.detectChanges();
       },
