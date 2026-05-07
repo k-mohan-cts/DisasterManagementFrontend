@@ -1,0 +1,142 @@
+<div class="app-shell">
+  <!-- 1. THE SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span>DisasterRelief</span>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">
+        <p class="nav-group-title operations">OPERATIONS</p>
+        <a class="nav-link" routerLink="/dashboard"><span>⌂</span>Dashboard</a>
+        <!-- Active class applied to Relief Inventory -->
+        <a class="nav-link active operations" routerLink="/relief-inventory"><span>◈</span>Relief Inventory</a>
+        <a class="nav-link" routerLink="/distributions"><span>⌁</span>Distributions</a>
+        <a class="nav-link" routerLink="/shelters"><span>▣</span>Shelters</a>
+        <a class="nav-link" routerLink="/citizens"><span>⚭</span>Citizen Registry</a>
+      </div>
+    </nav>
+    <div class="profile">
+      <div class="avatar">O</div>
+      <div>
+        <p>Officer</p>
+        <small>OFFICER</small>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 2. MAIN CONTENT AREA -->
+  <section class="content">
+    <header class="topbar">
+      <h1>Relief Operations</h1>
+      <div class="topbar-right">
+        <span class="bell">🔔</span>
+        <button class="text-btn">Sign out</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="page form-wrap">
+        <h2>Add Relief Item</h2>
+        <p class="sub">Add items to the inventory, funded by a recovery program.</p>
+        
+        <section class="panel">
+          <form id="itemForm" (ngSubmit)="onSubmit()">
+            <div class="form-grid form-grid-item">
+              
+              <!-- DYNAMIC DROPDOWN -->
+              <div class="full">
+                <label>Recovery Program (Funding Source)</label>
+                <!-- (change) triggers the budget math when the user selects a program -->
+                <select name="ProgramID" [(ngModel)]="selectedProgramId" (change)="onProgramChange()" required>
+                  <option value="" disabled selected>Select a program</option>
+                  <option *ngFor="let p of programs" [value]="p.programId || p.id || p.ProgramID">
+                    {{ p.name || p.programName || p.title || p.Title || 'Unnamed Program' }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- DYNAMIC BUDGET PANEL -->
+              <div class="full budget-info">
+                <p class="budget-title">PROGRAM BUDGET INFO</p>
+                <div class="budget-grid">
+                  <div>
+                    <span>Total Budget</span>
+                    <strong>{{ totalBudget | currency:'USD':'symbol':'1.0-0' }}</strong>
+                  </div>
+                  <div>
+                    <span>Already Allocated</span>
+                    <strong>{{ allocatedBudget | currency:'USD':'symbol':'1.0-0' }}</strong>
+                  </div>
+                  <div>
+                    <span>Remaining</span>
+                    <!-- Turns text red if they overspend -->
+                    <strong [ngClass]="{'text-red-600': remainingBudget < 0}">
+                      {{ remainingBudget | currency:'USD':'symbol':'1.0-0' }}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FORM INPUTS -->
+              <div>
+                <label>Item Name</label>
+                <input name="Name" [(ngModel)]="itemName" required />
+              </div>
+              
+              <div>
+                <label>Type</label>
+                <select name="Type" [(ngModel)]="type" required>
+                  <option>FOOD</option>
+                  <option>MEDICINE</option>
+                  <option>CLOTHING</option>
+                  <option>WATER</option>
+                  <option>SHELTERKIT</option>
+                  <option>OTHER</option>
+                </select>
+              </div>
+              
+              <div>
+                <label>Quantity</label>
+                <!-- (input) recalculates the math every time the user types -->
+                <input name="Quantity" type="number" [(ngModel)]="quantity" (input)="calculateCosts()" min="0" required />
+              </div>
+              
+              <div>
+                <label>Unit Cost (USD)</label>
+                <!-- (input) recalculates the math every time the user types -->
+                <input name="UnitCost" type="number" [(ngModel)]="unitCost" (input)="calculateCosts()" min="0" required />
+              </div>
+              
+              <div>
+                <label>Unit</label>
+                <input name="Unit" [(ngModel)]="unit" placeholder="e.g. Liters, Boxes" required />
+              </div>
+              
+              <div>
+                <label>Status</label>
+                <select name="Status" [(ngModel)]="status" required>
+                  <option>AVAILABLE</option>
+                  <option>LOW</option>
+                  <option>OUTOFSTOCK</option>
+                  <option>RESERVED</option>
+                </select>
+              </div>
+              
+              <!-- DYNAMIC TOTAL COST -->
+              <div class="full total-cost-box">
+                <span>Total Item Cost:</span>
+                <strong>{{ totalItemCost | currency:'USD':'symbol':'1.0-0' }}</strong>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <a class="btn btn-secondary" routerLink="/relief-inventory">Cancel</a>
+              <!-- Button disables if the budget is negative -->
+              <button class="btn btn-operations" type="submit" [disabled]="remainingBudget < 0">Add Item</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+  </section>
+</div>

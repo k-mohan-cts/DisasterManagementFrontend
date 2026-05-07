@@ -1,39 +1,64 @@
 <div class="app-shell">
-    <app-sidebar role="OFFICER"></app-sidebar>
-    <div class="content">
-        <header class="topbar">
-            <h1>Shelters</h1>
-            <div class="topbar-right">
-                <button class="role-chip">Officer</button>
+  <app-sidebar role="OFFICER"></app-sidebar>
+  
+  <section class="content">
+    <header class="topbar">
+      <h1>Relief Operations</h1>
+      <div class="topbar-right">
+        <span class="bell">🔔</span>
+        <button class="text-btn">Sign out</button>
+      </div>
+    </header>
+    
+    <main class="main">
+      <div class="page">
+        <div class="page-head">
+          <div>
+            <h2>Shelters</h2>
+            <p class="sub">Manage emergency shelters and their occupancy.</p>
+          </div>
+          <div class="head-actions">
+            <input class="search" placeholder="Search shelters..." (input)="onSearch($event)" />
+            <a class="btn btn-operations" routerLink="/add-shelter">+ Add Shelter</a>
+          </div>
+        </div>
+        
+        <div *ngIf="isLoading" style="padding: 20px; color: #6b7280; font-weight: 500;">Loading shelters...</div>
+        <div *ngIf="!isLoading && filteredShelters.length === 0" style="padding: 20px; color: #6b7280; font-weight: 500;">No shelters found.</div>
+
+        <div id="shelterCards" class="shelter-grid" *ngIf="!isLoading">
+          <article class="card" *ngFor="let s of filteredShelters">
+            <div class="card-body">
+              <div class="shelter-head">
+                <h3>▣ {{ s.name }}</h3>
+                <!-- Dynamic Pill Colors -->
+                <span class="pill" [ngClass]="getPillClass(s.status)">{{ s.status || 'Open' }}</span>
+              </div>
+              <p style="margin-top: 8px; font-size: 14px; color: #4b5563;">{{ s.location }}</p>
+              
+              <div class="occ-row">
+                <span>Occupancy</span>
+                <strong>{{ s.occupancy || 0 }} / {{ s.capacity || 0 }}</strong>
+              </div>
+              
+              <!-- Dynamic Progress Bar -->
+              <div class="progress" [ngClass]="getProgressTone(getPercent(s.occupancy, s.capacity), s.status)">
+                <span [style.width.%]="getPercent(s.occupancy, s.capacity)"></span>
+              </div>
             </div>
-        </header>
-        <main class="main">
-            <div class="page">
-                <div class="page-head">
-                    <h2>Shelter Management</h2>
-                    <button class="btn btn-operations">+ Add Shelter</button>
-                </div>
-                <div class="card">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Shelter Name</th>
-                                <th>Location</th>
-                                <th>Capacity</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let s of shelters">
-                                <td><strong>{{s.name}}</strong></td>
-                                <td>{{s.location}}</td>
-                                <td>{{s.capacity}}% full</td>
-                                <td><span class="pill" [ngClass]="'pill-' + s.status.toLowerCase()">{{s.status}}</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            
+            <div class="card-actions">
+              <a class="card-link" href="javascript:void(0)">View Details →</a>
+              
+              <!-- FIXED: Now passes the specific shelter ID so Edit Mode works -->
+              <a class="card-link card-link-edit" [routerLink]="['/add-shelter']" [queryParams]="{id: s.shelterId || s.id}">Edit</a>
+              
+              <!-- FIXED: Hooked up properly to the delete function -->
+              <a class="card-link card-link-danger" href="javascript:void(0)" (click)="deleteShelter(s.shelterId || s.id)">Delete</a>
             </div>
-        </main>
-    </div>
+          </article>
+        </div>
+      </div>
+    </main>
+  </section>
 </div>

@@ -1,0 +1,68 @@
+<div class="verification-container">
+    <div class="verification-content">
+        
+        <div *ngIf="currentStep === 'upload'" class="step-container">
+            <div class="step-header">
+                <h1>Document Verification</h1>
+                <p>Complete your account by verifying your identity</p>
+            </div>
+
+            <div class="upload-form">
+                <div class="form-group">
+                    <label>Document Type</label>
+                    <select class="file-uri-input" disabled>
+                        <option>ID Proof (Passport, Aadhar, Driver License)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>File URI</label>
+                    <textarea 
+                    
+                        [(ngModel)]="fileURI" 
+                        placeholder="Enter the file path or URI (e.g., /documents/passport.pdf)"
+                        class="file-uri-input"
+                        [disabled]="isUploading">
+                    </textarea>
+                </div>
+
+                <div class="drag-drop-zone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to browse or drag and drop</p>
+                    <span>(This is optional and not used for upload)</span>
+                </div>
+
+                <div *ngIf="uploadError" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ uploadError }}
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-secondary" (click)="goBack()" [disabled]="isUploading">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    
+                    <button 
+                        class="btn-primary" 
+                        (click)="submitToBackend()" 
+                        [disabled]="isUploading || !fileURI.trim()">
+                        <i class="fas fa-paper-plane"></i> 
+                        {{ isUploading ? 'Sending...' : 'Submit' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="currentStep === 'success'" class="step-container success-state">
+            <div class="pending-content">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Verification process will start</h2>
+                <p>Stay tuned!</p>
+                <p class="redirect-text">Redirecting you to the dashboard...</p>
+            </div>
+        </div>
+
+    </div>
+</div>
