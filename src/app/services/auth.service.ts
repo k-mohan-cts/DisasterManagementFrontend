@@ -41,6 +41,8 @@ export class AuthService {
   logout() {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
+      sessionStorage.clear();
+      localStorage.clear();
     }
     this.router.navigate(['/lander']);
   }

@@ -20,3 +20,36 @@ body {
     background-color: var(--main-bg);
     min-height: 100vh;
 }
+
+/* Layout: use flex-based dashboard container so sidebar and content align */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--main-bg);
+}
+
+.dashboard-container .main-content,
+.dashboard-container .main-wrapper {
+    flex: 1 1 auto;
+    width: auto;
+}
+
+/* Responsive: collapse sidebar to overlay on small screens */
+@media (max-width: 768px) {
+    .dashboard-container {
+        display: block;
+    }
+
+    .sidebar {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: auto;
+    }
+
+    .dashboard-container .main-content {
+        margin-top: 0; /* content begins after header or sidebar overlay */
+    }
+}

@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../../services/disaster.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-my-reports',
@@ -10,10 +12,11 @@ import { DisasterService } from '../../../../services/disaster.service';
   templateUrl: './my-reports.component.html',
   styleUrl: './my-reports.component.css'
 })
-export class MyReportsComponent implements OnInit {
+export class MyReportsComponent implements OnInit, OnDestroy {
   reports: any[] = [];
   loading = true;
   error: string | null = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private disasterService: DisasterService,
@@ -28,7 +31,7 @@ export class MyReportsComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.disasterService.getEmergencies().subscribe({
+    this.disasterService.getEmergencies().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         console.log('Reports loaded from API:', data);
         this.reports = (data || []).map((r: any) => ({
@@ -50,6 +53,11 @@ export class MyReportsComponent implements OnInit {
         this.cd.markForCheck();
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getStatusClass(status: string): string {

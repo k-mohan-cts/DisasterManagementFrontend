@@ -1,7 +1,9 @@
-﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../../services/disaster.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 interface ReliefItem {
   itemId?: number;
@@ -57,9 +59,10 @@ interface Distribution {
   templateUrl: './support-resources.component.html',
   styleUrl: './support-resources.component.css'
 })
-export class SupportResourcesComponent implements OnInit {
+export class SupportResourcesComponent implements OnInit, OnDestroy {
   showHelplineModal = false;
   showStatusModal = false;
+  private destroy$ = new Subject<void>();
 
   helplines = [
     { title: 'Emergency Services', sub: 'Police, Fire, Ambulance', number: '112', class: 'bg-red-light' },
@@ -113,7 +116,7 @@ export class SupportResourcesComponent implements OnInit {
     this.loadingRelief = true;
     this.errorRelief = null;
 
-    this.disasterService.getReliefItems().subscribe({
+    this.disasterService.getReliefItems().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         // Map API response to component interface
         this.reliefItems = (data || []).map((item: any) => ({
@@ -140,7 +143,7 @@ export class SupportResourcesComponent implements OnInit {
     this.loadingPrograms = true;
     this.errorPrograms = null;
 
-    this.disasterService.getRecoveryPrograms().subscribe({
+    this.disasterService.getRecoveryPrograms().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         // Map API response to component interface
         this.recoveryPrograms = (data || []).map((program: any) => ({
@@ -168,7 +171,7 @@ export class SupportResourcesComponent implements OnInit {
     this.loadingDistribution = true;
     this.errorDistribution = null;
 
-    this.disasterService.getDistributions().subscribe({
+    this.disasterService.getDistributions().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         // Map API response to component interface
         this.distributions = (data || []).map((dist: any) => ({
@@ -199,4 +202,7 @@ export class SupportResourcesComponent implements OnInit {
     if (statusLower.includes('pending')) return 'badge-yellow';
     return 'badge-gray';
   }
-}
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }}

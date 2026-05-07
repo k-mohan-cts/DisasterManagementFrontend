@@ -1,9 +1,11 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { DisasterService } from '../../../services/disaster.service';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-auditor-dashboard',
@@ -12,7 +14,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './auditor-dashboard.component.html',
   styleUrl: './auditor-dashboard.component.css'
 })
-export class AuditorDashboardComponent implements OnInit {
+export class AuditorDashboardComponent implements OnInit, OnDestroy {
   complianceRate = 0;
   activeAudits = 0;
   pendingReviews = 0;
@@ -23,6 +25,7 @@ export class AuditorDashboardComponent implements OnInit {
   totalComplianceRecords = 0;
   recentComplianceRecords: any[] = [];
   loadingDashboard = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private disasterService: DisasterService,
@@ -56,7 +59,7 @@ export class AuditorDashboardComponent implements OnInit {
   loadStats() {
     this.loadingDashboard = true;
 
-    this.disasterService.getAudits().subscribe({
+    this.disasterService.getAudits().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: any) => {
         const audits = this.normalizeList(data);
         this.activeAudits = audits.filter((audit: any) => {
@@ -67,7 +70,7 @@ export class AuditorDashboardComponent implements OnInit {
       error: (err: any) => console.error('Error fetching audits', err)
     });
 
-    this.disasterService.getComplianceRecords().subscribe({
+    this.disasterService.getComplianceRecords().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: any) => {
         const records = this.normalizeList(data);
         this.totalComplianceRecords = records.length;
@@ -127,5 +130,10 @@ export class AuditorDashboardComponent implements OnInit {
   recordDate(record: any): string {
     const source = record?.createdAt || record?.auditDate;
     return source ? new Date(source).toLocaleDateString() : 'N/A';
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

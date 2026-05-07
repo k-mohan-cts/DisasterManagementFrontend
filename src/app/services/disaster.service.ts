@@ -16,27 +16,16 @@ export class DisasterService {
 
   private getRequestOptions(body?: any) {
     let headers = new HttpHeaders();
-
     if (!(body instanceof FormData)) {
       headers = headers.set('Content-Type', 'application/json');
     }
-
-    const token = this.authService.getToken();
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-
     return { headers };
   }
 
   private getHeaders(): HttpHeaders {
-    let headers = new HttpHeaders();
-    headers = headers.set('Content-Type', 'application/json');
-    const token = this.authService.getToken();
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-    return headers;
+    return new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
   }
 
   private requestWithFallbacks<T>(requestFactories: Array<() => Observable<T>>): Observable<T> {

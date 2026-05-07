@@ -4,14 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { DisasterService } from '../../../../services/disaster.service';
 
-// 1. IMPORT THE SIDEBAR COMPONENT HERE
-import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
-
 @Component({
   selector: 'app-add-shelter',
   standalone: true,
-  // 2. ADD SIDEBAR COMPONENT TO THE IMPORTS ARRAY
-  imports: [CommonModule, FormsModule, RouterModule, SidebarComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './add-shelter.component.html',
   styleUrls: ['./add-shelter.component.css']
 })
