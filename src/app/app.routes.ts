@@ -32,12 +32,6 @@ export const routes: Routes = [
     data: { role: 'CITIZEN' }
   },
   {
-    path: 'notifications',
-    loadComponent: () => import('./components/dashboard/citizen-dashboard/notifications/notifications.component').then(m => m.NotificationsComponent),
-    canActivate: [authGuard],
-    data: { role: 'CITIZEN' }
-  },
-  {
     path: 'history',
     loadComponent: () => import('./components/dashboard/citizen-dashboard/my-reports/my-reports.component').then(m => m.MyReportsComponent),
     canActivate: [authGuard],

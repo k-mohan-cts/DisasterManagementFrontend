@@ -34,7 +34,7 @@ export class DocumentVerificationComponent implements OnInit {
     { label: 'Residence Proof (Address Certificate, Utility Bill)', value: 'RESIDENCE' }
   ];
 
-  currentStep: 'welcome' | 'upload-idproof' | 'upload-residence' | 'pending' = 'welcome';
+  currentStep: 'welcome' | 'upload-idproof' | 'upload-residence' | 'pending' | 'success' = 'welcome';
   documentsUploaded: { IDPROOF?: boolean; RESIDENCE?: boolean } = {};
 
   constructor(
@@ -86,6 +86,8 @@ export class DocumentVerificationComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
+      // Auto-generate fileURI from file name
+      this.fileURI = `/documents/${this.selectedFile.name}`;
     }
   }
 
@@ -93,12 +95,14 @@ export class DocumentVerificationComponent implements OnInit {
     event.preventDefault();
     if (event.dataTransfer && event.dataTransfer.files.length > 0) {
       this.selectedFile = event.dataTransfer.files[0];
+      // Auto-generate fileURI from file name
+      this.fileURI = `/documents/${this.selectedFile.name}`;
     }
   }
 
   proceedToResidenceProof() {
-    if (!this.fileURI.trim()) {
-      this.uploadError = 'Please enter a file URI for ID Proof';
+    if (!this.selectedFile) {
+      this.uploadError = 'Please select a file for ID Proof';
       return;
     }
     this.uploadDocument();
@@ -133,29 +137,32 @@ export class DocumentVerificationComponent implements OnInit {
         this.selectedFile = null;
         this.isUploading = false;
 
-        // If both documents uploaded, move to pending status
+        // If both documents uploaded, move to success screen
         if (this.documentsUploaded['IDPROOF'] && this.documentsUploaded['RESIDENCE']) {
           setTimeout(() => {
-            this.currentStep = 'pending';
-          }, 1500);
+            this.currentStep = 'success';
+          }, 1000);
         } else if (this.docType === 'IDPROOF') {
           setTimeout(() => {
             this.currentStep = 'upload-residence';
             this.docType = 'RESIDENCE';
-          }, 1500);
+            this.uploadSuccess = false;
+            this.uploadMessage = '';
+          }, 1000);
         }
       },
       error: (err: any) => {
         console.error('Error uploading document:', err);
         this.uploadError = err?.error?.message || 'Failed to upload document. Please try again.';
         this.isUploading = false;
+        this.uploadSuccess = false;
       }
     });
   }
 
   completeVerification() {
-    // Redirect to dashboard after verification is complete
-    this.router.navigate(['/citizen-dashboard']);
+    // Redirect to login after verification is complete
+    this.router.navigate(['/login']);
   }
 
   goBack() {
