@@ -32,14 +32,14 @@
             </div>
 
             <div class="nav-section">
-                <div class="nav-title">Notification History</div>
+                <div class="nav-title">My Reports</div>
                 <ul class="nav-links">
-                    <li><a routerLink="/notifications" routerLinkActive="active" class="nav-item"><i class="fas fa-bell"></i> Notifications</a></li>
+                    <li><a routerLink="/history" routerLinkActive="active" class="nav-item"><i class="fas fa-file-invoice"></i> History</a></li>
                 </ul>
             </div>
         </ng-container>
 
-        <!-- Manager Menu -->
+        <!-- UPDATED Manager Menu (Matching image_dbbd8c.png) -->
         <ng-container *ngIf="role === 'MANAGER'">
             <div class="nav-section">
                 <ul class="nav-links">
@@ -56,6 +56,15 @@
                     <li><a routerLink="/resources-mgmt" routerLinkActive="active" class="nav-item"><i class="fas fa-box-open"></i> Resources</a></li>
                 </ul>
             </div>
+
+            <!-- <div class="nav-section">
+                <div class="nav-title">Relief Operations</div>
+                <ul class="nav-links">
+                    <li><a routerLink="/relief-inventory" routerLinkActive="active" class="nav-item"><i class="fas fa-warehouse"></i> Relief Inventory</a></li>
+                    <li><a routerLink="/distributions" routerLinkActive="active" class="nav-item"><i class="fas fa-truck"></i> Distributions</a></li>
+                    <li><a routerLink="/shelters" routerLinkActive="active" class="nav-item"><i class="fas fa-campground"></i> Shelters</a></li>
+                </ul>
+            </div> -->
         </ng-container>
 
         <!-- Officer Menu (Consolidated) -->
@@ -104,7 +113,7 @@
                 </ul>
             </div>
         </ng-container>
-    </div> <!-- Closed nav-content -->
+    </div>
 
     <div class="user-profile-container">
         <div class="user-profile">
