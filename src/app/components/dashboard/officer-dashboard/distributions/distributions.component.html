@@ -1,38 +1,71 @@
 <div class="app-shell">
     <app-sidebar role="OFFICER"></app-sidebar>
+
     <div class="content">
         <header class="topbar">
-            <h1>Distributions</h1>
+            <h1>Relief Operations</h1>
             <div class="topbar-right">
-                <button class="role-chip">Officer</button>
+                <span class="bell">🔔</span>
+                <span class="text-btn" style="margin-left: 15px; font-weight: 500; cursor: pointer;">Sign out</span>
             </div>
         </header>
+
         <main class="main">
             <div class="page">
                 <div class="page-head">
-                    <h2>Relief Distributions</h2>
-                    <button class="btn btn-operations">+ New Distribution</button>
+                    <div class="page-head-left">
+                        <h2>Relief Distributions</h2>
+                        <p class="sub">Track and manage relief item distributions linked to incidents and programs.</p>
+                    </div>
+                    <div class="page-head-right">
+                        <input type="text" class="search-input" placeholder="Search distributions..." (input)="onSearch($event)" />
+                        <a class="btn btn-operations" routerLink="/create-distribution">+ New Distribution</a>
+                    </div>
                 </div>
-                <div class="card">
-                    <table>
+
+                <section class="card">
+                    <!-- Loading State -->
+                    <div *ngIf="isLoading" style="text-align: center; padding: 60px;">
+                        <p>Loading distributions...</p>
+                    </div>
+
+                    <!-- No Data State -->
+                    <div *ngIf="!isLoading && filteredDistributions.length === 0" style="text-align: center; padding: 40px; color: #6b7280;">
+                        <p>No distributions found.</p>
+                    </div>
+
+                    <!-- Main Table -->
+                    <table *ngIf="!isLoading && filteredDistributions.length > 0">
                         <thead>
                             <tr>
                                 <th>Item</th>
-                                <th>Recipient</th>
-                                <th>Location</th>
+                                <th>Incident</th>
+                                <th>Program</th>
                                 <th>Status</th>
+                                <th class="text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let d of distributions">
-                                <td><strong>{{d.itemName}}</strong></td>
-                                <td>{{d.recipientName}}</td>
-                                <td>{{d.location}}</td>
-                                <td><span class="pill" [ngClass]="'pill-' + d.status.toLowerCase()">{{d.status}}</span></td>
+                            <tr *ngFor="let dist of filteredDistributions">
+                                <td>
+                                    <strong>{{dist.displayItemName}}</strong><br>
+                                    <small style="color: #6b7280;">Qty: {{dist.quantity}}</small>
+                                </td>
+                                <td>{{dist.parsedIncident}}</td>
+                                <td>{{dist.parsedProgram}}</td>
+                                <td>
+                                    <span class="pill" [ngClass]="getPillClass(dist.status)">
+                                        {{(dist.status || 'Pending') | uppercase}}
+                                    </span>
+                                </td>
+                                <td class="text-right actions-cell">
+                                    <button class="action-btn edit-btn" (click)="editDistribution(dist)">Edit</button>
+                                    <button class="action-btn delete-btn" (click)="deleteDistribution(dist.distributionId || dist.id)">Delete</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </section>
             </div>
         </main>
     </div>

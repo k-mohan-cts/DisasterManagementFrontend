@@ -1,4 +1,131 @@
-/* Emergency reports specific styles */
+/* Container & Layout Alignment */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: white;
+}
+
+.page-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Table Area */
+.content-area {
+    padding: 0 40px 40px 40px;
+}
+
 .data-table {
+    width: 100%;
+    border-collapse: collapse;
     margin-top: 10px;
+}
+
+.data-table th {
+    text-align: left;
+    color: #8898aa;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 15px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.data-table td {
+    padding: 15px;
+    border-bottom: 1px solid #edf2f7;
+    vertical-align: middle;
+    font-size: 15px;
+}
+
+/* Cell Alignment */
+.type-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.type-text {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Status Select */
+.status-select {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    font-weight: 500;
+    cursor: pointer;
+    background: white;
+}
+
+/* THE RED BUTTON - EXACT MATCH */
+.btn-create-incident {
+    background-color: #d32f2f; /* Dark Red */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.btn-create-incident:hover {
+    background-color: #b71c1c;
+}
+
+/* Other Buttons */
+.btn-view {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-view:hover {
+    background: #f1f5f9;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.pill-btn-outline {
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    padding: 6px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* States */
+.empty-row {
+    text-align: center;
+    padding: 40px !important;
+    color: #64748b;
+}
+
+.loader {
+    text-align: center;
+    padding: 40px;
 }

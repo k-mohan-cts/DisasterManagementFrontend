@@ -1,0 +1,111 @@
+<div class="app-shell">
+  <!-- THE SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span>DisasterRelief</span>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">
+        <p class="nav-group-title operations">OPERATIONS</p>
+        <a class="nav-link" routerLink="/dashboard"><span>⌂</span>Dashboard</a>
+        <a class="nav-link" routerLink="/relief-inventory"><span>◈</span>Relief Inventory</a>
+        <a class="nav-link" routerLink="/distributions"><span>⌁</span>Distributions</a>
+        <!-- Active class applied to Shelters -->
+        <a class="nav-link active operations" routerLink="/shelters"><span>▣</span>Shelters</a>
+        <a class="nav-link" routerLink="/citizens"><span>⚭</span>Citizen Registry</a>
+      </div>
+    </nav>
+    <div class="profile">
+      <div class="avatar">O</div>
+      <div>
+        <p>Officer</p>
+        <small>OFFICER</small>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT AREA -->
+  <section class="content">
+    <header class="topbar">
+      <h1>Relief Operations</h1>
+      <div class="topbar-right">
+        <span class="bell">🔔</span>
+        <button class="text-btn">Sign out</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="page form-wrap">
+        <!-- Dynamic Header based on Create vs Edit -->
+        <h2>{{ isEditMode ? 'Edit Shelter' : 'Add Shelter' }}</h2>
+        <p class="sub">Register a new emergency shelter or update an existing one.</p>
+        
+        <section class="panel">
+          <form (ngSubmit)="onSubmit()">
+            
+            <!-- Error Banner -->
+            <div *ngIf="submitError" style="background-color: #fee2e2; border: 1px solid #f87171; color: #b91c1c; padding: 12px; margin: 16px; border-radius: 6px;">
+              <strong>Error: </strong> {{ submitError }}
+            </div>
+
+            <div class="form-grid form-grid-item">
+              
+              <div class="full">
+                <label>Shelter Name</label>
+                <input name="name" [(ngModel)]="newShelter.name" required placeholder="e.g. Central High School Gym" />
+              </div>
+
+              <div class="full">
+                <label>Location (Address)</label>
+                <input name="location" [(ngModel)]="newShelter.location" required placeholder="e.g. 100 Education Way" />
+              </div>
+
+              <div>
+                <label>Status</label>
+                <select name="status" [(ngModel)]="newShelter.status" required>
+                  <option value="OPEN">Open</option>
+                  <option value="FULL">Full</option>
+                  <option value="CLOSED">Closed</option>
+                  <option value="UNDERMAINTENANCE">Under Maintenance</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Contact Info (Email Address)</label>
+                <input name="contactInfo" [(ngModel)]="newShelter.contactInfo" required placeholder="e.g. manager@shelter.com" />
+              </div>
+
+              <div>
+                <label>Total Capacity (People)</label>
+                <input name="capacity" type="number" [(ngModel)]="newShelter.capacity" min="1" required />
+              </div>
+
+              <div>
+                <label>Current Occupancy</label>
+                <input name="occupancy" type="number" [(ngModel)]="newShelter.occupancy" min="1" required />
+              </div>
+
+              <div>
+                <label>Latitude</label>
+                <input name="latitude" type="number" step="0.000001" [(ngModel)]="newShelter.latitude" placeholder="e.g. 34.0522" />
+              </div>
+
+              <div>
+                <label>Longitude</label>
+                <input name="longitude" type="number" step="0.000001" [(ngModel)]="newShelter.longitude" placeholder="e.g. -118.2437" />
+              </div>
+              
+            </div>
+            
+            <div class="form-actions">
+              <a class="btn btn-secondary" routerLink="/shelters">Cancel</a>
+              <button class="btn btn-operations" type="submit" [disabled]="isSubmitting">
+                {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Shelter' : 'Add Shelter') }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+  </section>
+</div>

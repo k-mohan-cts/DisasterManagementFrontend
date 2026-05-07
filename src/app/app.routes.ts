@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 import { LanderComponent } from './components/auth/lander/lander.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { SignupComponent } from './components/auth/signup/signup.component';
-import { DocumentVerificationComponent } from './components/auth/document-verification/document-verification.component';
 import { authGuard } from './guards/auth.guard';
+import { DocumentVerificationComponent } from './components/auth/document-verification/document-verification.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'lander', pathMatch: 'full' },
@@ -48,19 +48,24 @@ export const routes: Routes = [
   {
     path: 'manager-dashboard',
     loadComponent: () => import('./components/dashboard/manager-dashboard/manager-dashboard.component').then(m => m.ManagerDashboardComponent),
-    canActivate: [authGuard],
-    data: { role: 'MANAGER' }
-  },
+    canActivate: [authGuard]
+  },{
+  path: 'resources-mgmt',
+  loadComponent: () => import('./components/dashboard/manager-dashboard/resources-mgmt/resources-mgmt.component').then(m => m.ResourcesMgmtComponent),
+  canActivate: [authGuard]
+},
   {
     path: 'emergencies',
     loadComponent: () => import('./components/dashboard/manager-dashboard/emergencies/emergencies.component').then(m => m.EmergenciesComponent),
-  },
-  {
-    path: 'incidents',
-    loadComponent: () => import('./components/dashboard/manager-dashboard/incidents/incidents.component').then(m => m.IncidentsComponent),
     canActivate: [authGuard],
     data: { role: 'MANAGER' }
   },
+  // Line 57 fix
+{
+  path: 'incidents',
+  loadComponent: () => import('./components/dashboard/manager-dashboard/incidents/incidents.component')
+    .then(m => m. IncidentsComponent) // Fixed: Removed extra 's'
+},
   {
     path: 'resources-mgmt',
     loadComponent: () => import('./components/dashboard/manager-dashboard/resources-mgmt/resources-mgmt.component').then(m => m.ResourcesMgmtComponent),
@@ -88,14 +93,32 @@ export const routes: Routes = [
     data: { role: 'OFFICER' }
   },
   {
+    path: 'add-relief-item',
+    loadComponent: () => import('./components/dashboard/officer-dashboard/inventory/add-item-form.component').then(m => m.AddItemFormComponent),
+    canActivate: [authGuard],
+    data: { role: 'OFFICER' }
+  },
+  {
     path: 'distributions',
     loadComponent: () => import('./components/dashboard/officer-dashboard/distributions/distributions.component').then(m => m.DistributionsComponent),
     canActivate: [authGuard],
     data: { role: 'OFFICER' }
   },
   {
+    path: 'create-distribution',
+    loadComponent: () => import('./components/dashboard/officer-dashboard/distributions/create-distribution.component').then(m => m.CreateDistributionComponent),
+    canActivate: [authGuard],
+    data: { role: 'OFFICER' }
+  },
+  {
     path: 'shelters',
     loadComponent: () => import('./components/dashboard/officer-dashboard/shelters/shelters.component').then(m => m.SheltersComponent),
+    canActivate: [authGuard],
+    data: { role: 'OFFICER' }
+  },
+  {
+    path: 'add-shelter',
+    loadComponent: () => import('./components/dashboard/officer-dashboard/shelters/add-shelter.component').then(m => m.AddShelterComponent),
     canActivate: [authGuard],
     data: { role: 'OFFICER' }
   },
