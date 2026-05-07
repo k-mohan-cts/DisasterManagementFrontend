@@ -15,17 +15,7 @@
                     </div>
 
                     <div class="input-group">
-                        <label>File URI</label>
-                        <input 
-                            type="text" 
-                            [(ngModel)]="fileURI" 
-                            class="field" 
-                            placeholder="Enter the file path or URI (e.g., /documents/passport.pdf)"
-                            required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Choose Document File (Optional)</label>
+                        <label>Choose Document File</label>
                         <div class="file-upload-area" 
                              (click)="fileInput.click()" 
                              (drop)="onFileDrop($event)" 
@@ -35,7 +25,7 @@
                             </svg>
                             <p class="upload-text">Click to browse or drag and drop</p>
                             <p *ngIf="selectedFile" class="file-name">{{ selectedFile.name }}</p>
-                            <p class="upload-hint">(This is optional and not used for upload)</p>
+                            <p class="upload-hint">(File URI will be extracted automatically)</p>
                         </div>
                         <input #fileInput type="file" (change)="onFileSelected($event)" hidden>
                     </div>
@@ -76,17 +66,7 @@
                     </div>
 
                     <div class="input-group">
-                        <label>File URI</label>
-                        <input 
-                            type="text" 
-                            [(ngModel)]="fileURI" 
-                            class="field" 
-                            placeholder="Enter the file path or URI (e.g., /documents/address_proof.pdf)"
-                            required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Choose Document File (Optional)</label>
+                        <label>Choose Document File</label>
                         <div class="file-upload-area" 
                              (click)="fileInput2.click()" 
                              (drop)="onFileDrop($event)" 
@@ -96,7 +76,7 @@
                             </svg>
                             <p class="upload-text">Click to browse or drag and drop</p>
                             <p *ngIf="selectedFile" class="file-name">{{ selectedFile.name }}</p>
-                            <p class="upload-hint">(This is optional and not used for upload)</p>
+                            <p class="upload-hint">(File URI will be extracted automatically)</p>
                         </div>
                         <input #fileInput2 type="file" (change)="onFileSelected($event)" hidden>
                     </div>
@@ -133,6 +113,18 @@
                     <p class="pending-text">You'll receive an email notification once the verification is complete.</p>
                 </div>
                 <button (click)="completeVerification()" class="action-btn btn-primary">Continue to Dashboard</button>
+            </div>
+
+            <!-- Success Step -->
+            <div *ngIf="currentStep === 'success'" class="step-content success-content">
+                <div class="success-box">
+                    <i class="fas fa-check-circle"></i>
+                    <h2>Documents Uploaded Successfully!</h2>
+                    <p>Your documents have been received and are pending verification.</p>
+                    <p class="success-text">Our team will review your documents within 24-48 hours.</p>
+                    <p class="success-text">You'll receive an email notification once the verification is complete.</p>
+                </div>
+                <button (click)="completeVerification()" class="action-btn btn-primary">Back to Login</button>
             </div>
         </div>
     </div>

@@ -1,0 +1,101 @@
+<div class="app-shell">
+
+  <app-sidebar [role]="'OFFICER'"></app-sidebar>
+
+
+
+  <section class="content">
+
+    <header class="topbar">
+
+      <h1>Emergency Registry</h1>
+
+      <div class="topbar-right">
+
+        <span class="role-chip">Officer</span>
+
+      </div>
+
+    </header>
+
+
+
+    <main class="main">
+
+      <div class="page-container">
+
+        <div class="card">
+
+          <div class="table-responsive">
+
+            <table class="data-table">
+
+              <thead>
+
+                <tr>
+
+                  <th>Incident Type</th>
+
+                  <th>Location</th>
+
+                  <th>Date</th>
+
+                  <th>Status</th>
+
+                  <th>Action</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                <ng-container *ngIf="emergencies$ | async as emergencies">
+
+                  <tr *ngFor="let item of emergencies">
+
+                    <td><span class="incident-name">{{ item.incidentType }}</span></td>
+
+                    <td>{{ item.location }}</td>
+
+                    <td>{{ item.reportDate | date:'mediumDate' }}</td>
+
+                    <td>
+
+                      <span class="status-pill" [ngClass]="getTone(item.status)">
+
+                        {{ item.status }}
+
+                      </span>
+
+                    </td>
+
+                    <td><button class="view-btn">Details</button></td>
+
+                  </tr>
+
+
+
+                  <tr *ngIf="emergencies.length === 0">
+
+                    <td colspan="5" class="text-center">No active emergencies found.</td>
+
+                  </tr>
+
+                </ng-container>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </section>
+
+</div>

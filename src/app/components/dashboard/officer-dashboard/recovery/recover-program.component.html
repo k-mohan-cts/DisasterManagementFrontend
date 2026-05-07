@@ -1,0 +1,46 @@
+<div class="app-shell">
+  <app-sidebar role="OFFICER"></app-sidebar>
+
+  <section class="content">
+    <header class="topbar">
+      <h1>Recovery Programs</h1>
+      <div class="topbar-right">
+        <span class="role-chip">Officer</span>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="page">
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Program Name</th>
+                <th>Budget</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="programs$ | async as programs">
+                <tr *ngFor="let prog of programs">
+                  <td><b>{{ prog.programName }}</b></td>
+                  <td>${{ prog.budget | number }}</td>
+                  <td>
+                    <span class="status-pill" [ngClass]="getTone(prog.status)">
+                      {{ prog.status }}
+                    </span>
+                  </td>
+                  <td><button class="view-btn">Manage</button></td>
+                </tr>
+                <tr *ngIf="programs.length === 0">
+                  <td colspan="4" class="text-center">No recovery programs found.</td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </section>
+</div>

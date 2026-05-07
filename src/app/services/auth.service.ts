@@ -45,12 +45,12 @@ export class AuthService {
     this.router.navigate(['/lander']);
   }
 
-  getToken(): string | null {
-    if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('token');
-    }
-    return null;
+ getToken(): string | null {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return window.localStorage.getItem('token');
   }
+  return null;
+}
 
   isLoggedIn(): boolean {
     return this.getToken() !== null;
