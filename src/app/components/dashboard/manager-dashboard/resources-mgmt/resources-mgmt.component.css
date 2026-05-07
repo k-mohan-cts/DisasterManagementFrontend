@@ -1,5 +1,124 @@
-/* Resource management specific styles */
-.badge-available {
-    background: #dcfce7;
-    color: #166534;
+/* .dashboard-container { display: flex; height: 100vh; background-color: #f4f7f9; }
+.main-content { flex: 1; display: flex; flex-direction: column; }
+.top-nav { padding: 15px 30px; background: white; border-bottom: 1px solid #ddd; }
+.dashboard-body { padding: 30px; }
+
+.header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.btn-create { background: #748e63; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+.table-container { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 1000;
 }
+
+.modal-content {
+  background: white;
+  width: 480px;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.form-group { margin-bottom: 15px; }
+.form-row { display: flex; gap: 15px; }
+.half { flex: 1; }
+.form-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px; }
+
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+.btn-submit { background: #748e63; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+.btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+.btn-cancel { background: #eee; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+
+.error { color: #d9534f; font-size: 12px; margin-top: 5px; } */
+/* Ensure the select dropdown has the same height and feel as the inputs */
+/* Ensure the dropdown matches your input height and style */
+.dashboard-container { display: flex; height: 100vh; background-color: #f4f7f9; }
+.main-content { flex: 1; display: flex; flex-direction: column; }
+.top-nav { padding: 15px 30px; background: white; border-bottom: 1px solid #ddd; }
+.dashboard-body { padding: 30px; }
+
+.header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.btn-create { background: #748e63; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+.table-container { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  width: 480px;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.close-x {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+}
+
+.form-group { margin-bottom: 15px; }
+.form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+.half { flex: 1; }
+
+.form-input { 
+  width: 100%; 
+  padding: 10px; 
+  border: 1px solid #ccc; 
+  border-radius: 6px; 
+  margin-top: 5px; 
+  box-sizing: border-box; /* Ensures padding doesn't break layout */
+}
+
+/* Ensure the select dropdown has the same height and feel as the inputs */
+select.form-input {
+  height: 40px;
+  background-color: white;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+.btn-submit { background: #748e63; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+.btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+.btn-cancel { background: #eee; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+
+.error { color: #d9534f; font-size: 12px; margin-top: 5px; }
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-allocated { background: #e2e8f0; color: #475569; }
+.badge-inuse { background: #dcfce7; color: #166534; }
+.badge-consumed { background: #fee2e2; color: #991b1b; }

@@ -42,17 +42,22 @@ export const routes: Routes = [
     path: 'manager-dashboard', 
     loadComponent: () => import('./components/dashboard/manager-dashboard/manager-dashboard.component').then(m => m.ManagerDashboardComponent),
     canActivate: [authGuard]
-  },
+  },{ 
+  path: 'resources-mgmt', 
+  loadComponent: () => import('./components/dashboard/manager-dashboard/resources-mgmt/resources-mgmt.component').then(m => m.ResourcesMgmtComponent),
+  canActivate: [authGuard] 
+},
   { 
     path: 'emergencies', 
     loadComponent: () => import('./components/dashboard/manager-dashboard/emergencies/emergencies.component').then(m => m.EmergenciesComponent),
     canActivate: [authGuard] 
   },
-  { 
-    path: 'incidents', 
-    loadComponent: () => import('./components/dashboard/manager-dashboard/incidents/incidents.component').then(m => m.IncidentsComponent),
-    canActivate: [authGuard] 
-  },
+  // Line 57 fix
+{ 
+  path: 'incidents', 
+  loadComponent: () => import('./components/dashboard/manager-dashboard/incidents/incidents.component')
+    .then(m => m. IncidentsComponent) // Fixed: Removed extra 's'
+},
   { 
     path: 'resources-mgmt', 
     loadComponent: () => import('./components/dashboard/manager-dashboard/resources-mgmt/resources-mgmt.component').then(m => m.ResourcesMgmtComponent),

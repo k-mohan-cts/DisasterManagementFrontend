@@ -1,74 +1,204 @@
-<div style="display: flex; min-height: 100vh;">
-    <app-sidebar role="MANAGER"></app-sidebar>
+<!-- <div class="dashboard-container">
+  <app-sidebar></app-sidebar>
 
-    <div class="main-wrapper">
-        <header>
-            <h2>Dashboard</h2>
-            <div class="header-actions">
-                <span style="font-size: 20px;">🔔</span>
-                <button class="pill-btn">Manager</button>
-            </div>
-        </header>
-
-        <div class="content-area">
-            <div class="page-header">
-                <div>
-                    <h1>Welcome back, Michael Manager</h1>
-                    <p class="small-note">Thursday, April 23, 2026</p>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="card">
-                    <div class="big-card">
-                        <div class="icon-box" style="background: var(--accent-red);">⚠️</div>
-                        <div>
-                            <p class="small-note">Active Emergencies</p>
-                            <h2>{{activeEmergenciesCount}}</h2>
-                        </div>
-                    </div>
-                    <a class="button-link btn-red" routerLink="/emergencies">View Emergencies →</a>
-                </div>
-                <div class="card">
-                    <div class="big-card">
-                        <div class="icon-box" style="background: var(--accent-green);">📋</div>
-                        <div>
-                            <p class="small-note">Active Recovery Programs</p>
-                            <h2 id="dash-rec-count">{{activeRecoveryProgramsCount}}</h2>
-                        </div>
-                    </div>
-                    <a class="button-link btn-green" routerLink="/recovery-programs">View Programs →</a>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center;">
-                        <h3>Recent Emergencies</h3>
-                        <a class="btn-outline" routerLink="/emergencies">View all →</a>
-                    </div>
-                    <table>
-                        <tr *ngFor="let emergency of recentEmergencies">
-                            <td><strong>{{emergency.type}}</strong> - {{emergency.location}}<br><small class="small-note">{{emergency.date}}</small></td>
-                            <td style="text-align: right;"><span class="badge" [ngClass]="'badge-' + emergency.status.toLowerCase()">{{emergency.status}}</span></td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center;">
-                        <h3>Active Recovery Programs</h3>
-                        <a class="btn-outline" style="background: var(--accent-green); color: white;" routerLink="/create-recovery">+ New Program</a>
-                    </div>
-                    <table>
-                        <tbody>
-                            <tr *ngFor="let program of activePrograms">
-                                <td><strong>{{program.name}}</strong><br><small class="small-note">Budget: {{program.budget}}</small></td>
-                                <td style="text-align: right;"><span class="badge" [ngClass]="'badge-' + program.status.toLowerCase()">{{program.status}}</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+  <div class="main-content">
+    <div class="top-nav">
+      <span class="nav-title"><strong>Command Center</strong></span>
+      <div class="nav-actions">
+        
+        <button type="button" class="sign-out">Sign out</button>
+      </div>
     </div>
+
+    <div class="dashboard-body">
+      <header class="welcome-section">
+        <h1>Welcome back, Michael Manager</h1>
+        <p class="date-text">Thursday, April 23, 2026</p>
+      </header>
+
+      <div class="stats-grid">
+        
+        <div class="stat-card">
+          <div class="stat-info">
+            <div>
+               <span class="stat-label">Active Emergencies</span>
+               <div class="stat-count">1</div>
+            </div>
+            <span style="font-size: 2rem;">⚠️</span>
+          </div>
+         
+          <button type="button" class="btn-action red" (click)="goToEmergencies()">
+            View Emergencies →
+          </button>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <div>
+              <span class="stat-label">Active Recovery Programs</span>
+              <div class="stat-count">2</div>
+            </div>
+            <span style="font-size: 2rem;">📋</span>
+          </div>
+          <button type="button" class="btn-action green" (click)="goToPrograms()">
+            View Programs →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-content">
+    <h3>Add New Resource</h3>
+    <form [formGroup]="resourceForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <input formControlName="resourceName" placeholder="Resource Name" class="form-input">
+      </div>
+      <div class="form-row" style="display: flex; gap: 5px; margin-top: 10px;">
+        <select formControlName="type" class="form-input">
+          <option value="" disabled>Select Type</option>
+          <option value="EQUIPMENT">Equipment</option>
+          <option value="FOOD">Food/Medical</option>
+        </select>
+        <input type="number" formControlName="quantity" placeholder="Qty" class="form-input">
+      </div>
+      <div style="margin-top: 20px; display: flex; gap: 10px;">
+        <button type="button" (click)="closeModal()">Cancel</button>
+        <button type="submit" [disabled]="resourceForm.invalid" class="btn-action green">Save Resource</button>
+      </div>
+    </form>
+  </div>
+</div> -->
+ <div class="dashboard-container">
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content">
+    <div class="top-nav">
+      <span class="nav-title"><strong>Command Center</strong></span>
+      <div class="nav-actions">
+        <button type="button" class="sign-out">Sign out</button>
+      </div>
+    </div>
+
+    <div class="dashboard-body">
+      <header class="welcome-section">
+        <h1>Welcome back, Michael Manager</h1>
+        <p class="date-text">Thursday, April 23, 2026</p>
+      </header>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-info">
+            <div>
+               <span class="stat-label">Active Emergencies</span>
+               <div class="stat-count">1</div>
+            </div>
+            <span class="icon-bg red-icon" style="font-size: 2rem;">⚠️</span>
+          </div>
+          <button type="button" class="btn-action red" (click)="goToEmergencies()">
+            View Emergencies →
+          </button>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <div>
+              <span class="stat-label">Active Recovery Programs</span>
+              <div class="stat-count">2</div>
+            </div>
+            <span class="icon-bg green-icon" style="font-size: 2rem;">📋</span>
+          </div>
+          <button type="button" class="btn-action green" (click)="goToPrograms()">
+            View Programs →
+          </button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="card-header">
+            <h3>Recent Emergencies</h3>
+            <button class="btn-text" (click)="goToEmergencies()">View all →</button>
+          </div>
+          <div class="list-container">
+            <div class="list-item">
+              <div class="item-info">
+                <strong>Flood - Riverside District</strong>
+                <span>1/10/2023</span>
+              </div>
+              <span class="badge validated">Validated</span>
+            </div>
+            <div class="list-item">
+              <div class="item-info">
+                <strong>Fire - Pine Hills</strong>
+                <span>15/10/2023</span>
+              </div>
+              <span class="badge resolved">Resolved</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="card-header">
+            <h3>Active Recovery Programs</h3>
+            <button class="btn-action green small" (click)="goToProgramsAndAdd()">
+              + New Program
+            </button>
+          </div>
+          <div class="list-container">
+            <div class="list-item">
+              <div class="item-info">
+                <strong>Coastal Flood Rehabilitation</strong>
+                <span>Budget: $5,000,000</span>
+              </div>
+              <span class="badge active">Active</span>
+            </div>
+            <div class="list-item">
+              <div class="item-info">
+                <strong>Downtown Earthquake Recovery</strong>
+                <span>Budget: $12,000,000</span>
+              </div>
+              <span class="badge planned">Planned</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-content">
+    <h3>Add New Resource</h3>
+    <form [formGroup]="resourceForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <input formControlName="resourceName" placeholder="Resource Name" class="form-input">
+      </div>
+      
+      <div class="form-row" style="display: flex; gap: 5px; margin-top: 10px;">
+        <select formControlName="type" class="form-input">
+          <option value="" disabled>Select Type</option>
+          <option value="EQUIPMENT">Equipment</option>
+          <option value="FOOD">Food/Medical</option>
+        </select>
+        <input type="number" formControlName="quantity" placeholder="Qty" class="form-input">
+      </div>
+
+      <div class="form-row" style="display: flex; gap: 5px; margin-top: 10px;">
+        <input formControlName="unit" placeholder="Unit (kg/pcs)" class="form-input">
+        <input type="number" formControlName="unitPrice" placeholder="Price" class="form-input">
+      </div>
+      
+      <div class="form-group" style="margin-top: 10px;">
+        <input type="number" formControlName="programId" placeholder="Program ID" class="form-input">
+      </div>
+
+      <div style="margin-top: 20px; display: flex; gap: 10px;">
+        <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" [disabled]="resourceForm.invalid" class="btn-action green">Save Resource</button>
+      </div>
+    </form>
+  </div>
 </div>

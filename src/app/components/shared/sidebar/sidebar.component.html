@@ -46,17 +46,32 @@
             </div>
         </ng-container>
 
-        <!-- Manager Menu -->
+        <!-- UPDATED Manager Menu (Matching image_dbbd8c.png) -->
         <ng-container *ngIf="role === 'MANAGER'">
             <div class="nav-section">
-                <div class="nav-title">Management</div>
                 <ul class="nav-links">
-                    <li><a routerLink="/manager-dashboard" routerLinkActive="active" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a routerLink="/incidents" routerLinkActive="active" class="nav-item"><i class="fas fa-exclamation-triangle"></i> Incidents</a></li>
-                    <li><a routerLink="/resources-mgmt" routerLinkActive="active" class="nav-item"><i class="fas fa-cubes"></i> Resources</a></li>
-                    <li><a routerLink="/recovery-programs" routerLinkActive="active" class="nav-item"><i class="fas fa-clipboard-list"></i> Recovery Programs</a></li>
+                    <li><a routerLink="/manager-dashboard" routerLinkActive="active" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a></li>
                 </ul>
             </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Command Center</div>
+                <ul class="nav-links">
+                    <li><a routerLink="/emergencies" routerLinkActive="active" class="nav-item"><i class="fas fa-exclamation-triangle"></i> Emergencies</a></li>
+                    <li><a routerLink="/incidents" routerLinkActive="active" class="nav-item"><i class="fas fa-bolt"></i> Incidents</a></li>
+                    <li><a routerLink="/recovery-programs" routerLinkActive="active" class="nav-item"><i class="fas fa-clipboard-list"></i> Recovery Programs</a></li>
+                    <li><a routerLink="/resources-mgmt" routerLinkActive="active" class="nav-item"><i class="fas fa-box-open"></i> Resources</a></li>
+                </ul>
+            </div>
+
+            <!-- <div class="nav-section">
+                <div class="nav-title">Relief Operations</div>
+                <ul class="nav-links">
+                    <li><a routerLink="/relief-inventory" routerLinkActive="active" class="nav-item"><i class="fas fa-warehouse"></i> Relief Inventory</a></li>
+                    <li><a routerLink="/distributions" routerLinkActive="active" class="nav-item"><i class="fas fa-truck"></i> Distributions</a></li>
+                    <li><a routerLink="/shelters" routerLinkActive="active" class="nav-item"><i class="fas fa-campground"></i> Shelters</a></li>
+                </ul>
+            </div> -->
         </ng-container>
 
         <!-- Officer Menu -->
