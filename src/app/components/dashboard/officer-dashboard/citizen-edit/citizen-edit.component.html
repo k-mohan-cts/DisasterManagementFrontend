@@ -1,4 +1,4 @@
-<div class="app-shell" *ngIf="!loading; else loadingTemplate">
+<div class="app-shell">
   <app-sidebar role="OFFICER"></app-sidebar>
 
   <section class="content">
@@ -7,39 +7,40 @@
     </header>
 
     <main class="main">
-      <div class="edit-card" *ngIf="citizen">
-        <h2>Edit Status for {{ citizen.name }}</h2>
+      <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading citizen records...</p>
+      </div>
+
+      <div class="edit-card" *ngIf="!loading && citizen">
+        <h2>Edit Status for {{ citizen?.name }}</h2>
+        
         <form (ngSubmit)="updateCitizen()">
-          <div class="form-group">
-            <label>Validation Status</label>
-            <select [(ngModel)]="citizen.status" name="status" class="status-select">
-              <option value="PENDING">Unverified</option>
-              <option value="VERIFIED">Verified</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Validation Status</label>
+              <select [(ngModel)]="citizen.status" name="status" class="status-select">
+                <option value="PENDING">Unverified (Pending)</option>
+                <option value="VERIFIED">Verified</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-actions">
             <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
             <button type="submit" class="update-btn" [disabled]="saving">
-              {{ saving ? 'Updating...' : 'Update Status' }}
+              {{ saving ? 'Saving...' : 'Update Status' }}
             </button>
           </div>
         </form>
       </div>
-      
-      <div *ngIf="!citizen" class="error-state">
-          <p>No citizen data found.</p>
-          <button (click)="cancel()">Go Back</button>
+
+      <div *ngIf="!loading && !citizen" class="error-state">
+        <p>Could not find citizen data.</p>
+        <button (click)="cancel()">Back to Registry</button>
       </div>
     </main>
   </section>
 </div>
-
-<ng-template #loadingTemplate>
-  <div class="loading-overlay">
-    <div class="spinner"></div>
-    <p>Loading citizen records...</p>
-  </div>
-</ng-template>

@@ -5,6 +5,7 @@ import { Observable, map } from 'rxjs';
 
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { AuthService } from '../../../services/auth.service';
+import { DisasterService } from '../../../services/disaster.service';
 import { DashboardStateService } from './dashboard-state.service';
 
 @Component({
@@ -15,56 +16,56 @@ import { DashboardStateService } from './dashboard-state.service';
   styleUrls: ['./officer-dashboard.component.css']
 })
 export class OfficerDashboardComponent implements OnInit {
-  // Summary Count Observables from State Service
-  emergencyCounts$!: Observable<any>;
-  shelterCounts$!: Observable<any>;
-  programCounts$!: Observable<any>;
-  inventoryCounts$!: Observable<any>;
-  citizenCounts$!: Observable<any>;
+  todayDate = new Date();
 
-  // Data Lists for the bottom section
+  // Summary Count Observables
+  emergencyCounts$!: Observable<any[]>;
+  shelterCounts$!: Observable<any[]>;
+  programCounts$!: Observable<any[]>;
+  inventoryCounts$!: Observable<any[]>;
+  citizenCounts$!: Observable<any[]>;
+
+  // ✅ New: Observables for the bottom list sections
   recentEmergencies$!: Observable<any[]>;
   activePrograms$!: Observable<any[]>;
 
   constructor(
-    private stateService: DashboardStateService,
+    private dashboardState: DashboardStateService,
+    private disasterService: DisasterService,
     private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    // 1. Initialize Observables
-    this.emergencyCounts$ = this.stateService.emergencyCounts$;
-    this.shelterCounts$ = this.stateService.shelterCounts$;
-    this.programCounts$ = this.stateService.programCounts$;
-    this.inventoryCounts$ = this.stateService.inventoryCounts$;
-    this.citizenCounts$ = this.stateService.citizenCounts$;
+    // Bind summary counts from state service
+    this.emergencyCounts$ = this.dashboardState.emergencyCounts$;
+    this.shelterCounts$   = this.dashboardState.shelterCounts$;
+    this.programCounts$   = this.dashboardState.programCounts$;
+    this.inventoryCounts$ = this.dashboardState.inventoryCounts$;
+    this.citizenCounts$   = this.dashboardState.citizenCounts$;
 
-    // 2. Trigger the backend fetch from the service
-    this.stateService.loadAll();
-
-    // 3. Fetch raw Emergencies from the service's BehaviorSubject
-    this.recentEmergencies$ = this.stateService.emergencies$.pipe(
-      map(list => list.slice(0, 2)) // Show only top 2 from DB
+    // ✅ Load raw list data for the "Recent" sections (Slicing to show top 2)
+    this.recentEmergencies$ = this.disasterService.getEmergencies().pipe(
+      map(list => list.slice(0, 2))
     );
 
-    // 4. Fetch Citizens or Programs list from DB
-    this.activePrograms$ = this.stateService.citizens$.pipe(
-      map(list => list.slice(0, 2)) 
+    this.activePrograms$ = this.disasterService.getRecoveryPrograms().pipe(
+      map(list => list.slice(0, 2))
     );
+
+    this.dashboardState.loadAll();
   }
 
-  // Logic to return CSS classes based on status string
   getToneForStatus(label: string): string {
-    const status = String(label || '').toUpperCase();
-    const statusMap: any = {
+    const status = String(label).toUpperCase();
+    const map: any = {
       ACTIVE: 'emerald', VALIDATED: 'emerald', OPEN: 'emerald', VERIFIED: 'emerald',
       PENDING: 'amber', LOW: 'amber',
-      RESOLVED: 'violet', COMPLETED: 'violet',
+      RESOLVED: 'violet', COMPLETED: 'violet', PLANNED: 'sky',
       FULL: 'rose', OUTOFSTOCK: 'rose',
       CLOSED: 'slate', INACTIVE: 'slate'
     };
-    return statusMap[status] || 'slate';
+    return map[status] || 'slate';
   }
 
   onLogout(): void {

@@ -10,7 +10,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   
-  // Citizen Dashboards
+  // ==================== CITIZEN ROUTES ====================
   { 
     path: 'citizen-dashboard', 
     loadComponent: () => import('./components/dashboard/citizen-dashboard/citizen-dashboard.component').then(m => m.CitizenDashboardComponent),
@@ -37,17 +37,17 @@ export const routes: Routes = [
     canActivate: [authGuard] 
   },
 
-  // Manager Dashboards
+  // ==================== MANAGER ROUTES ====================
   { 
     path: 'manager-dashboard', 
     loadComponent: () => import('./components/dashboard/manager-dashboard/manager-dashboard.component').then(m => m.ManagerDashboardComponent),
     canActivate: [authGuard]
   },
-  { 
-    path: 'emergencies', 
-    loadComponent: () => import('./components/dashboard/manager-dashboard/emergencies/emergencies.component').then(m => m.EmergenciesComponent),
-    canActivate: [authGuard] 
-  },
+ {
+  path: 'officer/emergencies',
+  loadComponent: () => import('./components/dashboard/officer-dashboard/emergencies/emergencies.component')
+    .then(m => m.OfficerEmergenciesComponent), // ✅ Matches the 'export class' name
+},
   { 
     path: 'incidents', 
     loadComponent: () => import('./components/dashboard/manager-dashboard/incidents/incidents.component').then(m => m.IncidentsComponent),
@@ -64,58 +64,49 @@ export const routes: Routes = [
     canActivate: [authGuard] 
   },
 
- 
-// ==================== OFFICER ROUTES ====================
+  {
+    path: 'officer-dashboard',
+    loadComponent: () => import('./components/dashboard/officer-dashboard/officer-dashboard.component').then(m => m.OfficerDashboardComponent),
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'officer/emergencies', 
+    loadComponent: () => import('./components/dashboard/officer-dashboard/emergencies/emergencies.component').then(m => m.OfficerEmergenciesComponent),
+    canActivate: [authGuard] 
+  },
+  { 
+    path: 'officer/recovery-programs', 
+    loadComponent: () => import('./components/dashboard/officer-dashboard/recovery/recover-program.component').then(m => m.OfficerRecoveryProgramsComponent),
+    canActivate: [authGuard] 
+  },
+  
+  {
+    path: 'relief-inventory',
+    loadComponent: () => import('./components/dashboard/officer-dashboard/inventory/inventory.component').then(m => m.InventoryComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'distributions',
+    loadComponent: () => import('./components/dashboard/officer-dashboard/distributions/distributions.component').then(m => m.DistributionsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'shelters',
+    loadComponent: () => import('./components/dashboard/officer-dashboard/shelters/shelters.component').then(m => m.SheltersComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'citizens',
+    loadComponent: () => import('./components/dashboard/officer-dashboard/citizen-registry/citizen-registry.component').then(m => m.CitizenRegistryComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'officer/citizens/edit/:citizenId',
+    loadComponent: () => import('./components/dashboard/officer-dashboard/citizen-edit/citizen-edit.component').then(m => m.CitizenEditComponent),
+    canActivate: [authGuard]
+  },
 
-{
-  path: 'officer-dashboard',
-  loadComponent: () => import('./components/dashboard/officer-dashboard/officer-dashboard.component').then(m => m.OfficerDashboardComponent),
-  canActivate: [authGuard]
-},
-
-
-// Citizen Registry (LIST PAGE)
-{
-  path: 'citizens',
-  loadComponent: () => import('./components/dashboard/officer-dashboard/citizen-registry/citizen-registry.component').then(m => m.CitizenRegistryComponent),
-  canActivate: [authGuard]
-},
-
-// Edit Citizen (STATUS UPDATE ONLY)
-{
-  path: 'officer/citizens/edit/:id',
-  loadComponent: () => import('./components/dashboard/officer-dashboard/citizen-edit/citizen-edit.component').then(m => m.CitizenEditComponent),
-  canActivate: [authGuard]
-},
-
-// Relief Inventory
-{
-  path: 'relief-inventory',
-  loadComponent: () =>
-    import('./components/dashboard/officer-dashboard/inventory/inventory.component')
-      .then(m => m.InventoryComponent),
-  canActivate: [authGuard]
-},
-
-// Distributions
-{
-  path: 'distributions',
-  loadComponent: () =>
-    import('./components/dashboard/officer-dashboard/distributions/distributions.component')
-      .then(m => m.DistributionsComponent),
-  canActivate: [authGuard]
-},
-
-// Shelters
-{
-  path: 'shelters',
-  loadComponent: () =>
-    import('./components/dashboard/officer-dashboard/shelters/shelters.component')
-      .then(m => m.SheltersComponent),
-  canActivate: [authGuard]
-},
-
-  // Auditor Dashboards
+  // ==================== AUDITOR ROUTES ====================
   { 
     path: 'auditor-dashboard', 
     loadComponent: () => import('./components/dashboard/auditor-dashboard/auditor-dashboard.component').then(m => m.AuditorDashboardComponent),

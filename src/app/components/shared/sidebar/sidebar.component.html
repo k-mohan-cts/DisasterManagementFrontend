@@ -105,30 +105,30 @@
       </div>
 
       <div class="nav-section">
-        <div class="nav-title emergencies">EMERGENCIES</div>
-        <ul class="nav-links">
-          <li>
-            <!-- Updated to ensure it hits Officer-specific logic -->
-            <a routerLink="/emergencies" routerLinkActive="active" class="nav-item">
-              <i class="fas fa-exclamation-triangle"></i>
-              Emergencies
-            </a>
-          </li>
-        </ul>
-      </div>
+    <div class="nav-title emergencies">EMERGENCIES</div>
+    <ul class="nav-links">
+      <li>
+        <!-- ✅ Point to the new Officer-specific path -->
+        <a routerLink="/officer/emergencies" routerLinkActive="active" class="nav-item">
+          <i class="fas fa-exclamation-triangle"></i>
+          Emergencies
+        </a>
+      </li>
+    </ul>
+  </div>
 
       <div class="nav-section">
-        <div class="nav-title recovery">RECOVERY</div>
-        <ul class="nav-links">
-          <li>
-            <!-- Updated path to keep it within Officer scope -->
-            <a routerLink="/recovery-programs" routerLinkActive="active" class="nav-item">
-              <i class="fas fa-clipboard-list"></i>
-              Recovery Programs
-            </a>
-          </li>
-        </ul>
-      </div>
+    <div class="nav-title recovery">RECOVERY</div>
+    <ul class="nav-links">
+      <li>
+        <!-- ✅ Point to the new Officer-specific path -->
+        <a routerLink="/officer/recovery-programs" routerLinkActive="active" class="nav-item">
+          <i class="fas fa-clipboard-list"></i>
+          Recovery Programs
+        </a>
+      </li>
+    </ul>
+  </div>
 </ng-container>
 
     <!-- ===================== MANAGER ===================== -->

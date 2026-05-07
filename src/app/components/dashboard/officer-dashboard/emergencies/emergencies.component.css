@@ -1,0 +1,78 @@
+/* --- NEW: Layout Structure (Fixes the sidebar issue) --- */
+.app-shell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+app-sidebar {
+  flex-shrink: 0;
+  width: 260px; /* Adjust this to match your actual sidebar width */
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Important: prevents table from breaking the layout */
+}
+
+.topbar {
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1B2A3A;
+}
+
+.role-chip {
+  border: 1px solid #93c5fd;
+  color: #2A6F97;
+  background: rgba(42, 111, 151, 0.1);
+  font-weight: 700;
+  border-radius: 7px;
+  padding: 4px 12px;
+  font-size: 13px;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* --- YOUR ORIGINAL DESIGN (Do Not Change) --- */
+.page-container { padding: 24px; }
+.page-header { margin-bottom: 24px; }
+.page-header h2 { font-size: 24px; color: #1B2A3A; font-weight: 700; margin: 0; }
+.page-header p { color: #6b7280; margin-top: 4px; }
+
+.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th { background: #f9fafb; padding: 12px 20px; font-size: 13px; font-weight: 700; color: #475569; text-transform: uppercase; border-bottom: 1px solid #e5e7eb; }
+.data-table td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #1e293b; }
+
+.incident-name { font-weight: 600; color: #1B2A3A; }
+
+.status-pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.emerald { background: #dcfce7; color: #166534; }
+.amber { background: #fef3c7; color: #92400e; }
+.violet { background: #f3e8ff; color: #6b21a8; }
+.slate { background: #f1f5f9; color: #475569; }
+
+.view-btn { background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.view-btn:hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+
+.table-responsive { overflow-x: auto; }

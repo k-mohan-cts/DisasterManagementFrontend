@@ -1,3 +1,4 @@
+// citizen-edit.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,43 +15,42 @@ import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 })
 export class CitizenEditComponent implements OnInit {
   citizenId!: number;
-  citizen: any = null; 
+  citizen: any = { name: '', status: '' }; 
   saving = false;
-  loading = true; // Prevents "null" errors in template
+  loading = true;
 
   constructor(
     private route: ActivatedRoute, 
     private router: Router, 
     private service: DisasterService
   ) {
-    // Attempt to grab state from navigation
     const nav = this.router.getCurrentNavigation();
     if (nav?.extras.state?.['citizen']) {
-      this.citizen = { ...nav.extras.state['citizen'] }; // Clone to avoid mutation issues
+      this.citizen = { ...nav.extras.state['citizen'] };
       this.loading = false;
     }
   }
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
+    // Get ID from the URL path: /officer/citizens/edit/:citizenId
+    const idParam = this.route.snapshot.paramMap.get('citizenId');
     this.citizenId = Number(idParam);
 
     if (!idParam || isNaN(this.citizenId)) {
-      console.error('Invalid ID in URL');
       this.router.navigate(['/citizens']);
       return;
     }
 
-    // Fetch if state is missing (on page refresh)
-    if (!this.citizen) {
+    // If citizen wasn't passed via state, fetch it from API
+    if (this.loading) {
       this.service.getCitizenById(this.citizenId).subscribe({
-        next: (data: any) => {
+        next: (data) => {
           this.citizen = data;
           this.loading = false;
         },
-        error: (err: any) => {
-          console.error('API Error:', err);
-          this.loading = false;
+        error: (err) => {
+          console.error('Fetch Error:', err);
+          alert('Could not load citizen details.');
           this.router.navigate(['/citizens']);
         }
       });
@@ -58,13 +58,18 @@ export class CitizenEditComponent implements OnInit {
   }
 
   updateCitizen(): void {
-    if (!this.citizen) return;
+    if (!this.citizen.status) return;
     this.saving = true;
+    
     this.service.updateCitizenStatus(this.citizenId, this.citizen.status).subscribe({
-      next: () => this.router.navigate(['/citizens']),
-      error: (err: any) => {
+      next: () => {
+        alert('Status updated successfully!');
+        this.router.navigate(['/citizens']);
+      },
+      error: (err) => {
         this.saving = false;
-        alert('Update failed: ' + err.message);
+        console.error('Update Error:', err);
+        alert('Update failed: ' + (err.error?.message || 'Server error'));
       }
     });
   }

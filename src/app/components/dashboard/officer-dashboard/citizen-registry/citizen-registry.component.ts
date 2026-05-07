@@ -39,10 +39,17 @@ export class CitizenRegistryComponent implements OnInit {
     );
   }
 
-  editCitizen(citizen: any): void {
-    this.router.navigate(
-      ['/officer/citizens/edit', citizen.citizenId], 
-      { state: { citizen } }
-    );
+  // citizen-registry.component.ts
+editCitizen(citizen: any): void {
+  const id = citizen.citizenId ?? citizen.id;
+  if (!id) {
+    alert('Citizen ID is missing.');
+    return;
   }
+
+  this.router.navigate(
+    ['/officer/citizens/edit', id],
+    { state: { citizen } }
+  );
+}
 }

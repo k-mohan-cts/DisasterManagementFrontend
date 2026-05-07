@@ -1,69 +1,66 @@
-.edit-page {
-  padding: 28px;
-  background: #f8fafc;
-}
+/* --- Layout Structure --- */
+.app-shell { display: flex; min-height: 100vh; }
+.content { flex: 1; min-width: 0; }
+.topbar { height: 64px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; }
+.topbar h1 { margin: 0; font-size: 18px; font-weight: 700; color: #1B2A3A; }
+.main { padding: 24px; background: #f9fafb; min-height: calc(100vh - 64px); }
 
-.edit-header h1 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 20px;
-}
+/* --- Loading & Error States --- */
+.loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #f9fafb; }
+.spinner { width: 48px; height: 48px; border: 4px solid #e5e7eb; border-top: 4px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay p { color: #6b7280; font-size: 14px; }
 
-.edit-card {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  padding: 24px;
-  max-width: 900px;
-}
+.error-state { background: #fff; border: 1px solid #fecaca; border-radius: 12px; padding: 24px; text-align: center; max-width: 600px; margin: 0 auto; }
+.error-state p { color: #dc2626; margin-bottom: 16px; font-size: 14px; }
+.error-state button { background: #dc2626; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.error-state button:hover { background: #b91c1c; }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
+/* --- Form & Card Styles --- */
+.edit-page { padding: 28px; background: #f8fafc; }
+.edit-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 20px; }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
+.edit-card { background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 24px; max-width: 900px; }
+.edit-card h2 { font-size: 20px; color: #1B2A3A; font-weight: 700; margin-bottom: 20px; margin-top: 0; }
 
-.form-group.full {
-  grid-column: span 2;
-}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.form-group { display: flex; flex-direction: column; }
+.form-group.full { grid-column: span 2; }
 
-label {
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
+label { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #374151; }
 
 input, select {
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
+  font-size: 14px;
+  font-family: inherit;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
+input:focus, select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.cancel-btn {
-  background: #f3f4f6;
+.form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.cancel-btn { background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.cancel-btn:hover { background: #e5e7eb; }
+
+.update-btn, .save-btn { background: #0f4c75; color: #ffffff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.update-btn:hover, .save-btn:hover { background: #0a3352; }
+.update-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+/* Add this to your existing CSS to fix the select dropdown width */
+.status-select {
+  width: 100%;
+  padding: 10px;
   border: 1px solid #d1d5db;
-  padding: 8px 16px;
   border-radius: 8px;
-  font-weight: 600;
+  background-color: white;
+  cursor: pointer;
 }
 
-.save-btn {
-  background: #0f4c75;
-  color: #ffffff;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-weight: 600;
+.loading-overlay {
+  padding: 50px;
+  text-align: center;
 }
