@@ -5,13 +5,6 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { DisasterService } from '../../../services/disaster.service';
 
-interface CitizenDocumentRequestDTO {
-  citizenId: number;
-  docType: 'IDPROOF' | 'RESIDENCE';
-  fileURI: string;
-  verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
-}
-
 @Component({
   selector: 'app-document-verification',
   standalone: true,
@@ -34,7 +27,7 @@ export class DocumentVerificationComponent implements OnInit {
     { label: 'Residence Proof (Address Certificate, Utility Bill)', value: 'RESIDENCE' }
   ];
 
-  currentStep: 'welcome' | 'upload-idproof' | 'upload-residence' | 'pending' | 'success' = 'welcome';
+  currentStep: 'welcome' | 'choose-document' | 'upload' | 'pending' | 'success' = 'welcome';
   documentsUploaded: { IDPROOF?: boolean; RESIDENCE?: boolean } = {};
 
   constructor(
@@ -43,51 +36,27 @@ export class DocumentVerificationComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit() {
-    // Try multiple ways to get citizenId
-    let userId: number | null = null;
+  async ngOnInit() {
+    this.citizenId = await this.resolveUserId();
+    console.log('Document Verification - UserId:', this.citizenId);
 
-    // Method 1: Try from AuthService
-    const user = this.authService.getCurrentUser();
-    if (user && (user.id || user.citizenId)) {
-      userId = user.id || user.citizenId;
-    }
+    this.currentStep = 'choose-document';
+  }
 
-    // Method 2: Try from localStorage
-    if (!userId) {
-      const storedCitizenId = localStorage.getItem('citizenId');
-      if (storedCitizenId) {
-        userId = parseInt(storedCitizenId, 10);
-      }
-    }
-
-    // Method 3: Try to get from token payload
-    if (!userId) {
-      const token = this.authService.getToken();
-      if (token) {
-        try {
-          const decoded = JSON.parse(atob(token.split('.')[1]));
-          userId = decoded.id || decoded.citizenId || decoded.userId;
-        } catch (e) {
-          console.warn('Could not decode token');
-        }
-      }
-    }
-
-    // Set citizenId
-    this.citizenId = userId || 0;
-    console.log('Document Verification - CitizenId:', this.citizenId);
-
-    this.currentStep = 'upload-idproof';
-    this.docType = 'IDPROOF';
+  selectDocumentType(docType: 'IDPROOF' | 'RESIDENCE') {
+    this.docType = docType;
+    this.fileURI = '';
+    this.selectedFile = null;
+    this.uploadError = '';
+    this.uploadSuccess = false;
+    this.uploadMessage = '';
+    this.currentStep = 'upload';
   }
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
-      // Auto-generate fileURI from file name
-      this.fileURI = `/documents/${this.selectedFile.name}`;
     }
   }
 
@@ -95,22 +64,18 @@ export class DocumentVerificationComponent implements OnInit {
     event.preventDefault();
     if (event.dataTransfer && event.dataTransfer.files.length > 0) {
       this.selectedFile = event.dataTransfer.files[0];
-      // Auto-generate fileURI from file name
-      this.fileURI = `/documents/${this.selectedFile.name}`;
     }
-  }
-
-  proceedToResidenceProof() {
-    if (!this.selectedFile) {
-      this.uploadError = 'Please select a file for ID Proof';
-      return;
-    }
-    this.uploadDocument();
   }
 
   uploadDocument() {
-    if (!this.fileURI.trim()) {
-      this.uploadError = 'Please enter a valid File URI';
+    if (!this.selectedFile) {
+      this.uploadError = 'Please select a file before uploading';
+      return;
+    }
+
+    if (!this.citizenId || this.citizenId <= 0) {
+      this.uploadError = `Citizen ID is invalid (${this.citizenId}). Please log in again before uploading.`;
+      console.error('Upload blocked: invalid citizenId:', this.citizenId);
       return;
     }
 
@@ -118,18 +83,32 @@ export class DocumentVerificationComponent implements OnInit {
     this.uploadError = '';
     this.uploadMessage = '';
 
-    const documentRequest: CitizenDocumentRequestDTO = {
-      citizenId: this.citizenId,
-      docType: this.docType,
-      fileURI: this.fileURI.trim(),
-      verificationStatus: 'PENDING'
-    };
+    // Create FormData for blob-based file upload (matching backend expectations)
+    const formData = new FormData();
+    formData.append('citizenId', String(this.citizenId));
+    formData.append('docType', this.docType);
+    formData.append('fileURI', this.selectedFile, this.selectedFile.name);
+    formData.append('verificationStatus', 'PENDING');
 
-    console.log('Uploading document:', documentRequest);
+    // Log detailed FormData content for debugging
+    console.log('=== UPLOADING DOCUMENT ===');
+    console.log('CitizenId:', this.citizenId, 'Type:', typeof this.citizenId);
+    console.log('DocType:', this.docType);
+    console.log('File:', this.selectedFile.name, 'Size:', this.selectedFile.size, 'Type:', this.selectedFile.type);
+    console.log('VerificationStatus: PENDING');
+    console.log('FormData entries:');
+    formData.forEach((value, key) => {
+      if (value instanceof File) {
+        console.log(`  ${key}: [File] ${(value as File).name} (${(value as File).size} bytes)`);
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
+    });
+    console.log('=== END UPLOAD DETAILS ===');
 
-    this.disasterService.uploadCitizenDocument(documentRequest).subscribe({
+    this.disasterService.uploadCitizenDocument(formData).subscribe({
       next: (response: any) => {
-        console.log('Document uploaded successfully:', response);
+        console.log('✅ Document uploaded successfully:', response);
         this.documentsUploaded[this.docType] = true;
         this.uploadSuccess = true;
         this.uploadMessage = `${this.docType} document uploaded successfully!`;
@@ -137,26 +116,52 @@ export class DocumentVerificationComponent implements OnInit {
         this.selectedFile = null;
         this.isUploading = false;
 
-        // If both documents uploaded, move to success screen
-        if (this.documentsUploaded['IDPROOF'] && this.documentsUploaded['RESIDENCE']) {
-          setTimeout(() => {
-            this.currentStep = 'success';
-          }, 1000);
-        } else if (this.docType === 'IDPROOF') {
-          setTimeout(() => {
-            this.currentStep = 'upload-residence';
-            this.docType = 'RESIDENCE';
-            this.uploadSuccess = false;
-            this.uploadMessage = '';
-          }, 1000);
-        }
+        // Move to the document vault / pending approval page
+        setTimeout(() => {
+          this.router.navigate(['/documents']);
+        }, 1000);
       },
       error: (err: any) => {
-        console.error('Error uploading document:', err);
-        this.uploadError = err?.error?.message || 'Failed to upload document. Please try again.';
+        console.error('❌ Error uploading document:', err);
+        
+        // Extract detailed error info from backend
+        let errorMsg = 'Failed to upload document. Please try again.';
+        
+        if (err?.error?.details) {
+          console.error('Backend validation details:', err.error.details);
+          errorMsg = JSON.stringify(err.error.details);
+        } else if (err?.error?.message) {
+          errorMsg = err.error.message;
+        } else if (err?.error?.error) {
+          errorMsg = err.error.error;
+        }
+        
+        this.uploadError = errorMsg;
         this.isUploading = false;
         this.uploadSuccess = false;
       }
+    });
+  }
+
+  private async resolveUserId(): Promise<number> {
+    const currentUser = this.authService.getCurrentUser();
+    const directId = currentUser?.userId || currentUser?.id;
+    if (directId && Number(directId) > 0) {
+      return Number(directId);
+    }
+
+    // Try to resolve userId from email
+    return await new Promise<number>((resolve) => {
+      this.authService.getUserIdByEmail().subscribe({
+        next: (resolvedId) => {
+          if (resolvedId && resolvedId > 0) {
+            resolve(Number(resolvedId));
+          } else {
+            resolve(0);
+          }
+        },
+        error: () => resolve(0)
+      });
     });
   }
 
@@ -166,15 +171,24 @@ export class DocumentVerificationComponent implements OnInit {
   }
 
   goBack() {
-    if (this.currentStep === 'upload-residence') {
-      this.currentStep = 'upload-idproof';
-      this.docType = 'IDPROOF';
+    if (this.currentStep === 'upload') {
+      this.currentStep = 'choose-document';
       this.fileURI = '';
+      this.selectedFile = null;
       this.uploadError = '';
       this.uploadSuccess = false;
-    } else if (this.currentStep === 'welcome') {
+    } else if (this.currentStep === 'choose-document' || this.currentStep === 'welcome') {
       this.router.navigate(['/login']);
     }
+  }
+
+  uploadAnother() {
+    this.currentStep = 'choose-document';
+    this.fileURI = '';
+    this.selectedFile = null;
+    this.uploadError = '';
+    this.uploadSuccess = false;
+    this.uploadMessage = '';
   }
 
   skipVerification() {
