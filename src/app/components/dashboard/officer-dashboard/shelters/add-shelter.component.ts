@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, AfterViewInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { DisasterService } from '../../../../services/disaster.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
+declare let L: any;
 
 @Component({
   selector: 'app-add-shelter',
@@ -11,11 +15,16 @@ import { DisasterService } from '../../../../services/disaster.service';
   templateUrl: './add-shelter.component.html',
   styleUrls: ['./add-shelter.component.css']
 })
-export class AddShelterComponent implements OnInit {
+export class AddShelterComponent implements OnInit, AfterViewInit, OnDestroy {
   isSubmitting: boolean = false;
   submitError: string = '';
   isEditMode: boolean = false;
   editId: number | null = null;
+  showLocationModal = false;
+
+  shelterMap: any;
+  shelterMarker: any;
+  shelterMapInitialized = false;
 
   // Initialized with 1 because Java @Positive validation rejects 0
   newShelter: any = {
@@ -29,10 +38,13 @@ export class AddShelterComponent implements OnInit {
     contactInfo: ''
   };
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private disasterService: DisasterService, 
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
@@ -43,6 +55,12 @@ export class AddShelterComponent implements OnInit {
         this.loadExistingShelter(this.editId);
       }
     });
+  }
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      // Map will be initialized when modal opens
+    }
   }
 
   loadExistingShelter(id: number) {
@@ -116,5 +134,84 @@ export class AddShelterComponent implements OnInit {
         }
       }
     };
+  }
+
+  // Map Methods
+  openLocationModal() {
+    this.showLocationModal = true;
+    setTimeout(() => this.initShelterMap(), 0);
+  }
+
+  closeLocationModal() {
+    this.showLocationModal = false;
+  }
+
+  private initShelterMap() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    
+    if (this.shelterMapInitialized && this.shelterMap) {
+      return;
+    }
+
+    const mapHost = document.getElementById('shelterMap');
+    if (!mapHost) {
+      return;
+    }
+
+    if (this.shelterMap) {
+      this.shelterMap.remove();
+    }
+
+    const latitude = this.newShelter.latitude || 20.5937;
+    const longitude = this.newShelter.longitude || 78.9629;
+
+    this.shelterMap = L.map('shelterMap').setView([latitude, longitude], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.shelterMap);
+
+    // Place marker if coordinates are set
+    if (this.newShelter.latitude && this.newShelter.longitude) {
+      this.updateShelterLocation(this.newShelter.latitude, this.newShelter.longitude);
+    }
+
+    // Add click event to map
+    this.shelterMap.on('click', (event: any) => {
+      this.updateShelterLocation(event.latlng.lat, event.latlng.lng);
+      this.shelterMap.setView([event.latlng.lat, event.latlng.lng], 13);
+    });
+
+    this.shelterMapInitialized = true;
+  }
+
+  private updateShelterLocation(latitude: number, longitude: number) {
+    this.newShelter.latitude = latitude;
+    this.newShelter.longitude = longitude;
+
+    if (this.shelterMap) {
+      if (this.shelterMarker) {
+        this.shelterMap.removeLayer(this.shelterMarker);
+      }
+
+      this.shelterMarker = L.marker([latitude, longitude]).addTo(this.shelterMap)
+        .bindPopup(`Shelter Location<br>Lat: ${latitude.toFixed(4)}<br>Lng: ${longitude.toFixed(4)}`)
+        .openPopup();
+    }
+  }
+
+  ngOnDestroy() {
+    // Clean up map instances
+    if (this.shelterMap) {
+      this.shelterMap.off();
+      this.shelterMap.remove();
+      this.shelterMap = null;
+    }
+
+    // Complete all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
