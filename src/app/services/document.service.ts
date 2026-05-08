@@ -27,12 +27,16 @@ export class DocumentService {
     return this.http.get<any[]>(`${this.documentApiUrl}/citizen/${citizenId}`, this.getAuthHeaders());
   }
 
+  getDocumentsByUserId(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.documentApiUrl}/citizen/${userId}`, this.getAuthHeaders());
+  }
+
   getAllDocuments(): Observable<any[]> {
     return this.http.get<any[]>(`${this.documentApiUrl}`, this.getAuthHeaders());
   }
 
   getDocumentById(documentId: number): Observable<any> {
-    return this.http.get<any>(`${this.documentApiUrl}/${documentId}`, this.getAuthHeaders());
+    return this.http.get<any>(`${this.documentApiUrl}/getDocById/${documentId}`, this.getAuthHeaders());
   }
 
   updateDocumentStatus(documentId: number, status: string): Observable<any> {

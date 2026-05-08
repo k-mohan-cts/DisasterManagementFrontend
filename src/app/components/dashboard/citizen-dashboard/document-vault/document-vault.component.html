@@ -16,6 +16,10 @@
             </header>
 
             <div class="vault-card">
+                <div *ngIf="loadError" style="margin-bottom: 16px; color: #b91c1c; background: #fef2f2; padding: 12px 16px; border-radius: 8px;">
+                    {{ loadError }}
+                </div>
+
                 <div *ngIf="isLoading" style="text-align: center; padding: 40px;">Loading documents...</div>
                 <div *ngIf="!isLoading && documents.length === 0" style="text-align: center; padding: 40px; color: #64748b;">No documents uploaded yet.</div>
 
@@ -47,6 +51,7 @@
                             </td>
                             <td>
                                 <div class="action-dropdown">
+                                    <button class="action-btn" (click)="viewDocument(doc)" title="View"><i class="fas fa-eye"></i></button>
                                     <button class="action-btn" (click)="downloadDocument(doc.id, doc.name)" title="Download"><i class="fas fa-download"></i></button>
                                     <button class="action-btn delete-btn" (click)="deleteDocument(doc.id)" title="Delete"><i class="fas fa-trash"></i></button>
                                 </div>
@@ -56,5 +61,48 @@
                 </table>
             </div>
         </main>
+    </div>
+
+    <!-- Document Viewer Modal -->
+    <div class="document-modal" *ngIf="selectedDocument" [@fadeInOut]>
+        <div class="modal-overlay" (click)="closeDocumentViewer()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>{{ selectedDocument.name }}</h2>
+                <button class="close-btn" (click)="closeDocumentViewer()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Image Viewer -->
+                <div *ngIf="viewerType === 'image'" class="image-viewer">
+                    <img [src]="documentBlobUrl" alt="Document Image" class="document-image">
+                </div>
+
+                <!-- PDF Viewer -->
+                <div *ngIf="viewerType === 'pdf'" class="pdf-viewer">
+                    <p style="text-align: center; padding: 20px;">
+                        <a [href]="documentBlobUrl" target="_blank" class="pdf-link">
+                            <i class="fas fa-file-pdf"></i> Open PDF in New Tab
+                        </a>
+                    </p>
+                    <p style="text-align: center; color: #64748b; font-size: 12px;">
+                        Note: PDF viewer requires browser support. Click the link above to view.
+                    </p>
+                </div>
+
+                <div class="document-details">
+                    <p><strong>Type:</strong> {{ selectedDocument.type }}</p>
+                    <p><strong>Upload Date:</strong> {{ selectedDocument.date }}</p>
+                    <p><strong>Status:</strong> <span class="status-tag" [ngClass]="getStatusClass(selectedDocument.status)">{{ selectedDocument.status | titlecase }}</span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" (click)="closeDocumentViewer()">Close</button>
+                <button class="btn-primary" (click)="downloadDocument(selectedDocument.id, selectedDocument.name)">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
     </div>
 </div>

@@ -41,21 +41,44 @@ export class AuthService {
   logout() {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
+      localStorage.removeItem('citizenId');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userEmail');
       sessionStorage.clear();
-      localStorage.clear();
     }
     this.router.navigate(['/lander']);
   }
 
- getToken(): string | null {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    return window.localStorage.getItem('token');
+  getToken(): string | null {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const token = window.localStorage.getItem('token');
+      return token && token.trim() ? token : null;
+    }
+    return null;
   }
-  return null;
-}
 
   isLoggedIn(): boolean {
-    return this.getToken() !== null;
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+    // Validate token is a proper JWT (has 3 parts separated by dots)
+    return this.isValidJWT(token);
+  }
+
+  private isValidJWT(token: string): boolean {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return false;
+      }
+      // Try to decode payload to ensure it's valid
+      JSON.parse(atob(parts[1]));
+      return true;
+    } catch (error) {
+      console.error('Invalid JWT token:', error);
+      return false;
+    }
   }
 
   getUserRole(): string | null {

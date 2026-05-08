@@ -50,7 +50,18 @@ export class OfficerDashboardComponent implements OnInit {
     );
 
     this.activePrograms$ = this.disasterService.getRecoveryPrograms().pipe(
-      map(list => list.slice(0, 2))
+      map(list => {
+        // Debug log to inspect backend shape
+        console.log('Recovery programs (dashboard):', list);
+        return list
+          .map(p => ({
+            programName: p.programName || p.name || p.title,
+            budget: p.budget || p.budgetAmount || p.amount || 0,
+            status: p.status || p.state || 'Unknown',
+            description: p.description || p.programDescription || ''
+          }))
+          .slice(0, 2);
+      })
     );
 
     this.dashboardState.loadAll();
