@@ -70,4 +70,38 @@
       </div>
     </div>
   </div>
+
+  <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Emergency Detail</h3>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" *ngIf="selectedEmergency">
+        <div class="info-row">
+          <span class="label">Type</span>
+          <span class="value">{{ selectedEmergency.type }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Location</span>
+          <span class="value">{{ selectedEmergency.location }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Date</span>
+          <span class="value">{{ (selectedEmergency.date || selectedEmergency.createdAt) | date:'medium' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Current Status</span>
+          <span class="value status-badge">{{ selectedEmergency.status }}</span>
+        </div>
+        <div class="description-section">
+          <span class="label">Report Description</span>
+          <p>{{ selectedEmergency.description || 'No additional information provided.' }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-view" (click)="closeModal()">Close Details</button>
+      </div>
+    </div>
+  </div>
 </div>

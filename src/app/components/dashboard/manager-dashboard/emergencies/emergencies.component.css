@@ -129,3 +129,75 @@
     text-align: center;
     padding: 40px;
 }
+/* --- Modal Background Overlay --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+/* --- Modal Content Card --- */
+.modal-card {
+    background: white;
+    width: 500px;
+    max-width: 90%;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 { margin: 0; font-size: 18px; color: #1a202c; }
+
+.close-btn { 
+    background: none; border: none; font-size: 24px; color: #a0aec0; cursor: pointer; 
+}
+
+.modal-body { padding: 20px; }
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px dashed #f0f0f0;
+}
+
+.info-row .label { font-weight: 600; color: #718096; font-size: 14px; }
+.info-row .value { font-weight: 700; color: #2d3748; }
+
+.description-section { margin-top: 15px; }
+.description-section p { 
+    background: #f8fafc; 
+    padding: 12px; 
+    border-radius: 8px; 
+    color: #4a5568; 
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    text-align: right;
+    border-top: 1px solid #edf2f7;
+}
