@@ -1,16 +1,35 @@
 <div class="background-provider">
     <div class="verification-card">
         <div class="scroll-content">
-            <!-- Upload ID Proof Step (Start here) -->
-            <div class="step-content">
+            <!-- Choose Document Step -->
+            <div *ngIf="currentStep === 'choose-document'" class="step-content">
                 <h1 class="verification-title">Document Verification</h1>
-                <p class="step-subtitle">Complete your account by verifying your identity</p>
+                <p class="step-subtitle">Choose which document you'd like to upload</p>
+
+                <div class="form-section choose-section">
+                    <div class="choose-buttons">
+                        <button class="doc-choice" (click)="selectDocumentType('IDPROOF')">Upload ID Proof</button>
+                        <button class="doc-choice" (click)="selectDocumentType('RESIDENCE')">Upload Residence Proof</button>
+                    </div>
+                    <p class="choose-hint">You can upload either ID Proof or Residence Proof. Uploading one is sufficient.</p>
+                </div>
+
+                <div class="button-group">
+                    <button (click)="goBack()" class="action-btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Upload Step (dynamic for selected docType) -->
+            <div *ngIf="currentStep === 'upload'" class="step-content">
+                <h1 class="verification-title">{{ docType === 'IDPROOF' ? 'Upload ID Proof' : 'Upload Residence Proof' }}</h1>
+                <p class="step-subtitle">Provide the document file for {{ docType === 'IDPROOF' ? 'identity' : 'residence' }} verification</p>
 
                 <div class="form-section">
                     <div class="input-group">
                         <label>Document Type</label>
                         <select [(ngModel)]="docType" class="field">
                             <option value="IDPROOF">ID Proof (Passport, Aadhar, Driver License)</option>
+                            <option value="RESIDENCE">Residence Proof (Address Certificate, Utility Bill)</option>
                         </select>
                     </div>
 
@@ -25,7 +44,7 @@
                             </svg>
                             <p class="upload-text">Click to browse or drag and drop</p>
                             <p *ngIf="selectedFile" class="file-name">{{ selectedFile.name }}</p>
-                            <p class="upload-hint">(File URI will be extracted automatically)</p>
+                            <p class="upload-hint">(Max 10MB file size)</p>
                         </div>
                         <input #fileInput type="file" (change)="onFileSelected($event)" hidden>
                     </div>
@@ -45,61 +64,13 @@
                     <button (click)="goBack()" class="action-btn btn-secondary" [disabled]="isUploading">
                         <i class="fas fa-arrow-left"></i> Back
                     </button>
-                    <button (click)="proceedToResidenceProof()" class="action-btn btn-primary" [disabled]="isUploading">
-                        <span *ngIf="!isUploading">Continue to Next <i class="fas fa-arrow-right"></i></span>
+                    <button (click)="uploadDocument()" class="action-btn btn-primary" [disabled]="isUploading || !selectedFile">
+                        <span *ngIf="!isUploading">Upload <i class="fas fa-upload"></i></span>
                         <span *ngIf="isUploading"><i class="fas fa-spinner fa-spin"></i> Uploading...</span>
                     </button>
                 </div>
-            </div>
-
-            <!-- Upload Residence Proof Step -->
-            <div *ngIf="currentStep === 'upload-residence'" class="step-content">
-                <h1 class="verification-title">Upload Residence Proof</h1>
-                <p class="step-subtitle">Please provide your address/residence document details</p>
-
-                <div class="form-section">
-                    <div class="input-group">
-                        <label>Document Type</label>
-                        <select [(ngModel)]="docType" class="field">
-                            <option value="RESIDENCE">Residence Proof (Address Certificate, Utility Bill)</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Choose Document File</label>
-                        <div class="file-upload-area" 
-                             (click)="fileInput2.click()" 
-                             (drop)="onFileDrop($event)" 
-                             (dragover)="$event.preventDefault()">
-                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v12"></path>
-                            </svg>
-                            <p class="upload-text">Click to browse or drag and drop</p>
-                            <p *ngIf="selectedFile" class="file-name">{{ selectedFile.name }}</p>
-                            <p class="upload-hint">(File URI will be extracted automatically)</p>
-                        </div>
-                        <input #fileInput2 type="file" (change)="onFileSelected($event)" hidden>
-                    </div>
-
-                    <div *ngIf="uploadError" class="error-message">
-                        <i class="fas fa-exclamation-circle"></i>
-                        {{ uploadError }}
-                    </div>
-
-                    <div *ngIf="uploadSuccess" class="success-message">
-                        <i class="fas fa-check-circle"></i>
-                        {{ uploadMessage }}
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button (click)="goBack()" class="action-btn btn-secondary" [disabled]="isUploading">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                    <button (click)="uploadDocument()" class="action-btn btn-primary" [disabled]="isUploading">
-                        <span *ngIf="!isUploading">Complete <i class="fas fa-check"></i></span>
-                        <span *ngIf="isUploading"><i class="fas fa-spinner fa-spin"></i> Uploading...</span>
-                    </button>
+                <div *ngIf="uploadSuccess" class="post-upload-actions">
+                    <button class="action-btn btn-link" (click)="uploadAnother()">Upload Another Document</button>
                 </div>
             </div>
 

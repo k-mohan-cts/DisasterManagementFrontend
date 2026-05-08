@@ -12,7 +12,9 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
+  // Check if user is logged in AND token is valid
   if (!authService.isLoggedIn()) {
+    console.warn('User not logged in or token is invalid');
     router.navigate(['/login']);
     return false;
   }
@@ -20,7 +22,9 @@ export const authGuard: CanActivateFn = (route, state) => {
   const userRole = authService.getUserRole();
   const expectedRole = route.data['role'];
 
+  // If route requires specific role, validate it
   if (expectedRole && userRole !== expectedRole) {
+    console.warn(`User role '${userRole}' does not match expected role '${expectedRole}'`);
     router.navigate(['/lander']);
     return false;
   }
