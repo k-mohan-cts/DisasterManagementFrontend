@@ -87,12 +87,17 @@
 
               <div>
                 <label>Latitude</label>
-                <input name="latitude" type="number" step="0.000001" [(ngModel)]="newShelter.latitude" placeholder="e.g. 34.0522" />
+                <div style="display: flex; gap: 8px;">
+                  <input name="latitude" type="number" step="0.000001" [(ngModel)]="newShelter.latitude" placeholder="e.g. 34.0522" style="flex: 1;" />
+                  <button type="button" class="btn btn-secondary" (click)="openLocationModal()" style="padding: 8px 16px;">📍 Select on Map</button>
+                </div>
               </div>
 
               <div>
                 <label>Longitude</label>
-                <input name="longitude" type="number" step="0.000001" [(ngModel)]="newShelter.longitude" placeholder="e.g. -118.2437" />
+                <div style="display: flex; gap: 8px;">
+                  <input name="longitude" type="number" step="0.000001" [(ngModel)]="newShelter.longitude" placeholder="e.g. -118.2437" style="flex: 1;" />
+                </div>
               </div>
               
             </div>
@@ -108,4 +113,28 @@
       </div>
     </main>
   </section>
+</div>
+
+<!-- Location Selection Modal -->
+<div *ngIf="showLocationModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+  <div style="background-color: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); width: 90%; max-width: 600px; padding: 0; max-height: 80vh; overflow-y: auto;">
+    
+    <!-- Modal Header -->
+    <div style="padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Select Shelter Location</h3>
+      <button (click)="closeLocationModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280;">&times;</button>
+    </div>
+
+    <!-- Map Container -->
+    <div id="shelterMap" style="width: 100%; height: 400px; background-color: #f3f4f6;"></div>
+
+    <!-- Modal Footer -->
+    <div style="padding: 16px; border-top: 1px solid #e5e7eb; display: flex; gap: 12px; justify-content: flex-end;">
+      <p style="margin: 0; flex: 1; color: #6b7280; font-size: 14px;">
+        <strong>Latitude:</strong> {{ newShelter.latitude | number: '1.6-6' }} | 
+        <strong>Longitude:</strong> {{ newShelter.longitude | number: '1.6-6' }}
+      </p>
+      <button type="button" (click)="closeLocationModal()" class="btn btn-operations" style="padding: 8px 16px;">Done</button>
+    </div>
+  </div>
 </div>

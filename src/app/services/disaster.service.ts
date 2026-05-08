@@ -1,8 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -14,18 +13,26 @@ export class DisasterService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  private getRequestOptions(body?: any) {
-    let headers = new HttpHeaders();
-    if (!(body instanceof FormData)) {
-      headers = headers.set('Content-Type', 'application/json');
-    }
-    return { headers };
-  }
-
+  // --- UTILITY METHODS FOR HEADERS ---
   private getHeaders(): HttpHeaders {
-    return new HttpHeaders({
+    // Automatically grab the token so you don't get 401 Unauthorized errors!
+    const token = localStorage.getItem('token'); 
+    let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  }
+
+  private getRequestOptions(body?: any) {
+    let headers = this.getHeaders();
+    // If it's form data (like a file upload), let the browser set the content type
+    if (body instanceof FormData) {
+      headers = headers.delete('Content-Type');
+    }
+    return { headers };
   }
 
   private requestWithFallbacks<T>(requestFactories: Array<() => Observable<T>>): Observable<T> {
@@ -40,15 +47,27 @@ export class DisasterService {
         if (!remainingFactories.length) {
           return throwError(() => error);
         }
-
         return this.requestWithFallbacks(remainingFactories);
       })
     );
   }
 
-  // --- Citizens (ADDED FOR DROPDOWN LIST) ---
+  // --- Citizens ---
   getCitizens(): Observable<any[]> {
     return this.http.get<any[]>(`${this.gatewayUrl}/citizens/getAllCitizens`, this.getRequestOptions());
+  }
+
+  getAllCitizens(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.gatewayUrl}/citizens/getAllCitizens`, this.getRequestOptions());
+  }
+
+  getCitizenById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.gatewayUrl}/citizens/getCitizenById/${id}`, this.getRequestOptions());
+  }
+
+  updateCitizenStatus(id: number, status: string): Observable<any> {
+    const url = `${this.gatewayUrl}/citizens/updateStatus/${id}?status=${status}`;
+    return this.http.patch<any>(url, {}, this.getRequestOptions());
   }
 
   // --- Emergencies / Reports ---
@@ -64,27 +83,51 @@ export class DisasterService {
     return this.http.put(`${this.gatewayUrl}/reports/update-status/${id}?status=${status}`, {}, this.getRequestOptions());
   }
 
+  // --- Incidents ---
   getIncidents(): Observable<any[]> {
     return this.http.get<any[]>(`${this.gatewayUrl}/incidents/getallincident`, this.getRequestOptions());
   }
 
-  // Recovery Programs
+  createIncident(incident: any): Observable<any> {
+    return this.http.post(`${this.gatewayUrl}/incidents/createincident`, this.getRequestOptions());
+  }
+
+  updateIncidentStatus(id: number, status: string): Observable<any> {
+    return this.http.put(`${this.gatewayUrl}/incidents/updateincident/${id}/status`, { status: status }, this.getRequestOptions());
+  }
+
+  deleteIncident(id: number): Observable<string> {
+    return this.http.delete(`${this.gatewayUrl}/incidents/delete/${id}`, {
+      headers: this.getHeaders(),
+      responseType: 'text'
+    });
+  }
+
+  // --- Recovery Programs ---
   getRecoveryPrograms(): Observable<any[]> {
     return this.http.get<any[]>(`${this.gatewayUrl}/programs/viewAll`, this.getRequestOptions());
   }
-// Add this inside your DisasterService
-getResources(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/resources/viewAll`, {
-      headers: this.getHeaders()
-    });
+
+  createRecoveryProgram(program: any): Observable<any> {
+    return this.http.post(`${this.gatewayUrl}/programs/create`, program, this.getRequestOptions());
   }
- addResource(resourceData: any, managerId: number): Observable<any> {
-    return this.http.post(`${this.gatewayUrl}/resources/add?managerId=${managerId}`, resourceData, {
-      headers: this.getHeaders()
-    });
+
+  updateProgramStatus(id: number, status: string): Observable<any> {
+    return this.http.patch<any>(`${this.gatewayUrl}/programs/update-status/${id}?status=${status}`, {}, this.getRequestOptions());
   }
-getAllUsers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.gatewayUrl}/users/getAllUsers`);
+
+  // --- Resources ---
+  getResources(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.gatewayUrl}/resources/viewAll`, this.getRequestOptions());
+  }
+
+  addResource(resourceData: any, managerId: number): Observable<any> {
+    return this.http.post(`${this.gatewayUrl}/resources/add?managerId=${managerId}`, resourceData, this.getRequestOptions());
+  }
+
+  // --- Users ---
+  getAllUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.gatewayUrl}/users/getAllUsers`, this.getRequestOptions());
   }
 
   // --- Relief Items ---
@@ -93,7 +136,11 @@ getAllUsers(): Observable<any[]> {
   }
 
   createReliefItem(item: any): Observable<any> {
-    return this.http.post<any>(`${this.reliefUrl}/ReliefItems/createReliefItem`, item, { headers: this.getHeaders() });
+    return this.http.post<any>(`${this.reliefUrl}/ReliefItems/createReliefItem`, item, this.getRequestOptions());
+  }
+
+  updateReliefItem(id: number, item: any): Observable<any> {
+    return this.http.put<any>(`${this.reliefUrl}/ReliefItems/updateReliefItem/${id}`, item, this.getRequestOptions(item));
   }
 
   deleteReliefItem(id: number): Observable<any> {
@@ -110,6 +157,10 @@ getAllUsers(): Observable<any[]> {
 
   createDistribution(distribution: any): Observable<any> {
     return this.http.post<any>(`${this.reliefUrl}/Distributions/createDistribution`, distribution, this.getRequestOptions(distribution));
+  }
+
+  updateDistribution(id: number, distribution: any): Observable<any> {
+    return this.http.put<any>(`${this.reliefUrl}/Distributions/updateDistribution/${id}`, distribution, this.getRequestOptions(distribution));
   }
 
   deleteDistribution(id: number): Observable<any> {
@@ -187,13 +238,6 @@ getAllUsers(): Observable<any[]> {
   }
 
   // --- Documents ---
-createRecoveryProgram(program: any): Observable<any> {
-  // Ensure the URL matches your @PostMapping in the RecoveryProgramController
-  return this.http.post(`${this.gatewayUrl}/programs/create`, program, {
-    headers: this.getHeaders()
-  });
-}
-  // Documents
   uploadDocument(doc: any): Observable<any> {
     return this.http.post(`${this.gatewayUrl}/documents/upload`, doc, this.getRequestOptions(doc));
   }
@@ -205,71 +249,4 @@ createRecoveryProgram(program: any): Observable<any> {
   getDocumentById(id: number): Observable<any> {
     return this.http.get(`${this.gatewayUrl}/documents/getDocById/${id}`, this.getRequestOptions());
   }
-
-//  getIncidents(): Observable<any[]> {
-//     return this.http.get<any[]>(`${this.gatewayUrl}/incidents/getallincident`, { headers: this.getHeaders() });
-//   }
- 
-
-  createIncident(incident: any): Observable<any> {
-    return this.http.post(`${this.gatewayUrl}/incidents/createincident`, incident, { headers: this.getHeaders() });
-  }
-
-    getAllCitizens(): Observable<any[]> {
-      return this.http.get<any[]>(`${this.gatewayUrl}/citizens/getAllCitizens`, { headers: this.getHeaders() });
-    }
-
-// Change this:
-updateIncidentStatus(id: number, status: string): Observable<any> {
-  // Get the token from storage (update key name 'token' to whatever you use)
-  const token = localStorage.getItem('token');
-
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  };
-
-  return this.http.put(
-    `${this.gatewayUrl}/incidents/updateincident/${id}/status`,
-    { status: status },
-    { headers }
-  );
 }
-deleteIncident(id: number): Observable<string> {
-  const token = localStorage.getItem('token');
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}` // Ensure this matches your backend expectation
-  });
-
-  return this.http.delete(`${this.gatewayUrl}/incidents/delete/${id}`, {
-    headers: headers,
-    responseType: 'text'
-  });
-}
-  getCitizenById(id: number): Observable<any> {
-
-      return this.http.get<any>(`${this.gatewayUrl}/citizens/getCitizenById/${id}`, { headers: this.getHeaders() });
-
-    }
-
-
-
-  updateProgramStatus(id: number, status: string): Observable<any> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.patch<any>(
-      `${this.gatewayUrl}/programs/update-status/${id}?status=${status}`,
-      {},
-      { headers }
-    );
-  }
-
-  updateCitizenStatus(id: number, status: string): Observable<any> {
-    const url = `${this.gatewayUrl}/citizens/updateStatus/${id}?status=${status}`;
-    return this.http.patch<any>(url, {}, { headers: this.getHeaders() });
-  }
-}
-  
