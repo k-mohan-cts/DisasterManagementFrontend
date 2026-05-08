@@ -18,20 +18,23 @@
                 <th>Program Name</th>
                 <th>Budget</th>
                 <th>Status</th>
-                <th>Action</th>
+              
               </tr>
             </thead>
             <tbody>
               <ng-container *ngIf="programs$ | async as programs">
                 <tr *ngFor="let prog of programs">
-                  <td><b>{{ prog.programName }}</b></td>
+                  <td>
+                    <b>{{ prog.programName || prog.name || prog.title }}</b>
+                    <div class="muted small">{{ prog.description || prog.programDescription || '' }}</div>
+                  </td>
                   <td>${{ prog.budget | number }}</td>
                   <td>
                     <span class="status-pill" [ngClass]="getTone(prog.status)">
                       {{ prog.status }}
                     </span>
                   </td>
-                  <td><button class="view-btn">Manage</button></td>
+                 
                 </tr>
                 <tr *ngIf="programs.length === 0">
                   <td colspan="4" class="text-center">No recovery programs found.</td>
