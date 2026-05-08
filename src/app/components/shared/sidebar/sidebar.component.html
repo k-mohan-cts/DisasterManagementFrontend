@@ -1,5 +1,5 @@
 <div class="sidebar">
-    
+
     <div class="logo-container">
         <div class="logo-box">
             <i class="fas fa-shield-alt"></i>
@@ -28,13 +28,6 @@
                 <div class="nav-title">Document Vault</div>
                 <ul class="nav-links">
                     <li><a routerLink="/documents" routerLinkActive="active" class="nav-item"><i class="fas fa-file-alt"></i> Documents</a></li>
-                </ul>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-title">Notification History</div>
-                <ul class="nav-links">
-                    <li><a routerLink="/notifications" routerLinkActive="active" class="nav-item"><i class="fas fa-bell"></i> Notifications</a></li>
                 </ul>
             </div>
 
@@ -74,15 +67,36 @@
             </div> -->
         </ng-container>
 
-        <!-- Officer Menu -->
+        <!-- Officer Menu (Consolidated) -->
         <ng-container *ngIf="role === 'OFFICER'">
             <div class="nav-section">
-                <div class="nav-title">Operations</div>
+                <div class="nav-title">OPERATIONS</div>
                 <ul class="nav-links">
-                    <li><a routerLink="/officer-dashboard" routerLinkActive="active" class="nav-item"><i class="fas fa-dashboard"></i> Dashboard</a></li>
-                    <li><a routerLink="/relief-inventory" routerLinkActive="active" class="nav-item"><i class="fas fa-box"></i> Relief Inventory</a></li>
-                    <li><a routerLink="/distributions" routerLinkActive="active" class="nav-item"><i class="fas fa-truck"></i> Distributions</a></li>
-                    <li><a routerLink="/shelters" routerLinkActive="active" class="nav-item"><i class="fas fa-building"></i> Shelters</a></li>
+                    <li>
+                        <a routerLink="/officer-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/relief-inventory" routerLinkActive="active" class="nav-item">
+                            <i class="fas fa-box"></i> Relief Inventory
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/distributions" routerLinkActive="active" class="nav-item">
+                            <i class="fas fa-truck"></i> Distributions
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/shelters" routerLinkActive="active" class="nav-item">
+                            <i class="fas fa-building"></i> Shelters
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/citizens" routerLinkActive="active" class="nav-item">
+                            <i class="fas fa-users"></i> Citizen Registry
+                        </a>
+                    </li>
                 </ul>
             </div>
         </ng-container>
@@ -115,4 +129,4 @@
             </button>
         </div>
     </div>
-</div>
+</div> <!-- Closed sidebar -->

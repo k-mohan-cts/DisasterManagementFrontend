@@ -1,10 +1,12 @@
-﻿import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+﻿import { Component, OnInit, AfterViewInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DisasterService } from '../../../services/disaster.service';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 declare let L: any;
 
@@ -15,7 +17,7 @@ declare let L: any;
   templateUrl: './citizen-dashboard.component.html',
   styleUrl: './citizen-dashboard.component.css'
 })
-export class CitizenDashboardComponent implements OnInit, AfterViewInit {
+export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   reports: any[] = [];
   shelters: any[] = [];
   showReportModal = false;
@@ -26,6 +28,8 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
   dashboardMap: any;
   reportMap: any;
   reportMarker: any;
+  dashboardMapInitialized = false;
+  reportMapInitialized = false;
 
   selectedFile: File | null = null;
   filePreviewUrl = '';
@@ -41,39 +45,40 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
     type: 'FIRE',
     latitude: 0,
     longitude: 0,
-    description: ''
+    description: '',
+    date: '',
+    reportId: 0,
+    status: 'VALIDATED'
   };
 
   emergencyTypes = ['FIRE', 'FLOOD', 'EARTHQUAKE', 'MEDICAL', 'OTHER'];
   documentTypes = ['Identity Card', 'Address Proof', 'Passport', 'Driving License', 'Utility Bill'];
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private disasterService: DisasterService,
-    private authService: AuthService
+    private authService: AuthService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
-    this.newReport.citizenId = this.authService.getUserId() || 0;
     this.isUserVerified = this.authService.isVerified();
+    this.loadCitizenId();
     this.loadData();
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.newReport.latitude = position.coords.latitude;
-        this.newReport.longitude = position.coords.longitude;
-        this.refreshReportMapCenter();
-      });
-    }
+    this.loadCurrentLocation();
   }
 
   ngAfterViewInit() {
-    this.initDashboardMap();
+    if (isPlatformBrowser(this.platformId)) {
+      this.initDashboardMap();
+    }
   }
 
   loadData() {
     this.serviceError = '';
 
-    this.disasterService.getEmergencies().subscribe({
+    this.disasterService.getEmergencies().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: any[]) => {
         // Sort by date descending to get latest first, then take only 3
         const sortedReports = (data || []).sort((a, b) => {
@@ -93,7 +98,7 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
       }
     });
 
-    this.disasterService.getShelters().subscribe({
+    this.disasterService.getShelters().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: any[]) => {
         this.shelters = (data || []).map((shelter: any) => {
           const capacity = Number(shelter.capacity ?? 100) || 100;
@@ -113,7 +118,8 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  openReportModal() {
+  async openReportModal() {
+    await this.loadCurrentLocation();
     this.showReportModal = true;
     setTimeout(() => this.initReportMap(), 0);
   }
@@ -161,7 +167,7 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
     formData.append('documentType', this.verifyData.type);
     formData.append('file', this.selectedFile, this.selectedFile.name);
 
-    this.disasterService.uploadCitizenDocument(formData).subscribe({
+    this.disasterService.uploadCitizenDocument(formData).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         alert('Verification document uploaded successfully!');
         this.isUserVerified = true;
@@ -175,7 +181,26 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
   }
 
   submitReport() {
-    this.disasterService.createEmergency(this.newReport).subscribe({
+    const citizenId = this.newReport.citizenId || this.authService.getUserId() || this.getStoredCitizenId();
+
+    if (!citizenId || citizenId <= 0) {
+      this.serviceError = 'Citizen ID is missing. Please log in again or complete verification first.';
+      return;
+    }
+
+    const payload = {
+      citizenId,
+      date: this.formatLocalDateTime(new Date()),
+      description: this.newReport.description?.trim() || '',
+      latitude: Number(this.newReport.latitude),
+      location: this.newReport.location?.trim() || '',
+      longitude: Number(this.newReport.longitude),
+      reportId: this.newReport.reportId || 0,
+      status: this.newReport.status || 'VALIDATED',
+      type: this.newReport.type
+    };
+
+    this.disasterService.createEmergency(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         alert('Report submitted successfully!');
         this.closeReportModal();
@@ -196,7 +221,36 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
     }
   }
 
+  private loadCurrentLocation(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!isPlatformBrowser(this.platformId) || !navigator.geolocation) {
+        resolve();
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.newReport.latitude = position.coords.latitude;
+          this.newReport.longitude = position.coords.longitude;
+          this.refreshReportMapCenter();
+          resolve();
+        },
+        () => resolve(),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+  }
+
   private initDashboardMap() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    
+    // Prevent duplicate initialization
+    if (this.dashboardMapInitialized && this.dashboardMap) {
+      return;
+    }
+
     const mapHost = document.getElementById('dashboardMap');
     if (!mapHost || this.dashboardMap) {
       return;
@@ -210,9 +264,20 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.dashboardMap);
+
+    this.dashboardMapInitialized = true;
   }
 
   private initReportMap() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    
+    // Prevent duplicate initialization
+    if (this.reportMapInitialized && this.reportMap) {
+      return;
+    }
+
     const mapHost = document.getElementById('reportMap');
     if (!mapHost) {
       return;
@@ -222,35 +287,115 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit {
       this.reportMap.remove();
     }
 
+    const latitude = this.newReport.latitude || 20.5937;
+    const longitude = this.newReport.longitude || 78.9629;
+
     this.reportMap = L.map('reportMap').setView([
-      this.newReport.latitude || 20.5937,
-      this.newReport.longitude || 78.9629
-    ], 5);
+      latitude,
+      longitude
+    ], 17);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.reportMap);
 
+    this.updateReportLocation(latitude, longitude);
+
     this.reportMap.on('click', (event: any) => {
-      this.newReport.latitude = event.latlng.lat;
-      this.newReport.longitude = event.latlng.lng;
-
-      if (this.reportMarker) {
-        this.reportMap.removeLayer(this.reportMarker);
-      }
-
-      this.reportMarker = L.marker([event.latlng.lat, event.latlng.lng]).addTo(this.reportMap)
-        .bindPopup('Report location selected')
-        .openPopup();
+      this.updateReportLocation(event.latlng.lat, event.latlng.lng);
+      this.reportMap.setView([event.latlng.lat, event.latlng.lng], 17);
     });
+
+    this.reportMapInitialized = true;
   }
 
   private refreshReportMapCenter() {
     if (this.reportMap) {
+      const latitude = this.newReport.latitude || 20.5937;
+      const longitude = this.newReport.longitude || 78.9629;
+
       this.reportMap.setView([
-        this.newReport.latitude || 20.5937,
-        this.newReport.longitude || 78.9629
-      ], this.reportMap.getZoom() || 5);
+        latitude,
+        longitude
+      ], this.reportMap.getZoom() || 17);
+
+      this.updateReportLocation(latitude, longitude);
     }
+  }
+
+  private updateReportLocation(latitude: number, longitude: number) {
+    this.newReport.latitude = latitude;
+    this.newReport.longitude = longitude;
+
+    if (this.reportMap) {
+      if (this.reportMarker) {
+        this.reportMap.removeLayer(this.reportMarker);
+      }
+
+      this.reportMarker = L.marker([latitude, longitude]).addTo(this.reportMap)
+        .bindPopup('Current selected location')
+        .openPopup();
+    }
+  }
+
+  private formatLocalDateTime(date: Date): string {
+    const pad = (value: number, size = 2) => String(value).padStart(size, '0');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    const milliseconds = pad(date.getMilliseconds(), 3);
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
+  }
+
+  private loadCitizenId() {
+    const resolvedCitizenId = this.newReport.citizenId || this.authService.getUserId() || this.getStoredCitizenId();
+    if (resolvedCitizenId && resolvedCitizenId > 0) {
+      this.newReport.citizenId = resolvedCitizenId;
+      return;
+    }
+
+    this.authService.getResolvedUserId().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (resolvedId) => {
+        if (resolvedId && resolvedId > 0) {
+          this.newReport.citizenId = resolvedId;
+        }
+      }
+    });
+  }
+
+  private getStoredCitizenId(): number | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
+    const storedCitizenId = localStorage.getItem('citizenId');
+    if (!storedCitizenId) {
+      return null;
+    }
+
+    const parsedCitizenId = Number(storedCitizenId);
+    return Number.isFinite(parsedCitizenId) && parsedCitizenId > 0 ? parsedCitizenId : null;
+  }
+
+  ngOnDestroy() {
+    // Clean up map instances
+    if (this.dashboardMap) {
+      this.dashboardMap.off();
+      this.dashboardMap.remove();
+      this.dashboardMap = null;
+    }
+
+    if (this.reportMap) {
+      this.reportMap.off();
+      this.reportMap.remove();
+      this.reportMap = null;
+    }
+
+    // Complete all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

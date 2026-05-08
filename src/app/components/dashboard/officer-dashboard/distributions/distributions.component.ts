@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { forkJoin, of, Subject } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
 import { DisasterService } from '../../../../services/disaster.service';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 
@@ -13,11 +13,12 @@ import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
   templateUrl: './distributions.component.html',
   styleUrls: ['./distributions.component.css']
 })
-export class DistributionsComponent implements OnInit {
+export class DistributionsComponent implements OnInit, OnDestroy {
   distributions: any[] = [];
   filteredDistributions: any[] = [];
   reliefItems: any[] = []; 
   isLoading: boolean = true;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private disasterService: DisasterService,
@@ -33,7 +34,7 @@ export class DistributionsComponent implements OnInit {
     forkJoin({
       items: this.disasterService.getReliefItems().pipe(catchError(() => of([]))),
       distData: this.disasterService.getDistributions().pipe(catchError(() => of([])))
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: any) => {
         this.reliefItems = Array.isArray(res.items) ? res.items : (res.items?.content || []);
         this.processDistributions(res.distData);
@@ -105,5 +106,10 @@ export class DistributionsComponent implements OnInit {
       (d.displayItemName || '').toLowerCase().includes(term) || 
       (d.parsedIncident || '').toLowerCase().includes(term)
     );
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -41,16 +41,18 @@ export class AuthService {
   logout() {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
+      sessionStorage.clear();
+      localStorage.clear();
     }
     this.router.navigate(['/lander']);
   }
 
-  getToken(): string | null {
-    if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('token');
-    }
-    return null;
+ getToken(): string | null {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return window.localStorage.getItem('token');
   }
+  return null;
+}
 
   isLoggedIn(): boolean {
     return this.getToken() !== null;

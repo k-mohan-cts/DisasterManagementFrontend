@@ -1,0 +1,41 @@
+<div class="app-shell">
+  <app-sidebar role="OFFICER"></app-sidebar>
+  <section class="content">
+    <header class="topbar">
+      <h1>Citizen Management</h1>
+      <div class="topbar-right">
+        <span class="role-chip">Relief Officer</span>
+      </div>
+    </header>
+    <main class="main">
+      <div class="registry-header">
+        <h2>Citizen Registry</h2>
+        <input type="text" class="search-box" placeholder="Search by name or status..." [(ngModel)]="searchTerm" (input)="applyFilter()" />
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Status</th>
+              <th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let citizen of (filteredCitizens$ | async)">
+              <td>{{ citizen.name }}</td>
+              <td>
+                <span class="status" [ngClass]="citizen.status.toLowerCase()">
+                  {{ citizen.status }}
+                </span>
+              </td>
+              <td class="right">
+                <button class="edit-btn" (click)="editCitizen(citizen)">Edit</button>
+               </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </section>
+</div>

@@ -10,19 +10,6 @@
         </div>
 
         <div class="main-content">
-            <div *ngIf="!isUserVerified" class="verification-pending-banner">
-                <div class="banner-content">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <div>
-                        <h3>Account Verification Required</h3>
-                        <p>Your account is pending verification. Please complete the document verification process to unlock all features.</p>
-                    </div>
-                </div>
-                <a routerLink="/verification" class="banner-action" (click)="$event.preventDefault(); openVerifyModal()">
-                    <i class="fas fa-arrow-right"></i>
-                    Complete Verification
-                </a>
-            </div>
 
             <div *ngIf="serviceError" class="service-error-banner">
                 {{ serviceError }}
@@ -35,7 +22,6 @@
                     </div>
                     <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Report an emergency or request immediate assistance.</p>
                     <button type="button" class="emergency-btn" (click)="openReportModal()">Report Emergency</button>
-                    <button class="request-btn">Request Relief</button>
                 </div>
 
                 <div class="card">
@@ -161,11 +147,11 @@
                         <div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div>
                                 <label><i class="fas fa-arrows-alt-v" style="color: #3b82f6; margin-right: 8px;"></i>Latitude</label>
-                                <input type="number" name="latitude" [(ngModel)]="newReport.latitude" placeholder="e.g., 20.5937" required step="any">
+                                <input type="number" name="latitude" [(ngModel)]="newReport.latitude" placeholder="Select a point on the map" readonly>
                             </div>
                             <div>
                                 <label><i class="fas fa-arrows-alt-h" style="color: #3b82f6; margin-right: 8px;"></i>Longitude</label>
-                                <input type="number" name="longitude" [(ngModel)]="newReport.longitude" placeholder="e.g., 78.9629" required step="any">
+                                <input type="number" name="longitude" [(ngModel)]="newReport.longitude" placeholder="Select a point on the map" readonly>
                             </div>
                         </div>
 
