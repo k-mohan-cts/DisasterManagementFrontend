@@ -58,7 +58,7 @@
 
                     <td>{{ item.location }}</td>
 
-                    <td>{{ (item.displayDate || item.reportDate || item.date || item.createdAt) | date:'mediumDate' }}</td>
+                    <td>{{ item.reportDate | date:'mediumDate' }}</td>
 
                     <td>
 

@@ -24,10 +24,7 @@
             <tbody>
               <ng-container *ngIf="programs$ | async as programs">
                 <tr *ngFor="let prog of programs">
-                  <td>
-                    <b>{{ prog.programName || prog.name || prog.title }}</b>
-                    <div class="muted small">{{ prog.description || prog.programDescription || '' }}</div>
-                  </td>
+                  <td><b>{{ prog.programName }}</b></td>
                   <td>${{ prog.budget | number }}</td>
                   <td>
                     <span class="status-pill" [ngClass]="getTone(prog.status)">

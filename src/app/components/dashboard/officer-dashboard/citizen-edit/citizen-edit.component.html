@@ -37,6 +37,58 @@
         </form>
       </div>
 
+      <div class="edit-card" *ngIf="!loading">
+        <div class="documents-header">
+          <h3>Uploaded Documents</h3>
+          <button class="view-all-btn" (click)="openAllDocuments()">View All Documents</button>
+        </div>
+        
+        <table *ngIf="documents.length > 0" class="data-table small">
+          <thead>
+            <tr><th>Name</th><th>Type</th><th>Uploaded</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let doc of documents">
+              <td>{{ doc.name }}</td>
+              <td>{{ doc.type || '-' }}</td>
+              <td>{{ doc.date || '-' }}</td>
+              <td>
+                <button class="action-btn" (click)="viewDocument(doc)">View</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+
+      <!-- Document viewer removed (documents open in new tab) -->
+      <!-- Document Viewer Modal -->
+      <div class="document-modal" *ngIf="selectedDocument">
+        <div class="modal-overlay" (click)="closeDocumentViewer()"></div>
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>{{ selectedDocument.name }}</h3>
+            <button class="close-btn" (click)="closeDocumentViewer()">×</button>
+          </div>
+          <div class="modal-body">
+            <div *ngIf="viewerType === 'image'" class="image-viewer">
+              <img [src]="documentBlobUrl" alt="Document image" class="document-image">
+            </div>
+            <div *ngIf="viewerType === 'pdf'" class="pdf-viewer">
+              <iframe [src]="sanitizedDocumentUrl" style="width:100%; height:60vh; border:0;"></iframe>
+            </div>
+            <div class="document-details" style="margin-top:12px">
+              <p><strong>Type:</strong> {{ selectedDocument.type || '-' }}</p>
+              <p><strong>Uploaded:</strong> {{ selectedDocument.date || '-' }}</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button (click)="closeDocumentViewer()" class="cancel-btn">Close</button>
+            <button class="update-btn" (click)="downloadDocument()">Download</button>
+          </div>
+        </div>
+      </div>
+
       <div *ngIf="!loading && !citizen" class="error-state">
         <p>Could not find citizen data.</p>
         <button (click)="cancel()">Back to Registry</button>

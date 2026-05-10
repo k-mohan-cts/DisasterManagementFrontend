@@ -44,24 +44,13 @@ export class OfficerDashboardComponent implements OnInit {
     this.inventoryCounts$ = this.dashboardState.inventoryCounts$;
     this.citizenCounts$   = this.dashboardState.citizenCounts$;
 
-    // ✅ Load raw list data for the "Recent" sections (Slicing to show top 2)
-    this.recentEmergencies$ = this.disasterService.getEmergencies().pipe(
-      map(list => list.slice(0, 2))
+    // Use normalized lists from DashboardStateService for recent sections
+    this.recentEmergencies$ = this.dashboardState.emergencies$.pipe(
+      map(list => (list || []).slice(0, 3))
     );
 
-    this.activePrograms$ = this.disasterService.getRecoveryPrograms().pipe(
-      map(list => {
-        // Debug log to inspect backend shape
-        console.log('Recovery programs (dashboard):', list);
-        return list
-          .map(p => ({
-            programName: p.programName || p.name || p.title,
-            budget: p.budget || p.budgetAmount || p.amount || 0,
-            status: p.status || p.state || 'Unknown',
-            description: p.description || p.programDescription || ''
-          }))
-          .slice(0, 2);
-      })
+    this.activePrograms$ = this.dashboardState.programs$.pipe(
+      map(list => (list || []).slice(0, 3))
     );
 
     this.dashboardState.loadAll();

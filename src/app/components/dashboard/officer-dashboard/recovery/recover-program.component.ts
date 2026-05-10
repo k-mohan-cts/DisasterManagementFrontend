@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { DashboardStateService } from '../dashboard-state.service';
-import { DisasterService } from '../../../../services/disaster.service';
 import { SidebarComponent } from '../../.././shared/sidebar/sidebar.component';
 
 @Component({
@@ -16,18 +14,10 @@ import { SidebarComponent } from '../../.././shared/sidebar/sidebar.component';
 export class OfficerRecoveryProgramsComponent implements OnInit {
   programs$!: Observable<any[]>;
 
-  constructor(
-    private stateService: DashboardStateService,
-    private disasterService: DisasterService
-  ) {}
+  constructor(private stateService: DashboardStateService) {}
 
   ngOnInit(): void {
-    // Prefer direct fetch from DisasterService to ensure data comes from backend
-    this.programs$ = this.disasterService.getRecoveryPrograms().pipe(
-      tap((p) => console.log('Recovery programs from backend:', p))
-    );
-
-    // Also trigger dashboard-wide loads (keeps other widgets working)
+    this.programs$ = this.stateService.programs$;
     this.stateService.loadAll();
   }
 

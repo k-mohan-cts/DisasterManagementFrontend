@@ -24,7 +24,7 @@ export class DocumentService {
   }
 
   getDocumentsByCitizenId(citizenId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.documentApiUrl}/citizen/${citizenId}`, this.getAuthHeaders());
+    return this.http.get<any[]>(`${this.documentApiUrl}/getDocumentByCitizenId/${citizenId}`, this.getAuthHeaders());
   }
 
   getDocumentsByUserId(userId: number): Observable<any[]> {
