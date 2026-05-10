@@ -15,6 +15,10 @@ export class EmergenciesComponent implements OnInit {
   emergencies: any[] = [];
   isLoading: boolean = true;
 
+  // NEW: Properties for Modal Logic
+  selectedEmergency: any = null;
+  isModalOpen: boolean = false;
+
   constructor(
     private disasterService: DisasterService,
     public router: Router 
@@ -28,7 +32,6 @@ export class EmergenciesComponent implements OnInit {
     this.isLoading = true;
     this.disasterService.getEmergencies().subscribe({
       next: (data: any) => {
-        // Handle different API response structures
         if (Array.isArray(data)) {
           this.emergencies = data;
         } else if (data?.content) {
@@ -62,7 +65,15 @@ export class EmergenciesComponent implements OnInit {
     });
   }
 
+  // UPDATED: Function to open modal and set data
   viewDetails(emergency: any): void {
-    console.log("Viewing details for:", emergency);
+    this.selectedEmergency = emergency;
+    this.isModalOpen = true;
+  }
+
+  // NEW: Function to close modal
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedEmergency = null;
   }
 }
