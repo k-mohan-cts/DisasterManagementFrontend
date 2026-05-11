@@ -15,22 +15,60 @@ export class LoginComponent {
     email: '',
     passwordHash: ''
   };
+  errorMessage = '';
+  isLoading = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   handleLogin() {
     if (!this.credentials.email || !this.credentials.passwordHash) {
-      alert("Please enter both email and password.");
+      this.errorMessage = "Please enter both email and password.";
+      alert(this.errorMessage);
       return;
     }
 
+    this.isLoading = true;
+    this.errorMessage = '';
+
     this.authService.login(this.credentials).subscribe({
-      next: (token) => {
+      next: (response) => {
+        this.isLoading = false;
         // Redirect logic is handled in AuthService
       },
       error: (err) => {
-        console.error('Login failed', err);
-        alert("Login failed. Please check your credentials.");
+        this.isLoading = false;
+        console.error('Login error:', err);
+
+        // Handle verification pending (403) - allow user to proceed to verification page
+        if (err.status === 403 && err.error?.error === 'Verification Pending') {
+          console.log('⏳ Verification Pending - User needs to complete document upload');
+          
+          // Extract user data from error response if available
+          const userData = err.error?.user || err.error?.data;
+          if (userData) {
+            // Store user data in localStorage so verification page can access it
+            if (typeof window !== 'undefined' && window.localStorage) {
+              localStorage.setItem('user', JSON.stringify(userData));
+              if (userData.citizenId) {
+                localStorage.setItem('citizenId', userData.citizenId.toString());
+              }
+              if (userData.userId) {
+                localStorage.setItem('userId', userData.userId.toString());
+              }
+              if (userData.email) {
+                localStorage.setItem('userEmail', userData.email);
+              }
+            }
+          }
+          
+          // Navigate to verification page to continue document upload
+          this.router.navigate(['/document-verification']);
+          return;
+        }
+
+        // Handle other errors
+        this.errorMessage = err.error?.error || err.error?.message || 'Login failed. Please check your credentials.';
+        alert(this.errorMessage);
       }
     });
   }

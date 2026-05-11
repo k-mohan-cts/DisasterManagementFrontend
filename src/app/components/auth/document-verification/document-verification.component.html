@@ -1,6 +1,13 @@
 <div class="background-provider">
     <div class="verification-card">
         <div class="scroll-content">
+            <!-- Verification Pending Alert -->
+            <div *ngIf="isVerificationPending" class="verification-pending-alert">
+                <div class="alert-icon">⚠️</div>
+                <h2>Verification Pending</h2>
+                <p>{{ verificationPendingMessage }}</p>
+            </div>
+
             <!-- Choose Document Step -->
             <div *ngIf="currentStep === 'choose-document'" class="step-content">
                 <h1 class="verification-title">Document Verification</h1>
