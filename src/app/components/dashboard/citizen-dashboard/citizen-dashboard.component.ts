@@ -48,7 +48,7 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
     description: '',
     date: '',
     reportId: 0,
-    status: 'VALIDATED'
+    status: 'PENDING'
   };
 
   emergencyTypes = ['FIRE', 'FLOOD', 'EARTHQUAKE', 'MEDICAL', 'OTHER'];
