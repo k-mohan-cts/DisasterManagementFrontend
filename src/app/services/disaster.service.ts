@@ -75,6 +75,13 @@ export class DisasterService {
     return this.http.get<any[]>(`${this.gatewayUrl}/reports/getallreports`, this.getRequestOptions());
   }
 
+  getReportsByCitizenId(citizenId: number): Observable<any[]> {
+  return this.http.get<any[]>(
+    `${this.gatewayUrl}/reports/citizen/${citizenId}`, 
+    this.getRequestOptions()
+  );
+}
+
   createEmergency(report: any): Observable<any> {
     return this.http.post(`${this.gatewayUrl}/reports/createReport`, report, this.getRequestOptions(report));
   }

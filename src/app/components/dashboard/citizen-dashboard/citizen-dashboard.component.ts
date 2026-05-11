@@ -8,6 +8,7 @@ import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+
 declare let L: any;
 
 @Component({
@@ -33,7 +34,6 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
 
   selectedFile: File | null = null;
   filePreviewUrl = '';
-
   verifyData = {
     name: '',
     type: 'Identity Card'
@@ -74,24 +74,34 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
       this.initDashboardMap();
     }
   }
+ // Removed invalid 'const' declaration. Use this.authService.getUserId() directly where needed.
 
   loadData() {
     this.serviceError = '';
 
-    this.disasterService.getEmergencies().pipe(takeUntil(this.destroy$)).subscribe({
+    this.disasterService.getReportsByCitizenId(this.authService.getUserId() ?? 0).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: any[]) => {
-        // Sort by date descending to get latest first, then take only 3
-        const sortedReports = (data || []).sort((a, b) => {
-          const dateA = new Date(a.reportDate).getTime();
-          const dateB = new Date(b.reportDate).getTime();
-          return dateB - dateA; // Latest first
+        // Map the response data, handling the nested structure from EmergencyReportDetailsResponseDTO
+        const mappedData = (data || []).map((item: any) => {
+          // The backend returns { report: {...}, citizenName: "..." }
+          // So we need to extract the report object
+          const reportData = item.report || item;
+          return {
+            type: reportData.type || 'UNKNOWN',
+            location: reportData.location || 'Location not specified',
+            date: reportData.reportDate ? new Date(reportData.reportDate).toLocaleDateString() : new Date().toLocaleDateString(),
+            status: reportData.status || 'NEW'
+          };
         });
 
-        this.reports = sortedReports.slice(0, 3).map((report: any) => ({
-          type: report.type || 'UNKNOWN',
-          date: report.reportDate ? new Date(report.reportDate).toLocaleDateString() : new Date().toLocaleDateString(),
-          status: report.status || 'NEW'
-        }));
+        // Sort by date descending to get latest first, then take only 3
+        const sortedReports = (mappedData || []).sort((a, b) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          return dateB - dateA; // Latest first
+        });
+        
+        this.reports = sortedReports.slice(0, 3);
       },
       error: () => {
         this.serviceError = 'Unable to load recent reports right now.';
