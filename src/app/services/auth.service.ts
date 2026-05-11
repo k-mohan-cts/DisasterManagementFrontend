@@ -18,12 +18,32 @@ export class AuthService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  login(credentials: any): Observable<string> {
-    return this.http.post(this.apiUrl + '/login', credentials, { responseType: 'text' }).pipe(
-      tap(token => {
+  login(credentials: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl + '/login', credentials).pipe(
+      tap((response: any) => {
+        const token = response?.token;
+        const user = response?.user;
+
         if (token && isPlatformBrowser(this.platformId)) {
           localStorage.setItem('token', token);
-          this.decodeTokenAndRedirect(token);
+
+          if (user && typeof user === 'object') {
+            localStorage.setItem('user', JSON.stringify(user));
+
+            if (user.citizenId !== undefined && user.citizenId !== null) {
+              localStorage.setItem('citizenId', String(user.citizenId));
+            }
+
+            if (user.userId !== undefined && user.userId !== null) {
+              localStorage.setItem('userId', String(user.userId));
+            }
+
+            if (user.email) {
+              localStorage.setItem('userEmail', String(user.email));
+            }
+          }
+
+          this.decodeTokenAndRedirect(token, user);
         }
       })
     );
@@ -41,6 +61,7 @@ export class AuthService {
   logout() {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       localStorage.removeItem('citizenId');
       localStorage.removeItem('userId');
       localStorage.removeItem('userEmail');
@@ -87,6 +108,15 @@ export class AuthService {
   }
 
   getUserId(): number | null {
+    // First check localStorage (from signup response)
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const storedCitizenId = window.localStorage.getItem('citizenId');
+      if (storedCitizenId && Number(storedCitizenId) > 0) {
+        return Number(storedCitizenId);
+      }
+    }
+
+    // Fallback to JWT token
     const user = this.getCurrentUser();
     return user?.userId || user?.id || null;
   }
@@ -97,6 +127,17 @@ export class AuthService {
   }
 
   getCurrentUser(): any | null {
+    if (isPlatformBrowser(this.platformId)) {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          return JSON.parse(storedUser);
+        } catch {
+          localStorage.removeItem('user');
+        }
+      }
+    }
+
     const token = this.getToken();
     if (!token) {
       return null;
@@ -161,11 +202,11 @@ export class AuthService {
     return this.http.post<any>(this.documentApiUrl + '/upload', documentData);
   }
 
-  private decodeTokenAndRedirect(token: string) {
+  private decodeTokenAndRedirect(token: string, user?: any) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const role = payload.role;
-      const verificationStatus = payload.verificationStatus;
+      const role = user?.role || payload.role;
+      const verificationStatus = user?.verificationStatus || payload.verificationStatus;
 
       if (role === 'CITIZEN' && (verificationStatus === 'PENDING' || verificationStatus === 'REJECTED')) {
         this.router.navigate(['/verification']);

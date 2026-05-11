@@ -212,6 +212,39 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
     });
   }
 
+  private sendReportWithCitizenId(citizenId: number) {
+    if (!citizenId || citizenId <= 0) {
+      this.serviceError = 'Citizen ID is invalid. Please log in again or complete verification first.';
+      return;
+    }
+
+    const payload = {
+      citizenId,
+      date: this.formatLocalDateTime(new Date()),
+      description: this.newReport.description?.trim() || '',
+      latitude: Number(this.newReport.latitude),
+      location: this.newReport.location?.trim() || '',
+      longitude: Number(this.newReport.longitude),
+      reportId: this.newReport.reportId || 0,
+      status: this.newReport.status || 'VALIDATED',
+      type: this.newReport.type
+    };
+
+    console.log('📤 Submitting report with citizenId:', citizenId, 'Payload:', payload);
+
+    this.disasterService.createEmergency(payload).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        alert('Report submitted successfully!');
+        this.closeReportModal();
+        this.loadData();
+      },
+      error: (err) => {
+        console.error('❌ Error submitting report:', err);
+        this.serviceError = 'Failed to submit report.';
+      }
+    });
+  }
+
   private setSelectedFile(file: File) {
     this.selectedFile = file;
     this.filePreviewUrl = URL.createObjectURL(file);

@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { DisasterService } from '../../../services/disaster.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-document-verification',
@@ -12,7 +14,7 @@ import { DisasterService } from '../../../services/disaster.service';
   templateUrl: './document-verification.component.html',
   styleUrl: './document-verification.component.css'
 })
-export class DocumentVerificationComponent implements OnInit {
+export class DocumentVerificationComponent implements OnInit, OnDestroy {
   citizenId: number = 0;
   docType: 'IDPROOF' | 'RESIDENCE' = 'IDPROOF';
   fileURI: string = '';
@@ -29,18 +31,22 @@ export class DocumentVerificationComponent implements OnInit {
 
   currentStep: 'welcome' | 'choose-document' | 'upload' | 'pending' | 'success' = 'welcome';
   documentsUploaded: { IDPROOF?: boolean; RESIDENCE?: boolean } = {};
+  private destroy$ = new Subject<void>();
 
   constructor(
     private authService: AuthService,
     private disasterService: DisasterService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  async ngOnInit() {
-    this.citizenId = await this.resolveUserId();
-    console.log('Document Verification - UserId:', this.citizenId);
-
-    this.currentStep = 'choose-document';
+  ngOnInit() {
+    this.resolveUserId().then((userId) => {
+      this.citizenId = userId;
+      console.log('Document Verification - UserId:', this.citizenId);
+      this.currentStep = 'choose-document';
+      this.cdr.markForCheck();
+    });
   }
 
   selectDocumentType(docType: 'IDPROOF' | 'RESIDENCE') {
@@ -106,7 +112,7 @@ export class DocumentVerificationComponent implements OnInit {
     });
     console.log('=== END UPLOAD DETAILS ===');
 
-    this.disasterService.uploadCitizenDocument(formData).subscribe({
+    this.disasterService.uploadCitizenDocument(formData).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response: any) => {
         console.log('✅ Document uploaded successfully:', response);
         this.documentsUploaded[this.docType] = true;
@@ -115,6 +121,7 @@ export class DocumentVerificationComponent implements OnInit {
         this.fileURI = '';
         this.selectedFile = null;
         this.isUploading = false;
+        this.cdr.markForCheck();
 
         // Move to the document vault / pending approval page
         setTimeout(() => {
@@ -139,6 +146,7 @@ export class DocumentVerificationComponent implements OnInit {
         this.uploadError = errorMsg;
         this.isUploading = false;
         this.uploadSuccess = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -193,5 +201,10 @@ export class DocumentVerificationComponent implements OnInit {
 
   skipVerification() {
     this.router.navigate(['/citizen-dashboard']);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
