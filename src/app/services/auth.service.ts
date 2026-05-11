@@ -103,9 +103,41 @@ export class AuthService {
     }
   }
 
+  private getRoleFromToken(): string | null {
+    try {
+      const token = this.getToken();
+      if (!token) return null;
+
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // Check various possible role field names in the JWT
+      return payload?.role || payload?.roles?.[0] || payload?.userRole || null;
+    } catch (error) {
+      return null;
+    }
+  }
+
   getUserRole(): string | null {
     const user = this.getCurrentUser();
-    return user?.role || null;
+    // First try user object, then fall back to JWT token
+    return user?.role || this.getRoleFromToken();
+  }
+
+  getStoredUserRole(): string | null {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          if (user?.role) {
+            return user.role;
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing stored user for role:', error);
+      }
+    }
+    // Fallback to JWT role if localStorage user doesn't have role
+    return this.getRoleFromToken();
   }
 
   getUserId(): number | null {

@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -23,6 +23,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   uploadMessage: string = '';
   uploadError: string = '';
   uploadSuccess: boolean = false;
+  verificationPendingMessage: string = '';
+  isVerificationPending: boolean = false;
 
   docTypeOptions = [
     { label: 'ID Proof (Passport, Aadhar, Driver License)', value: 'IDPROOF' },
@@ -37,16 +39,45 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private disasterService: DisasterService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
+    // Check if verification is pending (coming from failed login)
+    this.checkVerificationStatus();
+    
     this.resolveUserId().then((userId) => {
       this.citizenId = userId;
-      console.log('Document Verification - UserId:', this.citizenId);
+      console.log('Document Verification - CitizenId:', this.citizenId);
       this.currentStep = 'choose-document';
       this.cdr.markForCheck();
     });
+  }
+
+  private checkVerificationStatus() {
+    if (isPlatformBrowser(this.platformId)) {
+      const user = this.getStoredUser();
+      if (user && user.verificationStatus === 'PENDING') {
+        this.isVerificationPending = true;
+        this.verificationPendingMessage = `Welcome ${user.name || 'User'}! Your account is pending verification. Please upload the required documents to complete the verification process.`;
+        console.log('✓ Verification Pending - User needs to upload documents');
+      }
+    }
+  }
+
+  private getStoredUser(): any {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
+    try {
+      const storedUser = localStorage.getItem('user');
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+      return null;
+    }
   }
 
   selectDocumentType(docType: 'IDPROOF' | 'RESIDENCE') {
@@ -152,23 +183,34 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   }
 
   private async resolveUserId(): Promise<number> {
-    const currentUser = this.authService.getCurrentUser();
-    const directId = currentUser?.userId || currentUser?.id;
-    if (directId && Number(directId) > 0) {
-      return Number(directId);
+    // First, check localStorage for citizenId (set after signup/login)
+    if (isPlatformBrowser(this.platformId)) {
+      const storedCitizenId = localStorage.getItem('citizenId');
+      if (storedCitizenId && Number(storedCitizenId) > 0) {
+        console.log('✅ CitizenId resolved from localStorage:', storedCitizenId);
+        return Number(storedCitizenId);
+      }
     }
 
-    // Try to resolve userId from email
+    // Second, try to resolve citizenId from email via API
     return await new Promise<number>((resolve) => {
       this.authService.getUserIdByEmail().subscribe({
         next: (resolvedId) => {
           if (resolvedId && resolvedId > 0) {
+            console.log('✅ CitizenId resolved from API:', resolvedId);
+            if (isPlatformBrowser(this.platformId)) {
+              localStorage.setItem('citizenId', resolvedId.toString());
+            }
             resolve(Number(resolvedId));
           } else {
+            console.warn('⚠️ Could not resolve citizenId from API');
             resolve(0);
           }
         },
-        error: () => resolve(0)
+        error: (err) => {
+          console.error('❌ Error resolving citizenId from API:', err);
+          resolve(0);
+        }
       });
     });
   }

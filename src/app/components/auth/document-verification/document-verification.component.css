@@ -23,6 +23,46 @@
     padding: 40px;
 }
 
+.verification-pending-alert {
+    background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    text-align: center;
+    animation: slideDown 0.4s ease-out;
+}
+
+.verification-pending-alert .alert-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.verification-pending-alert h2 {
+    color: #d97706;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 12px 0 8px;
+}
+
+.verification-pending-alert p {
+    color: #92400e;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .verification-title {
     font-size: 28px;
     font-weight: 700;

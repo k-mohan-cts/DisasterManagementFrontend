@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { DisasterService } from '../../../../services/disaster.service';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
+import { AuthService } from '../../../../services/auth.service';
 
 @Component({
   selector: 'app-create-distribution',
@@ -30,11 +31,20 @@ export class CreateDistributionComponent implements OnInit {
   };
 
   constructor(
-    private disasterService: DisasterService, 
-    private router: Router
+    private disasterService: DisasterService,
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
+    // Ensure user has a valid token before attempting API calls
+    if (!this.authService.isLoggedIn()) {
+      // Let user know and redirect to login
+      alert('Session expired or not authenticated. Please log in.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.loadDropdownData();
   }
 
@@ -54,7 +64,16 @@ export class CreateDistributionComponent implements OnInit {
         this.incidents = (data && data.length > 0) ? data : [];
         if (this.incidents.length === 0) this.loadEmergenciesFallback();
       },
-      error: () => this.loadEmergenciesFallback()
+      error: (err) => {
+        console.error('Failed to load incidents:', err);
+        // If 401, prompt re-login
+        if (err?.status === 401) {
+          alert('Unauthorized. Please log in again.');
+          this.router.navigate(['/login']);
+          return;
+        }
+        this.loadEmergenciesFallback();
+      }
     });
 
     // 3. Fetch Recovery Programs
@@ -62,7 +81,15 @@ export class CreateDistributionComponent implements OnInit {
       next: (data: any) => {
         this.programs = Array.isArray(data) ? data : (data?.content || []);
       },
-      error: () => { this.programs = []; }
+      error: (err) => {
+        console.error('Failed to load programs:', err);
+        if (err?.status === 401) {
+          alert('Unauthorized. Please log in again.');
+          this.router.navigate(['/login']);
+          return;
+        }
+        this.programs = [];
+      }
     });
 
     // 4. NEW: Fetch Citizens from Database for the Recipient list
@@ -71,7 +98,12 @@ export class CreateDistributionComponent implements OnInit {
         this.citizens = Array.isArray(data) ? data : (data?.content || []);
       },
       error: (err) => {
-        console.error("Failed to load citizens:", err);
+        console.error('Failed to load citizens:', err);
+        if (err?.status === 401) {
+          alert('Unauthorized. Please log in again.');
+          this.router.navigate(['/login']);
+          return;
+        }
         this.citizens = []; // Keeps list empty if database is unreachable
       }
     });
