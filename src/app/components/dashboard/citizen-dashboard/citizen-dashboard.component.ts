@@ -78,7 +78,6 @@ export class CitizenDashboardComponent implements OnInit, AfterViewInit, OnDestr
 
   loadData() {
     this.serviceError = '';
-
     this.disasterService.getReportsByCitizenId(this.authService.getUserId() ?? 0).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: any[]) => {
         // Map the response data, handling the nested structure from EmergencyReportDetailsResponseDTO

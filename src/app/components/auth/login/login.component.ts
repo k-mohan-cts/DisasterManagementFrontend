@@ -40,8 +40,8 @@ export class LoginComponent {
         console.error('Login error:', err);
 
         // Handle verification pending (403) - allow user to proceed to verification page
-        if (err.status === 403 && err.error?.error === 'Verification Pending') {
-          console.log('⏳ Verification Pending - User needs to complete document upload');
+        if (err.error?.error === 'Verification Pending') {
+          alert('Verification Pending, Upload document or wait for manager approval to proceed.');
           
           // Extract user data from error response if available
           const userData = err.error?.user || err.error?.data;
@@ -67,8 +67,13 @@ export class LoginComponent {
         }
 
         // Handle other errors
-        this.errorMessage = err.error?.error || err.error?.message || 'Login failed. Please check your credentials.';
-        alert(this.errorMessage);
+        let errorMessage = 'Login failed. Please check your credentials.';
+        if (err.error?.error) {
+          errorMessage = err.error.error;
+        } else if (err.error?.message) {
+          errorMessage = err.error.message;
+        }
+        alert(errorMessage);
       }
     });
   }

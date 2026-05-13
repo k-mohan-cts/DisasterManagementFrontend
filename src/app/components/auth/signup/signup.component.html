@@ -25,7 +25,7 @@
 
                 <div class="input-group">
                     <label>Date of Birth</label>
-                    <input type="date" name="dob" [(ngModel)]="userData.dob" class="field" required>
+                    <input type="date" name="dob" [(ngModel)]="userData.dob" class="field" required [max]="maxDate" [min]="minDate">
                 </div>
 
                 <div class="input-group">
