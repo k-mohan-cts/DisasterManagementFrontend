@@ -96,7 +96,7 @@ export class DisasterService {
   }
 
   createIncident(incident: any): Observable<any> {
-    return this.http.post(`${this.gatewayUrl}/incidents/createincident`, this.getRequestOptions());
+    return this.http.post(`${this.gatewayUrl}/incidents/createincident`, incident, this.getRequestOptions(incident));
   }
 
   updateIncidentStatus(id: number, status: string): Observable<any> {

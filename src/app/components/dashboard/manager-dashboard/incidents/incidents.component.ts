@@ -200,7 +200,16 @@ export class IncidentsComponent implements OnInit {
         this.loadIncidents();
       },
       error: (err) => {
-        alert(err.error?.message || 'Server error: Ensure report is VALIDATED.');
+        const apiError = err?.error;
+        const validation = apiError?.message;
+
+        if (validation && typeof validation === 'object') {
+          const lines = Object.entries(validation).map(([key, value]) => `${key}: ${value}`);
+          alert(lines.join('\n'));
+          return;
+        }
+
+        alert(validation || apiError?.error || apiError?.message || 'Server error: Ensure report is VALIDATED.');
       }
     });
   }
